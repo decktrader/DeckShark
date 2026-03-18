@@ -1,0 +1,211 @@
+Business Plan
+MTG Deck Exchange – A Marketplace for Trading Magic: The Gathering Decks
+
+1. Executive Summary
+MTG Deck Exchange is an online marketplace that enables Magic: The Gathering players to trade entire decks with other players worldwide. Instead of selling cards individually or letting unused decks sit idle, players can exchange complete decks that match their interests.
+
+The platform solves a common problem in the MTG community: players frequently build new decks while older decks remain unused, representing unrealized value.
+
+By providing a secure marketplace with trade matching, reputation systems, and shipping verification, MTG Deck Exchange allows players to:
+- Trade full decks easily
+- Discover new decks and archetypes
+- Refresh their play experience without purchasing new cards
+
+The platform generates revenue through small transaction fees and optional premium features.
+
+Initial focus will be on the Commander (EDH) format, which has the largest casual player base and the highest deck churn.
+
+2. Problem Statement
+Magic: The Gathering players frequently accumulate multiple decks over time. Many of these decks eventually become unused as players move on to new commanders, archetypes, or formats.
+
+Current options for players with unused decks are inefficient:
+
+Selling Cards Individually
+- Time-consuming
+- Requires multiple transactions
+- Shipping complexity
+- Often results in partial sales
+
+Selling to Stores (Buylist)
+- Typically receives 50–60% of card value
+- Players lose significant value
+
+Trading Locally
+- Limited to local community
+- Difficult to find fair trades
+
+Breaking Decks Apart
+- Destroys curated builds
+- Removes the thematic and gameplay identity of the deck
+
+As a result, thousands of MTG decks sit unused while players simultaneously want to try new decks.
+
+3. Solution
+MTG Deck Exchange provides a dedicated platform for trading complete decks.
+
+Players can:
+1. List a deck for trade
+2. Browse available decks
+3. Propose deck-for-deck trades
+4. Agree to exchanges
+5. Ship decks directly to each other
+
+The platform manages trade matching, value estimation, reputation tracking, shipping confirmation, and dispute management.
+
+4. Product Overview
+
+User Profiles
+Each user has a trading profile with:
+- Username
+- Trade rating
+- Completed trades
+- Reputation score
+- Account age
+
+Deck Listings
+Users can list decks with:
+- Deck name
+- Commander
+- Format
+- Decklist via import from deck-building sites
+- Estimated value
+- Photos of the deck
+- Condition notes
+
+Trade Proposals
+Users can propose trades such as:
+- Deck for deck
+- Deck for multiple decks
+- Deck plus cash difference
+
+Trade Agreement System
+Once a trade is agreed upon:
+1. Both users confirm the trade
+2. Shipping tracking numbers are entered
+3. Delivery confirmation completes the trade
+4. Reputation scores update
+
+5. Trust and Safety System
+
+Reputation System
+Each user has a trust score based on:
+- Completed trades
+- Successful deliveries
+- Account age
+- Disputes
+
+Shipping Verification
+Trades require tracking numbers and delivery confirmation.
+
+Trade Limits for New Users
+New users have lower trade value limits and may be required to ship first.
+
+Deck Verification
+Deck listings require photos of the full deck and photos of high-value cards.
+
+6. Target Market
+The initial target market is Commander (EDH) players.
+
+Commander is the most popular casual format in Magic and is ideal for this platform. Many Commander players have 5–15 decks but only actively play a few, creating a large pool of unused decks suitable for trading.
+
+7. Market Size
+Magic: The Gathering has over 40 million players worldwide and a secondary card market worth billions annually. Deck values typically range from $100 to $1500+. Even a small share of this market represents significant opportunity.
+
+8. Competitive Landscape
+Existing platforms include:
+- TCGPlayer
+- Card Kingdom
+- Facebook/Discord trading groups
+- Deckbox
+
+None specialize in whole-deck exchanges.
+
+9. Revenue Model
+
+Transaction Fees
+Example: $5 per trade or ~5% of deck value.
+
+Premium Listings
+Users can promote their deck listings.
+
+Optional Insurance
+Users may purchase insurance for high-value shipments.
+
+Future Opportunities
+- Deck sales marketplace
+- Deck rentals
+- Subscription features
+- Premium analytics tools
+
+10. Technology Stack
+
+Frontend
+- Next.js
+- Tailwind CSS
+
+Backend
+- Supabase or Firebase
+
+Payments
+- Stripe
+
+Hosting
+- Vercel
+
+Card Data
+- Scryfall API
+- TCGPlayer pricing data
+
+11. Product Development Roadmap
+
+Phase 1 – MVP
+- User accounts
+- Deck listings
+- Trade proposals
+- Basic reputation system
+- Shipping tracking entry
+
+Phase 2 – Marketplace Expansion
+- Deck value estimation
+- Trade suggestion engine
+- Advanced reputation system
+- Local trade matching
+
+Phase 3 – Platform Growth
+- Buying and selling decks
+- Deck discovery feed
+- Deck analytics
+- Mobile app
+
+12. Go-To-Market Strategy
+Launch will target the Magic community through:
+- Reddit (r/EDH, r/magicTCG)
+- Commander Discord servers
+- Facebook MTG groups
+- Local game store communities
+
+Early users may receive:
+- Zero trading fees
+- Founding trader badges
+- Early access features
+
+13. Key Metrics
+- Number of decks listed
+- Number of completed trades
+- Active users
+- Trade success rate
+- Marketplace liquidity
+
+First milestone: 100 successful trades between strangers.
+
+14. Risks
+Trust and Fraud – mitigated through reputation and verification systems.
+Marketplace Liquidity – addressed through deck imports and early user incentives.
+Shipping Friction – local trade options may reduce reliance on shipping.
+
+15. Long-Term Vision
+The long-term vision is a global marketplace where players can trade, buy, sell, and discover Magic decks easily. Instead of decks sitting unused, they circulate between players.
+
+16. Conclusion
+MTG Deck Exchange unlocks value trapped in unused decks by allowing players to trade them easily and safely. With strong trust systems and community engagement, it has the potential to become the leading platform for deck trading.
+
