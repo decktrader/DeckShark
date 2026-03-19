@@ -53,10 +53,36 @@ Service functions return `{ data, error }` pattern.
 - NEVER include "Co-Authored-By" lines in commits
 - Commit messages: concise, explain WHY and WHAT changed
 - Keep commits minimal — do not batch unrelated changes
-- Always use git worktrees when working on changes
 - Feature branches off `main`, PR to merge
 - One migration owner at a time — announce before writing migrations
 - CI runs lint + type-check + format check on every PR
+
+### Worktree Management (Claude handles this — users should not need to run git commands)
+
+Claude manages all git operations: branching, committing, pushing, PRs, and worktrees.
+Users just describe what they want done.
+
+**Worktree location:** `../decktrader-worktrees/<branch-name>/`
+(Sibling to the main repo directory)
+
+**Workflow for any code change:**
+1. Create a feature branch and worktree:
+   ```
+   git worktree add ../decktrader-worktrees/<branch-name> -b <branch-name>
+   ```
+2. Do all work inside the worktree directory
+3. Commit, push, and create PR from the worktree
+4. After PR is merged, clean up:
+   ```
+   git worktree remove ../decktrader-worktrees/<branch-name>
+   ```
+
+**Rules:**
+- NEVER commit directly to `main` — always use a feature branch + worktree
+- Branch names: kebab-case, descriptive (e.g., `add-deck-list-page`, `fix-auth-redirect`)
+- One worktree per feature branch
+- Clean up worktrees after the PR is merged or abandoned
+- If a worktree already exists for a branch, reuse it — don't recreate
 
 ## Formatting & Linting
 - Prettier for all formatting (TypeScript, JSX, CSS, JSON, markdown)
