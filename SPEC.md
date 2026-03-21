@@ -11,12 +11,14 @@ A web marketplace where Magic: The Gathering players trade complete decks. Initi
 The marketplace faces a classic cold-start problem: trading requires critical mass on both sides. To solve this, the platform launches as a **useful deck management tool first**, with trading layered on top.
 
 **Phase A — Deck Manager (standalone value, no network needed)**:
+
 - Import decks from Moxfield/Archidekt/text
 - Track your collection of decks with card prices from Scryfall
 - See total deck value, price changes over time
 - Mark decks as "available for trade" when ready
 
 **Phase B — Local Trading Marketplace (network effects kick in)**:
+
 - Browse decks marked for trade near you
 - Propose and negotiate trades
 - Meet in person at a local game store (LGS) to exchange
@@ -25,13 +27,15 @@ The marketplace faces a classic cold-start problem: trading requires critical ma
 This means a user gets value from the app on day 1 even if they're the only user. Trading becomes a natural extension once enough decks are listed.
 
 ### Launch Strategy
+
 - **Canada first** — launch in Canada (single currency CAD, one regulatory environment, tight-knit Commander communities). Expand to USA in Phase 2.
 - **City-by-city rollout** — saturate one Canadian city's Commander scene before expanding to the next. Critical mass in one area > thin spread across many.
 - **In-person trades at LGS** — primary trade method is meeting at a local game store. Avoids shipping fraud/damage/cost, enables card condition verification on the spot, and builds on existing community hubs (FNM, Commander nights).
 - Launch fee-free — no transaction fees until liquidity is proven
-- Seed with want-lists: users can list decks they *want* (by archetype/commander/colors), not just decks they have — makes thin supply less visible and enables matching
+- Seed with want-lists: users can list decks they _want_ (by archetype/commander/colors), not just decks they have — makes thin supply less visible and enables matching
 
 ### Revenue (deferred)
+
 - Transaction fees only after proving marketplace liquidity
 - Premium listings, analytics, and subscription features in later phases
 - No proprietary currency — all values in **USD** (international standard for MTG card pricing, consistent with Scryfall/TCGPlayer). No currency conversion needed. All price displays include a clear "USD" label so Canadian users are never confused (e.g. "$450 USD", not "$450").
@@ -41,16 +45,16 @@ This means a user gets value from the app on day 1 even if they're the only user
 
 ## Tech Stack
 
-| Layer | Choice | Rationale |
-|-------|--------|-----------|
-| **Framework** | Next.js 14 (App Router) | SSR, API routes, matches blueprint |
-| **Styling** | Tailwind CSS + shadcn/ui | Rapid UI development, consistent design system |
-| **Backend/DB** | Supabase (PostgreSQL + Auth + Storage + Realtime) | Managed Postgres, built-in auth, file storage for deck photos, realtime for trade notifications |
-| **Payments** | Deferred (in-person for MVP) | Cash differences tracked but settled in person. Avoids money transmission and sales tax complexity. Stripe Connect in Phase 2 when shipping trades are added. |
-| **Card Data** | Scryfall API + bulk data | Free, no API key needed, comprehensive card data + images + USD prices. TCGPlayer API is closed to new developers. |
-| **Email** | Resend (via Supabase Edge Functions) | Transactional email notifications for trade events |
-| **Hosting** | Vercel | Native Next.js support, edge functions |
-| **Package Manager** | pnpm | Fast, disk-efficient |
+| Layer               | Choice                                            | Rationale                                                                                                                                                     |
+| ------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Framework**       | Next.js 14 (App Router)                           | SSR, API routes, matches blueprint                                                                                                                            |
+| **Styling**         | Tailwind CSS + shadcn/ui                          | Rapid UI development, consistent design system                                                                                                                |
+| **Backend/DB**      | Supabase (PostgreSQL + Auth + Storage + Realtime) | Managed Postgres, built-in auth, file storage for deck photos, realtime for trade notifications                                                               |
+| **Payments**        | Deferred (in-person for MVP)                      | Cash differences tracked but settled in person. Avoids money transmission and sales tax complexity. Stripe Connect in Phase 2 when shipping trades are added. |
+| **Card Data**       | Scryfall API + bulk data                          | Free, no API key needed, comprehensive card data + images + USD prices. TCGPlayer API is closed to new developers.                                            |
+| **Email**           | Resend (via Supabase Edge Functions)              | Transactional email notifications for trade events                                                                                                            |
+| **Hosting**         | Vercel                                            | Native Next.js support, edge functions                                                                                                                        |
+| **Package Manager** | pnpm                                              | Fast, disk-efficient                                                                                                                                          |
 
 ---
 
@@ -58,22 +62,22 @@ This means a user gets value from the app on day 1 even if they're the only user
 
 Three environments ensure safe rollout of changes:
 
-| Environment | Next.js | Supabase | URL |
-|-------------|---------|----------|-----|
-| **Local Dev** | `next dev` (hot reload) | Supabase CLI (local Postgres, Auth, Storage, Realtime via Docker) | `localhost:3000` |
-| **Staging** | Vercel Preview (auto-deploys per PR) | Separate Supabase project (staging) | Vercel preview URLs / `staging.decktrader.app` |
-| **Production** | Vercel Production (deploys from `main`) | Separate Supabase project (production) | `decktrader.app` |
+| Environment    | Next.js                                 | Supabase                                                          | URL                                            |
+| -------------- | --------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------- |
+| **Local Dev**  | `next dev` (hot reload)                 | Supabase CLI (local Postgres, Auth, Storage, Realtime via Docker) | `localhost:3000`                               |
+| **Staging**    | Vercel Preview (auto-deploys per PR)    | Separate Supabase project (staging)                               | Vercel preview URLs / `staging.decktrader.app` |
+| **Production** | Vercel Production (deploys from `main`) | Separate Supabase project (production)                            | `decktrader.app`                               |
 
 ### Environment Config
 
-| File | Purpose |
-|------|---------|
-| `.env.local` | Local dev secrets (gitignored) |
-| `.env.example` | Template showing all required vars |
-| `supabase/config.toml` | Local Supabase CLI config |
-| `supabase/migrations/` | Versioned SQL migrations |
-| `supabase/seed.sql` | Local dev seed data |
-| `.github/dependabot.yml` | Dependabot config for automated dependency updates |
+| File                     | Purpose                                              |
+| ------------------------ | ---------------------------------------------------- |
+| `.env.local`             | Local dev secrets (gitignored)                       |
+| `.env.example`           | Template showing all required vars                   |
+| `supabase/config.toml`  | Local Supabase CLI config                            |
+| `supabase/migrations/`  | Versioned SQL migrations                             |
+| `supabase/seed.sql`     | Local dev seed data                                  |
+| `.github/dependabot.yml` | Dependabot config for automated dependency updates  |
 
 Vercel environment variables are scoped per environment (Preview vs Production), each pointing to the corresponding Supabase project.
 
@@ -221,6 +225,7 @@ Add these indexes in the migration that creates each table — not as an afterth
 | `want_lists` | `status` | btree | Active want list browse |
 
 ### Row-Level Security (RLS)
+
 - Users can only edit their own profiles and decks
 - Trade proposals visible to both parties only
 - Reviews are publicly readable, writable only by trade participants
@@ -300,11 +305,13 @@ decktrader/
 ## Key Pages & Features (MVP)
 
 ### 1. Landing Page
+
 - Hero section explaining the concept
 - Featured decks carousel
 - CTA to sign up
 
 ### 2. Auth (Supabase Auth)
+
 - **Public browsing** — landing page, browse decks, deck detail, user profiles, and want-lists are all viewable without an account
 - Sign up required only for actions: list a deck, propose a trade, request photos, create a want-list, leave a review
 - Email/password signup & login
@@ -313,12 +320,14 @@ decktrader/
 - Username selection on first login
 
 ### 3. Browse Decks
+
 - Grid of deck cards with commander image (from Scryfall), name, value, condition
 - **Location filter** — browse decks near you (same city, or within a radius)
 - Filters: format, color identity, value range, commander
 - Search by deck name or commander
 
 ### 4. Deck Detail
+
 - Full decklist with card images/prices from Scryfall
 - Deck photos uploaded by owner
 - Estimated total value (sum of card prices)
@@ -326,6 +335,7 @@ decktrader/
 - "Propose Trade" button
 
 ### 5. Create/Edit Deck Listing
+
 - **Import from Moxfield** (most popular deckbuilder — critical for reducing listing friction)
 - Import from Archidekt URL
 - Paste/import decklist (MTGO text format: "1 Card Name")
@@ -334,11 +344,13 @@ decktrader/
 - Auto-price calculation via Scryfall (USD, from card_cache table)
 
 ### 6. Want List
+
 - Create want-list entries describing decks you're looking for (by commander, colors, value range, description)
 - Browse other users' want-lists to find matches for your available decks
 - Get notified when a newly listed deck matches your want-list
 
 ### 7. Trade Proposal Flow (in-person focused)
+
 1. Select which of your decks to offer
 2. Optionally note a cash difference (settled in person)
 3. Send proposal with message
@@ -346,12 +358,13 @@ decktrader/
 5. Receiver accepts/declines/counters
 6. Both confirm → **contact info shared** (email required, phone optional) to coordinate meetup
 7. Meet in person — agree on location offline, inspect cards, exchange decks, settle any cash difference
-9. Both confirm trade complete in the app
-10. Leave reviews
+8. Both confirm trade complete in the app
+9. Leave reviews
 
 No in-app chat for MVP — structured trade messages (propose, counter, request photos, accept/decline) handle negotiation. Meetup coordination happens off-platform after contact info exchange. In-app chat is a Phase 2 candidate.
 
 ### 8. Dashboard / My Collection
+
 - **All my decks** (not just trade-listed — this is the deck management tool)
 - Deck values with price tracking
 - Mark decks as "available for trade" / "unlisted"
@@ -361,18 +374,22 @@ No in-app chat for MVP — structured trade messages (propose, counter, request 
 - Notifications
 
 ### 9. User Profile
+
 - Public profile with username, reputation, trade history
 - Reviews from past trades (star rating + comments)
 
 ### 10. Onboarding
+
 - Username → city/province → "Import your first deck" (Moxfield URL as happy path)
 - Option to skip and browse first
 - Post-import prompt to mark deck as "available for trade"
 
 ### 11. Privacy Policy
+
 - Static page explaining data collection, usage, sharing, and deletion rights (PIPEDA compliance)
 
 ### 12. Settings
+
 - Edit profile (username, bio, city, province)
 - Notification preferences (email opt-in/out per notification type)
 - Privacy: consent management, data export, account deletion
@@ -382,7 +399,9 @@ No in-app chat for MVP — structured trade messages (propose, counter, request 
 ## Key Architectural Decisions
 
 ### Service Abstraction Layer
+
 Components never import Supabase directly. Instead, a thin service layer (`src/lib/services/`) wraps all data access. This adds ~5% more code but enables:
+
 - **K8s migration**: Swap service internals from Supabase SDK → REST/gRPC calls without touching components
 - **Microservices extraction**: Services map to natural domain boundaries (auth, decks, trades, shipments, reviews)
 - **Testability**: Easy to mock services in tests
@@ -401,9 +420,11 @@ src/lib/services/
 RLS still enforces security at the database level. API routes only needed for: Scryfall data caching, external imports (Moxfield/Archidekt), and server-side logic.
 
 ### Card data & pricing (Scryfall)
+
 Scryfall is the only viable option — TCGPlayer's API is closed to new developers. All prices shown in **USD** (the international standard for MTG pricing, sourced from TCGPlayer via Scryfall).
 
 **Caching strategy** (critical — Scryfall is rate-limited to 10 req/sec):
+
 - **`card_cache` table**: Local copy of all card data in Supabase
 - **Daily bulk sync via GitHub Actions**: A scheduled GitHub Actions workflow downloads Scryfall's **Default Cards** bulk data file (~90k cards, one entry per printing with accurate per-printing prices) and upserts into `card_cache`. GitHub Actions free tier provides 2,000 minutes/month; a daily sync takes ~2-3 minutes (~90 min/month). This avoids Vercel's serverless timeout limits (10s on Hobby tier) and keeps the sync off the critical path. Normal page loads never hit Scryfall.
 - **Live API for search**: Card search/autocomplete during deck creation uses Scryfall's `/cards/autocomplete` and `/cards/search` endpoints (fast, lightweight)
@@ -412,13 +433,17 @@ Scryfall is the only viable option — TCGPlayer's API is closed to new develope
 - **Multi-face cards**: Scryfall returns transform/MDFC/split cards with a `card_faces[]` array and no top-level `image_uris`. The bulk sync stores the front face image in `image_uri_normal`/`image_uri_small` and the back face in `image_uri_back_normal`/`image_uri_back_small` (nullable columns). Components that display cards check for back face images and render a flip button when present.
 
 ### Image storage
+
 Deck photos stored in Supabase Storage with public URLs. Commander art fetched from Scryfall's image API.
 
 ### Realtime
+
 Use Supabase Realtime subscriptions for trade notifications (new proposals, status changes). No need for a separate WebSocket setup.
 
 ### In-person trades first, shipping later
+
 MVP focuses on in-person trades at local game stores. This eliminates:
+
 - Shipping fraud/damage/cost
 - Counterfeit risk (inspect cards on the spot)
 - Condition disputes (verify in person)
@@ -427,16 +452,21 @@ MVP focuses on in-person trades at local game stores. This eliminates:
 Shipping support (with tracking numbers, delivery confirmation, etc.) will be added in a later phase to enable cross-city and cross-country trades.
 
 ### No payments in MVP
+
 Cash differences are recorded in the trade but settled in person. This avoids money transmission regulations, sales tax collection requirements, and Stripe integration complexity. Stripe Connect will be added in Phase 2 once the marketplace has traction and legal counsel is engaged.
 
 ### Deck photos (encouraged, not required for MVP)
+
 Since trades happen in person (cards inspected on the spot), photos are encouraged but not mandatory:
+
 - Upload photos to make listings more attractive
 - Request photos of specific cards during trade negotiation (before agreeing to meet)
 - Mandatory photo requirements will be added when shipping trades are introduced
 
 ### Email notifications (Resend)
+
 Email is essential — users won't check the site constantly. Transactional emails sent via Resend (triggered by Supabase Edge Functions or database webhooks):
+
 - "Someone proposed a trade for your deck"
 - "Your trade proposal was accepted/declined/countered"
 - "Photo request: [user] wants to see [card name]"
@@ -448,14 +478,18 @@ Email is essential — users won't check the site constantly. Transactional emai
 Users can manage notification preferences in settings.
 
 ### Mobile-first responsive design
+
 Many MTG players browse on phones, especially at LGS events. Mobile is a **design priority**, not an afterthought:
+
 - All pages must be fully functional on mobile
 - Tailwind + shadcn/ui support responsive design natively
 - Card grid layouts collapse to single-column on mobile
 - Deck import and photo upload flows must work well on mobile (camera access for photos)
 
 ### Dispute resolution
+
 Even with in-person trades, disputes can occur (one party confirms but the other doesn't, no-shows, misrepresentation). MVP approach:
+
 - Either party can **cancel** a trade at any stage before both confirm completion
 - Either party can **report a problem** after a trade (opens a dispute)
 - **Flag a user** for suspicious behavior
@@ -464,7 +498,9 @@ Even with in-person trades, disputes can occur (one party confirms but the other
 - Repeated disputes or flags can result in account suspension
 
 ### User reviews
+
 After both parties confirm a trade is complete:
+
 - Both users are prompted to leave a review (1-5 stars + optional comment)
 - Reviews are public on the user's profile
 - Average rating and total completed trades form the reputation score
@@ -473,6 +509,7 @@ After both parties confirm a trade is complete:
 ### Privacy & Legal
 
 **PIPEDA compliance** — Canada's privacy law requires:
+
 - **Privacy policy page** — what data we collect, how it's used, who it's shared with
 - **Explicit consent** before sharing contact info with trade partners (consent checkbox in trade acceptance flow)
 - **Data deletion** — users can request account and data deletion via settings
@@ -487,7 +524,9 @@ After both parties confirm a trade is complete:
 - A simple ToS page at `/(public)/terms/` alongside the privacy policy
 
 ### Onboarding flow
+
 Getting users to list their first deck is the most important conversion:
+
 1. Sign up (email or Google)
 2. Choose username
 3. Set city + province
@@ -707,6 +746,7 @@ The architecture is designed for a smooth migration path:
 **Next.js → K8s**: Use `output: 'standalone'` in next.config.js → Dockerfile → K8s deployment. Trivial.
 
 **Supabase → K8s**: Two options:
+
 1. Self-host Supabase on K8s via official Helm charts (Postgres, GoTrue auth, Storage API, Realtime as K8s services)
 2. Replace with individual services (self-managed Postgres + custom auth + S3 storage)
 
@@ -727,6 +767,7 @@ To extract a microservice: take the corresponding `src/lib/services/*.ts` file, 
 ---
 
 ## What's NOT in MVP
+
 - **Shipping trades** (MVP is in-person only; shipping added later for cross-city/cross-country)
 - **USA expansion** (Canada first; USA in Phase 2)
 - Payment processing (Stripe Connect deferred to Phase 2)
@@ -740,4 +781,3 @@ To extract a microservice: take the corresponding `src/lib/services/*.ts` file, 
 - Advanced deck analytics (price history over time, meta analysis)
 - Partial-deck trades / cherry-picked singles within a deck trade (Phase 2 — helps solve "I don't want all your cards" problem)
 - Discord OAuth (Google + email for MVP)
-
