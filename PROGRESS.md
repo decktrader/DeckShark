@@ -28,6 +28,11 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
+### 2026-03-21 — Unit tests + CI
+
+**Done:** Vitest setup, 28 unit tests (text importer, Scryfall helpers, onboarding logic), CI updated with test step. Push blocked by GitHub token missing `workflow` scope — run `gh auth refresh -h github.com -s workflow` then `git push origin main`.
+**Next:** Push pending commits. Begin M4 (Public Browsing).
+
 ### 2026-03-21 — M3 Deck Management (Phase A core)
 
 **Done:** 003_decks.sql migration (decks, deck_cards, deck_photos with RLS, storage bucket). Deck service (full CRUD, cards, photos, value calculation). Text decklist importer. Storage service. Dashboard with deck grid. Create deck page with text import. Edit deck page (details, add/remove cards, re-import, photo upload, delete). Deck display components (grid, card list, stats, header). Format constants.
