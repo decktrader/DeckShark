@@ -90,8 +90,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 - Create deck (`/(protected)/decks/new/`) — form + import tabs
 - Edit deck (`/(protected)/decks/[id]/edit/`)
 - `src/lib/services/decks.ts` — full CRUD + `calculateDeckValue()`
-- Importers: `src/lib/importers/text.ts`, `moxfield.ts`, `archidekt.ts`
-- Import UI: tabs for Moxfield URL / Archidekt URL / paste text
+- Importer: `src/lib/importers/text.ts` (paste text — Moxfield/Archidekt URL importers deferred to M4)
 - Deck display components: `deck-card-grid.tsx`, `deck-card-list.tsx`, `deck-stats.tsx`, `deck-header.tsx`
 - Photo upload via Supabase Storage (`deck-photos` bucket)
 - `src/lib/services/storage.ts`
@@ -114,6 +113,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 - Filters: color identity, value range, city/province, format, commander search
 - "Mark as available for trade" toggle on dashboard
 - Enhanced public profile with trade-available decks
+- URL importers: `src/lib/importers/moxfield.ts`, `archidekt.ts` (deferred from M3)
 
 **Dev split:** Dev A → browse page with filters, deck grid. Dev B → deck detail page, owner profile snippet.
 
