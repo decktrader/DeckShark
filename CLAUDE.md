@@ -69,6 +69,8 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 - `pnpm lint` — ESLint
 - `pnpm format` — Prettier
 - `pnpm format:check` — Prettier check (CI)
+- `pnpm test` — run unit tests (Vitest)
+- `pnpm test:watch` — run tests in watch mode
 - `pnpm type-check` — TypeScript compiler check
 
 ## Team Workflow
@@ -87,7 +89,7 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 - Direct commits to `main` are fine for straightforward changes
 - Feature branches + PRs for larger or riskier changes
 - One migration owner at a time — announce before writing migrations
-- CI runs lint + type-check + format check on every PR
+- CI runs lint + type-check + format check + tests on every PR
 
 ### Branching
 
