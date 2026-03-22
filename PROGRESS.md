@@ -3,8 +3,8 @@
 ## Current Focus
 
 **Milestone:** M1 — Auth & User Profiles
-**Status:** Not started
-**Next step:** Write `001_users.sql` migration (users table, RLS, auto-create trigger)
+**Status:** In progress (core auth working, Google OAuth deferred)
+**Next step:** Add Google OAuth, then move to M2 (Card Data Infrastructure)
 
 ---
 
@@ -13,7 +13,7 @@
 | Milestone                     | Status           | Notes                       |
 | ----------------------------- | ---------------- | --------------------------- |
 | M0: Project Scaffolding       | Complete         |                             |
-| M1: Auth & User Profiles      | Not started      |                             |
+| M1: Auth & User Profiles      | In progress      | Email auth done, OAuth next |
 | M2: Card Data Infrastructure  | Not started      | Can run parallel with M1    |
 | M3: Deck Management (Phase A) | Blocked by M1+M2 | Phase A ships after this    |
 | M4: Public Browsing           | Blocked by M3    |                             |
@@ -27,6 +27,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-21 — M1 Auth & User Profiles (core)
+
+**Done:** 001_users.sql migration, auth services (email/password), login/register pages, onboarding flow (username, city, province), settings page, public profile page, privacy policy, header with auth-aware nav, middleware route protection fix, local dev environment (.env.development), shadcn/ui components. Separate server/client user services to work with Next.js App Router.
+**Next:** Add Google OAuth support, then begin M2 (Card Data Infrastructure).
 
 ### 2026-03-21 — M0 Complete: Infra setup
 
