@@ -70,14 +70,14 @@ Three environments ensure safe rollout of changes:
 
 ### Environment Config
 
-| File                     | Purpose                                              |
-| ------------------------ | ---------------------------------------------------- |
-| `.env.local`             | Local dev secrets (gitignored)                       |
-| `.env.example`           | Template showing all required vars                   |
-| `supabase/config.toml`  | Local Supabase CLI config                            |
-| `supabase/migrations/`  | Versioned SQL migrations                             |
-| `supabase/seed.sql`     | Local dev seed data                                  |
-| `.github/dependabot.yml` | Dependabot config for automated dependency updates  |
+| File                     | Purpose                                            |
+| ------------------------ | -------------------------------------------------- |
+| `.env.local`             | Local dev secrets (gitignored)                     |
+| `.env.example`           | Template showing all required vars                 |
+| `supabase/config.toml`   | Local Supabase CLI config                          |
+| `supabase/migrations/`   | Versioned SQL migrations                           |
+| `supabase/seed.sql`      | Local dev seed data                                |
+| `.github/dependabot.yml` | Dependabot config for automated dependency updates |
 
 Vercel environment variables are scoped per environment (Preview vs Production), each pointing to the corresponding Supabase project.
 
@@ -205,24 +205,24 @@ want_lists
 
 Add these indexes in the migration that creates each table — not as an afterthought:
 
-| Table | Column(s) | Type | Rationale |
-|-------|-----------|------|-----------|
-| `card_cache` | `name` | GIN trigram (`pg_trgm`) | Card search/autocomplete |
-| `card_cache` | `oracle_id` | btree | Grouping printings of the same card |
-| `decks` | `user_id` | btree | Dashboard queries (my decks) |
-| `decks` | `status` | btree | Public browse (filter by 'active') |
-| `decks` | `format, status` | composite btree | Browse with format filter |
-| `deck_cards` | `deck_id` | btree | Loading a deck's card list |
-| `deck_cards` | `scryfall_id` | btree | Price update joins |
-| `deck_photos` | `deck_id` | btree | Loading a deck's photos |
-| `trades` | `proposer_id` | btree | My trades (as proposer) |
-| `trades` | `receiver_id` | btree | My trades (as receiver) |
-| `trades` | `status` | btree | Active trade queries |
-| `trade_decks` | `trade_id` | btree | Loading trade details |
-| `reviews` | `reviewee_id` | btree | Profile reputation display |
-| `reviews` | `trade_id` | btree | Checking if trade has reviews |
-| `want_lists` | `user_id` | btree | Dashboard queries |
-| `want_lists` | `status` | btree | Active want list browse |
+| Table         | Column(s)        | Type                    | Rationale                           |
+| ------------- | ---------------- | ----------------------- | ----------------------------------- |
+| `card_cache`  | `name`           | GIN trigram (`pg_trgm`) | Card search/autocomplete            |
+| `card_cache`  | `oracle_id`      | btree                   | Grouping printings of the same card |
+| `decks`       | `user_id`        | btree                   | Dashboard queries (my decks)        |
+| `decks`       | `status`         | btree                   | Public browse (filter by 'active')  |
+| `decks`       | `format, status` | composite btree         | Browse with format filter           |
+| `deck_cards`  | `deck_id`        | btree                   | Loading a deck's card list          |
+| `deck_cards`  | `scryfall_id`    | btree                   | Price update joins                  |
+| `deck_photos` | `deck_id`        | btree                   | Loading a deck's photos             |
+| `trades`      | `proposer_id`    | btree                   | My trades (as proposer)             |
+| `trades`      | `receiver_id`    | btree                   | My trades (as receiver)             |
+| `trades`      | `status`         | btree                   | Active trade queries                |
+| `trade_decks` | `trade_id`       | btree                   | Loading trade details               |
+| `reviews`     | `reviewee_id`    | btree                   | Profile reputation display          |
+| `reviews`     | `trade_id`       | btree                   | Checking if trade has reviews       |
+| `want_lists`  | `user_id`        | btree                   | Dashboard queries                   |
+| `want_lists`  | `status`         | btree                   | Active want list browse             |
 
 ### Row-Level Security (RLS)
 
@@ -517,6 +517,7 @@ After both parties confirm a trade is complete:
 - **Breach notification** — PIPEDA requires notification to the Privacy Commissioner and affected users within 72 hours of a data breach. Maintain a simple incident response checklist (even a markdown file) so this isn't improvised under pressure.
 
 **Terms of Service** — required before launch. Must cover:
+
 - Liability limitations for bad trades (platform facilitates, does not guarantee)
 - Account suspension rights for abuse/fraud
 - User content ownership (decks, photos, reviews)
@@ -544,11 +545,19 @@ All service functions return `{ data, error }`. The error type is consistent acr
 
 ```typescript
 type ServiceError = {
-  code: 'NOT_FOUND' | 'UNAUTHORIZED' | 'VALIDATION' | 'CONFLICT' | 'RATE_LIMITED' | 'INTERNAL';
-  message: string; // Human-readable, safe to display in UI
-};
+  code:
+    | 'NOT_FOUND'
+    | 'UNAUTHORIZED'
+    | 'VALIDATION'
+    | 'CONFLICT'
+    | 'RATE_LIMITED'
+    | 'INTERNAL'
+  message: string // Human-readable, safe to display in UI
+}
 
-type ServiceResult<T> = { data: T; error: null } | { data: null; error: ServiceError };
+type ServiceResult<T> =
+  | { data: T; error: null }
+  | { data: null; error: ServiceError }
 ```
 
 Define this in `src/types/service.ts`. Every service function returns `Promise<ServiceResult<T>>`. Components handle errors by checking `error.code` — never by parsing error message strings.
@@ -557,20 +566,21 @@ Define this in `src/types/service.ts`. Every service function returns `Promise<S
 
 Default to **Server Components** (RSC) unless interactivity is required. Guidelines:
 
-| Use RSC (default) | Use Client Component (`'use client'`) |
-|--------------------|----------------------------------------|
-| Pages that fetch and display data | Forms with client-side validation |
-| Static layouts, headers, footers | Components with `useState`/`useEffect` |
-| Deck detail, profile, browse pages | Card autocomplete (search-as-you-type) |
-| Server-side data fetching via services | Realtime subscriptions (trade status) |
-| | Photo upload with preview |
-| | Interactive filters (browse page) |
+| Use RSC (default)                      | Use Client Component (`'use client'`)  |
+| -------------------------------------- | -------------------------------------- |
+| Pages that fetch and display data      | Forms with client-side validation      |
+| Static layouts, headers, footers       | Components with `useState`/`useEffect` |
+| Deck detail, profile, browse pages     | Card autocomplete (search-as-you-type) |
+| Server-side data fetching via services | Realtime subscriptions (trade status)  |
+|                                        | Photo upload with preview              |
+|                                        | Interactive filters (browse page)      |
 
 Pattern: RSC pages fetch data via services and pass it as props to client components that need interactivity. This keeps the data-fetching boundary clean.
 
 ### Input Sanitization
 
 All user-generated text (deck names, bios, trade messages, review comments) is plain text — no HTML allowed. Next.js JSX escapes by default, which handles the display side. On the write side:
+
 - Trim whitespace
 - Enforce max lengths at the service layer (not just the form)
 - Strip any HTML tags before storing (use a simple regex strip, not a sanitizer library — we don't want HTML at all)
@@ -587,6 +597,7 @@ All user-generated text (deck names, bios, trade messages, review comments) is p
 ### Image Upload Validation
 
 Enforce at the service layer before writing to Supabase Storage:
+
 - **Allowed types**: JPEG, PNG, WebP only (check MIME type and magic bytes, not just file extension)
 - **Max file size**: 5 MB per photo
 - **Max photos per deck**: 10
@@ -601,19 +612,20 @@ Enforce at the service layer before writing to Supabase Storage:
 
 Apply rate limiting from M0 to protect public-facing endpoints:
 
-| Endpoint | Limit | Method |
-|----------|-------|--------|
-| Auth (login/register) | 5 req/min per IP | Supabase Auth built-in |
-| Trade proposals | 10 req/min per user | Service layer check |
-| Deck creation | 20 req/min per user | Service layer check |
-| Card search API | 30 req/min per IP | Service layer check |
-| Public browse pages | No limit (cached) | — |
+| Endpoint              | Limit               | Method                 |
+| --------------------- | ------------------- | ---------------------- |
+| Auth (login/register) | 5 req/min per IP    | Supabase Auth built-in |
+| Trade proposals       | 10 req/min per user | Service layer check    |
+| Deck creation         | 20 req/min per user | Service layer check    |
+| Card search API       | 30 req/min per IP   | Service layer check    |
+| Public browse pages   | No limit (cached)   | —                      |
 
 MVP approach: simple in-memory rate limiting via a lightweight middleware or service-layer check using Supabase (store timestamps in a `rate_limits` table or use pg advisory locks). No need for Redis at this scale. Upgrade to Vercel's edge rate limiting or Upstash Redis if abuse occurs.
 
 ### CSRF Protection
 
 Supabase Auth uses cookies for session management. CSRF mitigation:
+
 - Next.js Server Actions include CSRF tokens automatically
 - API routes that perform mutations must validate the `Origin` header matches the app domain
 - Supabase's `@supabase/ssr` package handles cookie-based auth with built-in CSRF protection when used correctly via `createServerClient`
@@ -621,6 +633,7 @@ Supabase Auth uses cookies for session management. CSRF mitigation:
 ### Deck Lifecycle & Soft Deletes
 
 Decks are never hard-deleted. The `status` enum handles lifecycle:
+
 - `active` — visible on dashboard, can be marked for trade
 - `in_trade` — locked into an active trade proposal
 - `traded` — trade completed, kept for history
@@ -666,6 +679,7 @@ Implement as a `VALID_TRANSITIONS` map in `src/lib/services/trades.ts`. The serv
 ### Degraded Experience
 
 When external services are unavailable:
+
 - **Scryfall API down**: Card autocomplete and live search fail. Show a clear error message ("Card search temporarily unavailable — try again in a few minutes"). Deck browsing, detail pages, and dashboard still work because they read from `card_cache`. Deck import (which hits Scryfall `/cards/collection`) shows a retry prompt.
 - **Scryfall bulk sync fails**: `card_cache` retains last successful sync. Prices may be stale but the app functions normally. The GitHub Actions workflow should alert on failure (GitHub sends email on workflow failure by default).
 - **Supabase down**: App is fully unavailable. No mitigation at MVP scale — Supabase's uptime SLA is sufficient.
@@ -681,6 +695,7 @@ When external services are unavailable:
 **Post-MVP**: Migrate to Grafana Cloud for centralized logging, dashboards, and alerting. Instrument with OpenTelemetry when the migration happens.
 
 Key things to monitor from day one (via Vercel dashboard):
+
 - Serverless function error rates and durations
 - Build failures
 - Edge middleware latency
@@ -688,6 +703,7 @@ Key things to monitor from day one (via Vercel dashboard):
 ### Backups
 
 Supabase Free tier does not include automated backups. Until upgrading to Pro:
+
 - Run `pg_dump` manually before and after migrations (via Supabase CLI: `supabase db dump`)
 - The GitHub Actions bulk sync workflow should not delete data — only upsert
 - User data is the priority; `card_cache` is fully rebuildable from Scryfall
@@ -719,21 +735,21 @@ Dependabot keeps dependencies current and patches security vulnerabilities autom
 # .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       minor-and-patch:
-        update-types: ["minor", "patch"]
+        update-types: ['minor', 'patch']
     open-pull-requests-limit: 5
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     open-pull-requests-limit: 3
 ```
 

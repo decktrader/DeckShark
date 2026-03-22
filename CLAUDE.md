@@ -57,6 +57,7 @@ Service functions return `{ data, error }` pattern.
 - `pnpm type-check` — TypeScript compiler check
 
 ## Team Workflow
+
 - Two developers, both using Claude Code, sometimes async, sometimes sync
 - Divide work by domain/feature (full-stack slices), not by layer (frontend/backend)
 - Define DB schema and service layer interfaces early (shared contracts)
@@ -82,6 +83,7 @@ Users just describe what they want done.
 (Sibling to the main repo directory)
 
 **Workflow for any code change:**
+
 1. Create a feature branch and worktree:
    ```
    git worktree add ../decktrader-worktrees/<branch-name> -b <branch-name>
@@ -94,6 +96,7 @@ Users just describe what they want done.
    ```
 
 **Rules:**
+
 - Branch names: kebab-case, descriptive (e.g., `add-deck-list-page`, `fix-auth-redirect`)
 - One worktree per feature branch
 - Clean up worktrees after the PR is merged or abandoned
