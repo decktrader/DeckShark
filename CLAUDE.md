@@ -49,11 +49,19 @@ Service functions return `{ data, error }` pattern.
 - `pnpm format:check` — Prettier check (CI)
 - `pnpm type-check` — TypeScript compiler check
 
+## Team Workflow
+- Two developers, both using Claude Code, sometimes async, sometimes sync
+- Divide work by domain/feature (full-stack slices), not by layer (frontend/backend)
+- Define DB schema and service layer interfaces early (shared contracts)
+- Vercel preview deploys per PR for visibility
+
 ## Git & Commit Conventions
 - NEVER include "Co-Authored-By" lines in commits
+- NEVER add "Generated with Claude Code" or similar attribution to PR descriptions
 - Commit messages: concise, explain WHY and WHAT changed
 - Keep commits minimal — do not batch unrelated changes
-- Feature branches off `main`, PR to merge
+- Direct commits to `main` are fine for straightforward changes
+- Feature branches + PRs for larger or riskier changes
 - One migration owner at a time — announce before writing migrations
 - CI runs lint + type-check + format check on every PR
 
@@ -78,7 +86,6 @@ Users just describe what they want done.
    ```
 
 **Rules:**
-- NEVER commit directly to `main` — always use a feature branch + worktree
 - Branch names: kebab-case, descriptive (e.g., `add-deck-list-page`, `fix-auth-redirect`)
 - One worktree per feature branch
 - Clean up worktrees after the PR is merged or abandoned
