@@ -61,6 +61,15 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 - Vercel env vars handle production deploys — no need to commit real credentials
 - Local Studio: http://127.0.0.1:54323
 - Local Inbucket (email testing): http://127.0.0.1:54324
+- `supabase db reset` wipes all local data — re-sync cards afterward
+
+### New developer setup
+
+1. `pnpm install`
+2. `supabase start` (Docker must be running)
+3. `supabase db reset`
+4. `pnpm dev`
+5. Hit `http://localhost:3000/api/cron/sync-cards` once to populate cards (~2 min)
 
 ## Commands
 
@@ -72,6 +81,12 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 - `pnpm test` — run unit tests (Vitest)
 - `pnpm test:watch` — run tests in watch mode
 - `pnpm type-check` — TypeScript compiler check
+
+## Testing
+
+- Vitest for unit tests, test files in `__tests__/` directories alongside source
+- Test pure functions and helpers (importers, price formatting, onboarding logic)
+- Run `pnpm test` before committing — CI will catch failures
 
 ## Team Workflow
 
