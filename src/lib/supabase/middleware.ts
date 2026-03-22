@@ -29,10 +29,29 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect all (protected) routes
-  if (!user && request.nextUrl.pathname.startsWith('/(protected)')) {
+  const pathname = request.nextUrl.pathname
+
+  // Protected routes — redirect to login if not authenticated
+  const protectedPaths = [
+    '/dashboard',
+    '/settings',
+    '/onboarding',
+    '/decks/new',
+    '/trades',
+  ]
+  const isProtected = protectedPaths.some((path) => pathname.startsWith(path))
+  if (!user && isProtected) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  // Auth pages — redirect to dashboard if already authenticated
+  const authPaths = ['/login', '/register']
+  const isAuthPage = authPaths.some((path) => pathname.startsWith(path))
+  if (user && isAuthPage) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
