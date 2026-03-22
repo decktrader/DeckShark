@@ -35,6 +35,8 @@ Repo: `github.com/decktrader/decktrader`
 Components NEVER import from `@/lib/supabase/*` directly.
 All data access goes through `@/lib/services/*`.
 Service functions return `{ data, error }` pattern.
+Server components use `*.server.ts` service files; client components use the base service files.
+This avoids `next/headers` leaking into client bundles.
 
 ### File & Naming Conventions
 
@@ -47,6 +49,15 @@ Service functions return `{ data, error }` pattern.
 
 - Prices stored as integers (cents), displayed as formatted USD
 - Card data sourced from Scryfall, cached in `card_cache` table
+
+## Local Dev
+
+- `supabase start` — starts local Postgres, Auth, Studio, Inbucket (requires Docker)
+- `supabase db reset` — applies migrations to local DB
+- `.env.development` — local Supabase credentials (committed, shared)
+- `.env.local` — real Supabase credentials (gitignored, personal)
+- Local Studio: http://127.0.0.1:54323
+- Local Inbucket (email testing): http://127.0.0.1:54324
 
 ## Commands
 
@@ -115,5 +126,5 @@ Users just describe what they want done.
 
 - RLS on every table — no exceptions
 - Migrations in `supabase/migrations/`, numbered sequentially
-- Use Supabase Auth (email + Google OAuth)
+- Use Supabase Auth (email for now — Google OAuth deferred to M9)
 - Storage for deck photos (`deck-photos` bucket)
