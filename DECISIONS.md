@@ -10,6 +10,13 @@ Architectural and implementation decisions made during development. Newest first
 **Rationale:** Why this option won
 -->
 
+## 2026-03-21 — Use `.env.production.local` for real Supabase credentials
+
+**Context:** `.env.local` overrides `.env.development`, causing local dev to hit real Supabase instead of local.
+**Decision:** Remove `.env.local`. Use `.env.development` (committed) for local Supabase and `.env.production.local` (gitignored) for real credentials. Vercel env vars handle production deploys.
+**Alternatives considered:** Maintaining both `.env.local` and `.env.development` manually.
+**Rationale:** Eliminates env file conflicts. `pnpm dev` always uses local Supabase with no manual switching.
+
 ## 2026-03-21 — Separate server/client user services
 
 **Context:** `users.ts` imported `@/lib/supabase/server` (which uses `next/headers`), but client components also import from `users.ts`. Next.js Turbopack fails when `next/headers` leaks into client bundles.

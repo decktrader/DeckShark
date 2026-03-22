@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M1 — Auth & User Profiles
-**Status:** In progress (core auth working, Google OAuth deferred)
-**Next step:** Add Google OAuth, then move to M2 (Card Data Infrastructure)
+**Milestone:** M3 — Deck Management
+**Status:** Not started
+**Next step:** Begin M3 — deck CRUD, importers, dashboard
 
 ---
 
@@ -13,9 +13,9 @@
 | Milestone                     | Status           | Notes                       |
 | ----------------------------- | ---------------- | --------------------------- |
 | M0: Project Scaffolding       | Complete         |                             |
-| M1: Auth & User Profiles      | In progress      | Email auth done, OAuth next |
-| M2: Card Data Infrastructure  | Not started      | Can run parallel with M1    |
-| M3: Deck Management (Phase A) | Blocked by M1+M2 | Phase A ships after this    |
+| M1: Auth & User Profiles      | Complete         | Google OAuth deferred to M9 |
+| M2: Card Data Infrastructure  | Complete         |                             |
+| M3: Deck Management (Phase A) | Not started      | Phase A ships after this    |
 | M4: Public Browsing           | Blocked by M3    |                             |
 | M5: Trading (Phase B)         | Blocked by M4    |                             |
 | M6: Reviews & Reputation      | Blocked by M5    |                             |
@@ -27,6 +27,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-21 — M2 Card Data Infrastructure
+
+**Done:** 002_card_cache.sql migration (trigram index, public read RLS). Scryfall API wrapper (autocomplete, search, named, collection, bulk data). Cards service (searchCards, getCardByName, getCardsByIds, getCardPrice). Sync cron route with Vercel cron config (daily 6 AM UTC). Card autocomplete component. Local card cache populated with 109k cards.
+**Next:** Begin M3 — Deck Management (Phase A core).
 
 ### 2026-03-21 — M1 Auth & User Profiles (core)
 
