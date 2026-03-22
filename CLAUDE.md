@@ -4,6 +4,7 @@
 
 MTG deck trading marketplace. Canada-first, in-person trades.
 Stack: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + Supabase + Vercel.
+Repo: `github.com/decktrader/decktrader`
 
 ## Progress Tracking (MANDATORY)
 
