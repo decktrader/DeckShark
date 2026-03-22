@@ -41,6 +41,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 **Migration `001_users.sql`:** `users` table with RLS (public read, own write). Trigger to auto-create user row on auth signup.
 
 **Build:**
+
 - Supabase Auth config (email + Google OAuth)
 - `middleware.ts` protecting `/(protected)/*` routes
 - Login + register pages (`/(auth)/`)
@@ -64,6 +65,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 **Migration `002_card_cache.sql`:** `card_cache` table with trigram index on name, public read RLS.
 
 **Build:**
+
 - Scryfall bulk data sync cron route (`/api/cron/sync-cards/`)
 - Vercel cron config for daily sync
 - `src/lib/scryfall/api.ts` — wrapper for `/cards/autocomplete`, `/cards/search`, `/cards/collection`
@@ -83,6 +85,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 **Migration `003_decks.sql`:** `decks`, `deck_cards`, `deck_photos` tables with RLS.
 
 **Build:**
+
 - Dashboard (`/(protected)/dashboard/`) — grid of user's decks with value totals
 - Create deck (`/(protected)/decks/new/`) — form + import tabs
 - Edit deck (`/(protected)/decks/[id]/edit/`)
@@ -125,6 +128,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 **Migration `004_trades.sql`:** `trades`, `trade_decks` tables with RLS (participants only).
 
 **Build:**
+
 - Trade proposal flow: select deck(s) to offer, cash difference, message
 - Trades list page (`/(protected)/trades/`)
 - Trade detail page (`/(protected)/trades/[id]/`) — status timeline, actions
@@ -265,12 +269,14 @@ Week 5:   M9 (2-3 days) + M10 (3-5 days)
 ## Verification
 
 After each milestone:
+
 1. `pnpm build` succeeds with no type errors
 2. Vercel preview deployment works
 3. Manual QA of the milestone's features on both desktop and mobile
 4. RLS policies verified (test as different users, test unauthenticated)
 
 End-to-end smoke test for full MVP:
+
 1. Sign up → onboarding → import deck from Moxfield → see on dashboard
 2. Mark deck for trade → appears in public browse
 3. Second user proposes trade → first user accepts → contact info shared

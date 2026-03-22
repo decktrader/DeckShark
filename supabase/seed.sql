@@ -1,0 +1,2 @@
+-- Local dev seed data
+-- TODO: add seed data as tables are created in migrations

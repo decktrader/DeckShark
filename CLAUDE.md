@@ -1,6 +1,7 @@
 # DeckTrader — MTG Deck Exchange
 
 ## Project Overview
+
 MTG deck trading marketplace. Canada-first, in-person trades.
 Stack: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + Supabase + Vercel.
 
@@ -9,6 +10,7 @@ Stack: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + Supabase + Ver
 **At the start of every conversation:** Read PROGRESS.md, DECISIONS.md, and PLAN.md.
 
 **Before ending any work session, you MUST:**
+
 1. Update PROGRESS.md:
    - Set "Current Focus" to reflect where things stand now
    - Update the milestone status table if anything changed
@@ -22,26 +24,31 @@ Stack: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + Supabase + Ver
 ## Architecture
 
 ### Route Groups
+
 - `(auth)/` — login, register (unauthenticated only)
 - `(public)/` — browsable without login (decks, profiles, want lists)
 - `(protected)/` — requires auth (dashboard, settings, trades)
 
 ### Service Layer Pattern
+
 Components NEVER import from `@/lib/supabase/*` directly.
 All data access goes through `@/lib/services/*`.
 Service functions return `{ data, error }` pattern.
 
 ### File & Naming Conventions
+
 - Files: kebab-case (`deck-card-grid.tsx`)
 - Components: PascalCase (`DeckCardGrid`)
 - Types: `src/types/`
 - DB-generated types: `src/types/database.ts` (via `supabase gen types typescript`)
 
 ### Data Conventions
+
 - Prices stored as integers (cents), displayed as formatted USD
 - Card data sourced from Scryfall, cached in `card_cache` table
 
 ## Commands
+
 - `pnpm dev` — local dev server
 - `pnpm build` — production build (must pass with zero errors before PR)
 - `pnpm lint` — ESLint
@@ -50,12 +57,14 @@ Service functions return `{ data, error }` pattern.
 - `pnpm type-check` — TypeScript compiler check
 
 ## Team Workflow
+
 - Two developers, both using Claude Code, sometimes async, sometimes sync
 - Divide work by domain/feature (full-stack slices), not by layer (frontend/backend)
 - Define DB schema and service layer interfaces early (shared contracts)
 - Vercel preview deploys per PR for visibility
 
 ## Git & Commit Conventions
+
 - NEVER include "Co-Authored-By" lines in commits
 - NEVER add "Generated with Claude Code" or similar attribution to PR descriptions
 - Commit messages: concise, explain WHY and WHAT changed
@@ -74,6 +83,7 @@ Users just describe what they want done.
 (Sibling to the main repo directory)
 
 **Workflow for any code change:**
+
 1. Create a feature branch and worktree:
    ```
    git worktree add ../decktrader-worktrees/<branch-name> -b <branch-name>
@@ -86,12 +96,14 @@ Users just describe what they want done.
    ```
 
 **Rules:**
+
 - Branch names: kebab-case, descriptive (e.g., `add-deck-list-page`, `fix-auth-redirect`)
 - One worktree per feature branch
 - Clean up worktrees after the PR is merged or abandoned
 - If a worktree already exists for a branch, reuse it — don't recreate
 
 ## Formatting & Linting
+
 - Prettier for all formatting (TypeScript, JSX, CSS, JSON, markdown)
 - prettier-plugin-tailwindcss for consistent Tailwind class ordering
 - ESLint with Next.js config for catching bugs
@@ -99,6 +111,7 @@ Users just describe what they want done.
 - Do not argue about formatting — Prettier decides
 
 ## Supabase
+
 - RLS on every table — no exceptions
 - Migrations in `supabase/migrations/`, numbered sequentially
 - Use Supabase Auth (email + Google OAuth)
