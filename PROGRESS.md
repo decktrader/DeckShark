@@ -4,7 +4,7 @@
 
 **Milestone:** M1 — Auth & User Profiles
 **Status:** Not started
-**Next step:** Create Supabase projects (staging + production), link Vercel, then start M1 migration and auth pages
+**Next step:** Write `001_users.sql` migration (users table, RLS, auto-create trigger)
 
 ---
 
@@ -13,8 +13,8 @@
 | Milestone                     | Status           | Notes                       |
 | ----------------------------- | ---------------- | --------------------------- |
 | M0: Project Scaffolding       | Complete         |                             |
-| M1: Auth & User Profiles      | Blocked by M0    |                             |
-| M2: Card Data Infrastructure  | Blocked by M0    | Can run parallel with M1    |
+| M1: Auth & User Profiles      | Not started      |                             |
+| M2: Card Data Infrastructure  | Not started      | Can run parallel with M1    |
 | M3: Deck Management (Phase A) | Blocked by M1+M2 | Phase A ships after this    |
 | M4: Public Browsing           | Blocked by M3    |                             |
 | M5: Trading (Phase B)         | Blocked by M4    |                             |
@@ -27,6 +27,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-21 — M0 Complete: Infra setup
+
+**Done:** Supabase projects created, Vercel linked, GitHub repo transferred to `decktrader` org.
+**Next:** Begin M1 — write `001_users.sql` migration.
 
 ### 2026-03-20 — M0 Project Scaffolding
 
