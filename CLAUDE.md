@@ -37,6 +37,7 @@ All data access goes through `@/lib/services/*`.
 Service functions return `{ data, error }` pattern.
 Server components use `*.server.ts` service files; client components use the base service files.
 This avoids `next/headers` leaking into client bundles.
+Exception: cron routes and admin operations can import `createClient` from `@supabase/supabase-js` directly with the service role key to bypass RLS.
 
 ### File & Naming Conventions
 
@@ -55,7 +56,9 @@ This avoids `next/headers` leaking into client bundles.
 - `supabase start` — starts local Postgres, Auth, Studio, Inbucket (requires Docker)
 - `supabase db reset` — applies migrations to local DB
 - `.env.development` — local Supabase credentials (committed, shared)
-- `.env.local` — real Supabase credentials (gitignored, personal)
+- `.env.development` includes `SUPABASE_SERVICE_ROLE_KEY` (local demo key) for server-side operations that bypass RLS (e.g., cron sync)
+- `.env.production.local` — real Supabase credentials (gitignored, personal)
+- Vercel env vars handle production deploys — no need to commit real credentials
 - Local Studio: http://127.0.0.1:54323
 - Local Inbucket (email testing): http://127.0.0.1:54324
 
@@ -86,33 +89,14 @@ This avoids `next/headers` leaking into client bundles.
 - One migration owner at a time — announce before writing migrations
 - CI runs lint + type-check + format check on every PR
 
-### Worktree Management (Claude handles this — users should not need to run git commands)
+### Branching
 
-Claude manages all git operations: branching, committing, pushing, PRs, and worktrees.
+Claude manages all git operations: branching, committing, pushing, PRs.
 Users just describe what they want done.
 
-**Worktree location:** `../decktrader-worktrees/<branch-name>/`
-(Sibling to the main repo directory)
-
-**Workflow for any code change:**
-
-1. Create a feature branch and worktree:
-   ```
-   git worktree add ../decktrader-worktrees/<branch-name> -b <branch-name>
-   ```
-2. Do all work inside the worktree directory
-3. Commit, push, and create PR from the worktree
-4. After PR is merged, clean up:
-   ```
-   git worktree remove ../decktrader-worktrees/<branch-name>
-   ```
-
-**Rules:**
-
 - Branch names: kebab-case, descriptive (e.g., `add-deck-list-page`, `fix-auth-redirect`)
-- One worktree per feature branch
-- Clean up worktrees after the PR is merged or abandoned
-- If a worktree already exists for a branch, reuse it — don't recreate
+- Use feature branches for larger or riskier changes
+- Worktrees optional for parallel work across branches (`../decktrader-worktrees/<branch-name>/`)
 
 ## Formatting & Linting
 
