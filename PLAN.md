@@ -42,7 +42,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 
 **Build:**
 
-- Supabase Auth config (email + Google OAuth)
+- Supabase Auth config (email only — Google OAuth moved to M9)
 - `middleware.ts` protecting `/(protected)/*` routes
 - Login + register pages (`/(auth)/`)
 - Onboarding flow (`/(protected)/onboarding/`) — username, city, province
@@ -202,6 +202,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 
 - Landing page: hero, value prop, featured decks, CTA
 - Enhanced onboarding: signup → username → city → import first deck (Moxfield happy path) → mark for trade
+- Google OAuth (deferred from M1 — requires Google Cloud Console + real domain)
 - OG/meta tags for SEO and social sharing
 
 **Dev split:** Dev A → landing page, OG tags. Dev B → onboarding flow, featured decks.
