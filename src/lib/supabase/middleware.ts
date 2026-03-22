@@ -36,7 +36,7 @@ export async function updateSession(request: NextRequest) {
     '/dashboard',
     '/settings',
     '/onboarding',
-    '/decks/new',
+    '/decks',
     '/trades',
   ]
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path))
