@@ -2,31 +2,36 @@
 
 ## Current Focus
 
-**Milestone:** M3 — Deck Management
+**Milestone:** M4 — Public Browsing
 **Status:** Not started
-**Next step:** Begin M3 — deck CRUD, importers, dashboard
+**Next step:** Begin M4 — public deck browsing, filters, URL importers
 
 ---
 
 ## Milestone Status
 
-| Milestone                     | Status           | Notes                       |
-| ----------------------------- | ---------------- | --------------------------- |
-| M0: Project Scaffolding       | Complete         |                             |
-| M1: Auth & User Profiles      | Complete         | Google OAuth deferred to M9 |
-| M2: Card Data Infrastructure  | Complete         |                             |
-| M3: Deck Management (Phase A) | Not started      | Phase A ships after this    |
-| M4: Public Browsing           | Blocked by M3    |                             |
-| M5: Trading (Phase B)         | Blocked by M4    |                             |
-| M6: Reviews & Reputation      | Blocked by M5    |                             |
-| M7: Want Lists                | Blocked by M3    | Can run parallel with M5-M6 |
-| M8: Email Notifications       | Blocked by M5+M7 |                             |
-| M9: Onboarding & Landing Page | Blocked by M3    |                             |
-| M10: Polish & Mobile          | Blocked by all   |                             |
+| Milestone                     | Status           | Notes                                 |
+| ----------------------------- | ---------------- | ------------------------------------- |
+| M0: Project Scaffolding       | Complete         |                                       |
+| M1: Auth & User Profiles      | Complete         | Google OAuth deferred to M9           |
+| M2: Card Data Infrastructure  | Complete         |                                       |
+| M3: Deck Management (Phase A) | Complete         | Text import only, URL importers in M4 |
+| M4: Public Browsing           | Not started      |                                       |
+| M5: Trading (Phase B)         | Blocked by M4    |                                       |
+| M6: Reviews & Reputation      | Blocked by M5    |                                       |
+| M7: Want Lists                | Blocked by M3    | Can run parallel with M5-M6           |
+| M8: Email Notifications       | Blocked by M5+M7 |                                       |
+| M9: Onboarding & Landing Page | Blocked by M3    |                                       |
+| M10: Polish & Mobile          | Blocked by all   |                                       |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-21 — M3 Deck Management (Phase A core)
+
+**Done:** 003_decks.sql migration (decks, deck_cards, deck_photos with RLS, storage bucket). Deck service (full CRUD, cards, photos, value calculation). Text decklist importer. Storage service. Dashboard with deck grid. Create deck page with text import. Edit deck page (details, add/remove cards, re-import, photo upload, delete). Deck display components (grid, card list, stats, header). Format constants.
+**Next:** Begin M4 — Public browsing, filters, URL importers.
 
 ### 2026-03-21 — M2 Card Data Infrastructure
 
