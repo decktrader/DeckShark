@@ -71,6 +71,13 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 4. `pnpm dev`
 5. Hit `http://localhost:3000/api/cron/sync-cards` once to populate cards (~2 min)
 
+### GitHub CLI
+
+- Install: `brew install gh` then `gh auth login`
+- Token must include `workflow` scope to push CI changes
+- If push fails with "refusing to allow a Personal Access Token to create or update workflow":
+  `gh auth refresh -h github.com -s workflow` then `gh auth setup-git`
+
 ## Commands
 
 - `pnpm dev` — local dev server
