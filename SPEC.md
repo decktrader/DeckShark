@@ -47,7 +47,7 @@ This means a user gets value from the app on day 1 even if they're the only user
 
 | Layer               | Choice                                            | Rationale                                                                                                                                                     |
 | ------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Framework**       | Next.js 14 (App Router)                           | SSR, API routes, matches blueprint                                                                                                                            |
+| **Framework**       | Next.js 16 (App Router)                           | SSR, API routes, matches blueprint                                                                                                                            |
 | **Styling**         | Tailwind CSS + shadcn/ui                          | Rapid UI development, consistent design system                                                                                                                |
 | **Backend/DB**      | Supabase (PostgreSQL + Auth + Storage + Realtime) | Managed Postgres, built-in auth, file storage for deck photos, realtime for trade notifications                                                               |
 | **Payments**        | Deferred (in-person for MVP)                      | Cash differences tracked but settled in person. Avoids money transmission and sales tax complexity. Stripe Connect in Phase 2 when shipping trades are added. |
