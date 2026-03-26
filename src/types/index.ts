@@ -44,6 +44,7 @@ export interface Deck {
   estimated_value_cents: number | null
   condition_notes: string | null
   status: DeckStatus
+  available_for_trade: boolean
   created_at: string
   updated_at: string
 }

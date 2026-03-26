@@ -1,13 +1,20 @@
 import Link from 'next/link'
 import type { Deck } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TradeToggle } from '@/components/deck/trade-toggle'
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
   return `$${(cents / 100).toFixed(2)}`
 }
 
-export function DeckGrid({ decks }: { decks: Deck[] }) {
+export function DeckGrid({
+  decks,
+  showTradeToggle = false,
+}: {
+  decks: Deck[]
+  showTradeToggle?: boolean
+}) {
   if (decks.length === 0) {
     return (
       <p className="text-muted-foreground">
@@ -22,7 +29,15 @@ export function DeckGrid({ decks }: { decks: Deck[] }) {
         <Link key={deck.id} href={`/decks/${deck.id}/edit`}>
           <Card className="hover:border-primary/50 transition-colors">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">{deck.name}</CardTitle>
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-lg">{deck.name}</CardTitle>
+                {showTradeToggle && (
+                  <TradeToggle
+                    deckId={deck.id}
+                    initialValue={deck.available_for_trade}
+                  />
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-muted-foreground flex items-center justify-between text-sm">

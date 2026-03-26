@@ -31,7 +31,7 @@ export default async function DashboardPage() {
           <Link href="/decks/new">New deck</Link>
         </Button>
       </div>
-      <DeckGrid decks={decks ?? []} />
+      <DeckGrid decks={decks ?? []} showTradeToggle />
     </main>
   )
 }
