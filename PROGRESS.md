@@ -3,8 +3,8 @@
 ## Current Focus
 
 **Milestone:** M4 — Public Browsing
-**Status:** Not started
-**Next step:** Begin M4 — public deck browsing, filters, URL importers
+**Status:** In progress
+**Next step:** Build URL importers (moxfield.ts, archidekt.ts), then open PR for M4
 
 ---
 
@@ -16,7 +16,7 @@
 | M1: Auth & User Profiles      | Complete         | Google OAuth deferred to M9           |
 | M2: Card Data Infrastructure  | Complete         |                                       |
 | M3: Deck Management (Phase A) | Complete         | Text import only, URL importers in M4 |
-| M4: Public Browsing           | Not started      |                                       |
+| M4: Public Browsing           | In progress      | Core browsing done; URL importers TBD |
 | M5: Trading (Phase B)         | Blocked by M4    |                                       |
 | M6: Reviews & Reputation      | Blocked by M5    |                                       |
 | M7: Want Lists                | Blocked by M3    | Can run parallel with M5-M6           |
@@ -27,6 +27,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-26 — M4 Public Browsing (core)
+
+**Done:** Migration 004 (available_for_trade column + RLS update). Public browse page (/decks) with format/province/city/commander/value filters via URL search params. Public deck detail page (/decks/[id]) with decklist, photo, owner sidebar. Available-for-trade toggle on dashboard (optimistic UI). Enhanced public profile with trade-available decks. Browse link in header nav. next.config.ts image remote patterns for Supabase storage.
+**Next:** URL importers (moxfield.ts, archidekt.ts), then open PR.
 
 ### 2026-03-21 — Unit tests + CI
 
