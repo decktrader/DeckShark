@@ -1,7 +1,7 @@
 import type { ParseResult } from './text'
 
 // Archidekt public deck URL: https://archidekt.com/decks/{deckId}/...
-// API endpoint: https://archidekt.com/api/decks/{deckId}/small/
+// API endpoint: https://archidekt.com/api/decks/{deckId}/
 
 interface ArchidektCard {
   quantity: number
@@ -30,15 +30,12 @@ export async function importFromArchidekt(url: string): Promise<ParseResult> {
 
   let deck: ArchidektDeck
   try {
-    const res = await fetch(
-      `https://archidekt.com/api/decks/${deckId}/small/`,
-      {
-        headers: {
-          'User-Agent': 'DeckTrader/1.0 (decktrader.ca)',
-        },
-        next: { revalidate: 0 },
+    const res = await fetch(`https://archidekt.com/api/decks/${deckId}/`, {
+      headers: {
+        'User-Agent': 'DeckTrader/1.0 (decktrader.ca)',
       },
-    )
+      next: { revalidate: 0 },
+    })
     if (!res.ok) {
       return {
         cards: [],

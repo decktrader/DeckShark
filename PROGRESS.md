@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M5 — Trading (Phase B)
-**Status:** Not started
-**Next step:** Test M4 features (browse, trade toggle, URL importers), then begin M5 — write 004_trades.sql migration, build trade proposal flow
+**Milestone:** M7 — Want Lists
+**Status:** Complete
+**Next step:** M8 Email Notifications (depends on M5+M7, now both done)
 
 ---
 
@@ -17,9 +17,9 @@
 | M2: Card Data Infrastructure  | Complete         |                                       |
 | M3: Deck Management (Phase A) | Complete         | Text import only, URL importers in M4 |
 | M4: Public Browsing           | Complete         |                                       |
-| M5: Trading (Phase B)         | Not started      |                                       |
-| M6: Reviews & Reputation      | Blocked by M5    |                                       |
-| M7: Want Lists                | Blocked by M3    | Can run parallel with M5-M6           |
+| M5: Trading (Phase B)         | Complete         | Realtime updates optional polish      |
+| M6: Reviews & Reputation      | Complete         |                                       |
+| M7: Want Lists                | Complete         |                                       |
 | M8: Email Notifications       | Blocked by M5+M7 |                                       |
 | M9: Onboarding & Landing Page | Blocked by M3    |                                       |
 | M10: Polish & Mobile          | Blocked by all   |                                       |
@@ -27,6 +27,26 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-26 — Archetype field on decks + polish
+
+**Done:** `014_deck_archetype.sql` adds `archetype text` to `decks`. `Deck` type updated. `createDeck`/`updateDeck` services accept `archetype`. Archetype Select added to `deck-form.tsx` and `deck-edit-form.tsx` (Radix sentinel `"none"` pattern for empty option; `max-h-72` on SelectContent to prevent overflow). Archetype displayed on browse card and deck detail sidebar. `getMatchingDecks` now filters by archetype when set on want list.
+**Next:** M8 Email Notifications
+
+### 2026-03-27 — M7 Want Lists complete
+
+**Done:** `012_want_lists.sql` (want_lists table, RLS, updated_at trigger). WantList type updated with format field. Client service (wantlists.ts): createWantList, updateWantList, deleteWantList. Server service (wantlists.server.ts): getUserWantLists, getWantList, getPublicWantLists, getMatchingDecks. WantListForm component (title, format, commander, value range, description). Public browse at /want-lists. Want list detail at /want-lists/[id] with live matching decks. Create/edit pages. Dashboard updated with want lists section. Want Lists nav link in header.
+**Next:** M8 Email Notifications
+
+### 2026-03-26 — M6 Reviews & Reputation complete
+
+**Done:** `011_reviews.sql` (reviews table, RLS, `handle_review_created` trigger updates `trade_rating`; `handle_trade_completed` extended to increment `completed_trades`). `reviews.ts` client service. `reviews.server.ts` with `getReviewsForUser` + `getTradeReview`. `ReviewForm` component (star rating + comment). Review prompt on trade detail page (shows form if not yet reviewed, shows submitted review if already done). Reviews section on public profile with avg rating. Fixed RLS (migration 010) so trade participants can read decks post-transfer. Fixed `trade_decks` insert RLS (migration 006). Ownership transfer on completion (migration 009). Receiver message feature. Notification badge on Trades nav link.
+**Next:** M7 Want Lists
+
+### 2026-03-26 — M5 Trading complete
+
+**Done:** `005_trades.sql` migration (trades + trade_decks tables, RLS, status check constraint). Types updated (TradeStatus, Trade, TradeDeck). Client service (`trades.ts`) with proposeTrade, acceptTrade, declineTrade, cancelTrade, completeTrade, shareContact. Server service (`trades.server.ts`) with full joins. ProposeTradeForm component. TradeActions client component (Accept/Decline/Cancel/Complete + PIPEDA contact sharing). "Propose trade" button on public deck detail page. New trade page (`/trades/new`). Trade detail page (`/trades/[id]`). Trades inbox (`/trades`) with Active/Past split. "Trades" link added to header nav. Type-check passes clean.
+**Next:** Optional: add Supabase Realtime subscription for live trade status in detail page. Otherwise begin M6 Reviews or M7 Want Lists.
 
 ### 2026-03-26 — M4 Complete
 

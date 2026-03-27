@@ -13,7 +13,8 @@ export type DeckStatus = 'active' | 'in_trade' | 'traded' | 'unlisted'
 export type TradeStatus =
   | 'proposed'
   | 'accepted'
-  | 'meetup_scheduled'
+  | 'declined'
+  | 'countered'
   | 'completed'
   | 'cancelled'
   | 'disputed'
@@ -40,6 +41,7 @@ export interface Deck {
   commander_name: string | null
   commander_scryfall_id: string | null
   format: string
+  archetype: string | null
   description: string | null
   estimated_value_cents: number | null
   condition_notes: string | null
@@ -73,9 +75,10 @@ export interface Trade {
   receiver_id: string
   status: TradeStatus
   cash_difference_cents: number
-  cash_payer_id: string | null
-  meetup_date: string | null
   message: string | null
+  receiver_message: string | null
+  proposer_contact_shared: boolean
+  receiver_contact_shared: boolean
   created_at: string
   updated_at: string
 }
@@ -85,7 +88,6 @@ export interface TradeDeck {
   trade_id: string
   deck_id: string
   offered_by: string
-  created_at: string
 }
 
 export interface Review {
@@ -120,6 +122,8 @@ export interface WantList {
   id: string
   user_id: string
   title: string
+  format: string | null
+  archetype: string | null
   commander_name: string | null
   color_identity: string[] | null
   min_value_cents: number | null

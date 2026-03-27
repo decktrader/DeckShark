@@ -54,7 +54,8 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 ## Local Dev
 
 - `supabase start` — starts local Postgres, Auth, Studio, Inbucket (requires Docker)
-- `supabase db reset` — applies migrations to local DB
+- `supabase stop` → `supabase start` — **safe restart, data is preserved** (Docker volumes intact)
+- `supabase db reset` — ⚠️ **wipes all data**, re-runs migrations + seed.sql. Use only intentionally.
 - `.env.development` — local Supabase credentials (committed, shared)
 - `.env.development` includes `SUPABASE_SERVICE_ROLE_KEY` (local demo key) for server-side operations that bypass RLS (e.g., cron sync)
 - `.env.production.local` — real Supabase credentials (gitignored, personal)
