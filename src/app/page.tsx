@@ -81,12 +81,12 @@ export default async function HomePage() {
 
         {/* Hero content */}
         <div className="relative z-10 container mx-auto max-w-4xl px-4 py-24 text-center">
-          <h1 className="text-5xl font-bold tracking-tight [text-shadow:0_2px_24px_rgba(0,0,0,0.9)] sm:text-6xl">
+          <h1 className="text-5xl font-bold tracking-tight [text-shadow:0_2px_32px_rgba(0,0,0,1),0_1px_8px_rgba(0,0,0,0.9)] sm:text-6xl">
             Trade MTG decks
             <br />
-            <span className="text-muted-foreground">near you</span>
+            <span className="text-white/60">near you</span>
           </h1>
-          <p className="text-muted-foreground mx-auto mt-6 max-w-xl text-lg [text-shadow:0_1px_12px_rgba(0,0,0,0.9)]">
+          <p className="mx-auto mt-6 max-w-xl text-lg text-white/70 [text-shadow:0_1px_16px_rgba(0,0,0,1),0_1px_4px_rgba(0,0,0,0.9)]">
             DeckTrader connects Magic: The Gathering players across Canada for
             in-person deck trades. Browse what&apos;s available, propose a swap,
             and meet up locally.
