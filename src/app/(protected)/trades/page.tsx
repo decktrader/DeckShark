@@ -77,8 +77,13 @@ export default async function TradesPage() {
                           {!isProposer ? ' → You' : ''}
                         </p>
                         <p className="text-muted-foreground text-sm">
-                          {myDecks.map((td) => td.deck.name).join(', ')} for{' '}
-                          {theirDecks.map((td) => td.deck.name).join(', ')}
+                          {myDecks
+                            .map((td) => td.deck?.name ?? 'Unknown deck')
+                            .join(', ')}{' '}
+                          for{' '}
+                          {theirDecks
+                            .map((td) => td.deck?.name ?? 'Unknown deck')
+                            .join(', ')}
                         </p>
                       </div>
                       <span className={`text-xs font-semibold ${status.color}`}>
@@ -117,8 +122,13 @@ export default async function TradesPage() {
                       <div>
                         <p className="font-medium">{them.username}</p>
                         <p className="text-muted-foreground text-sm">
-                          {myDecks.map((td) => td.deck.name).join(', ')} for{' '}
-                          {theirDecks.map((td) => td.deck.name).join(', ')}
+                          {myDecks
+                            .map((td) => td.deck?.name ?? 'Unknown deck')
+                            .join(', ')}{' '}
+                          for{' '}
+                          {theirDecks
+                            .map((td) => td.deck?.name ?? 'Unknown deck')
+                            .join(', ')}
                         </p>
                       </div>
                       <span className={`text-xs font-semibold ${status.color}`}>

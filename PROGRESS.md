@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M5 — Trading
-**Status:** Core complete
-**Next step:** Add realtime trade status updates (Supabase Realtime subscription in trade detail page), then M6 Reviews or M7 Want Lists
+**Milestone:** M6 — Reviews & Reputation
+**Status:** Complete
+**Next step:** M7 Want Lists, or M8 Email Notifications (depends on M5+M7)
 
 ---
 
@@ -18,7 +18,7 @@
 | M3: Deck Management (Phase A) | Complete         | Text import only, URL importers in M4 |
 | M4: Public Browsing           | Complete         |                                       |
 | M5: Trading (Phase B)         | Complete         | Realtime updates optional polish      |
-| M6: Reviews & Reputation      | Blocked by M5    |                                       |
+| M6: Reviews & Reputation      | Complete         |                                       |
 | M7: Want Lists                | Blocked by M3    | Can run parallel with M5-M6           |
 | M8: Email Notifications       | Blocked by M5+M7 |                                       |
 | M9: Onboarding & Landing Page | Blocked by M3    |                                       |
@@ -27,6 +27,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-26 — M6 Reviews & Reputation complete
+
+**Done:** `011_reviews.sql` (reviews table, RLS, `handle_review_created` trigger updates `trade_rating`; `handle_trade_completed` extended to increment `completed_trades`). `reviews.ts` client service. `reviews.server.ts` with `getReviewsForUser` + `getTradeReview`. `ReviewForm` component (star rating + comment). Review prompt on trade detail page (shows form if not yet reviewed, shows submitted review if already done). Reviews section on public profile with avg rating. Fixed RLS (migration 010) so trade participants can read decks post-transfer. Fixed `trade_decks` insert RLS (migration 006). Ownership transfer on completion (migration 009). Receiver message feature. Notification badge on Trades nav link.
+**Next:** M7 Want Lists
 
 ### 2026-03-26 — M5 Trading complete
 

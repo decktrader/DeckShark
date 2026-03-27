@@ -11,9 +11,17 @@ export async function Header() {
   } = await supabase.auth.getUser()
 
   let profile = null
+  let pendingTradeCount = 0
   if (authUser) {
     const { data } = await getUserById(authUser.id)
     profile = data
+
+    const { count } = await supabase
+      .from('trades')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', authUser.id)
+      .eq('status', 'proposed')
+    pendingTradeCount = count ?? 0
   }
 
   return (
@@ -32,9 +40,14 @@ export async function Header() {
           {profile && (
             <Link
               href="/trades"
-              className="text-muted-foreground hover:text-foreground text-sm"
+              className="text-muted-foreground hover:text-foreground relative text-sm"
             >
               Trades
+              {pendingTradeCount > 0 && (
+                <span className="bg-primary absolute -top-1.5 -right-2.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white">
+                  {pendingTradeCount > 9 ? '9+' : pendingTradeCount}
+                </span>
+              )}
             </Link>
           )}
           {profile ? (

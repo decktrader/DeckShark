@@ -90,6 +90,24 @@ export async function getTradeDecks(
   return { data: data as TradeDeck[], error: null }
 }
 
+// ─── Receiver reply ──────────────────────────────────────────────────────────
+
+export async function replyToTrade(
+  tradeId: string,
+  message: string,
+): Promise<ServiceResponse<Trade>> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('trades')
+    .update({ receiver_message: message })
+    .eq('id', tradeId)
+    .select()
+    .single()
+
+  if (error) return { data: null, error: error.message }
+  return { data: data as Trade, error: null }
+}
+
 // ─── Status transitions ──────────────────────────────────────────────────────
 
 export async function updateTradeStatus(

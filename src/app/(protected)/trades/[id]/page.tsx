@@ -2,7 +2,9 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getTrade } from '@/lib/services/trades.server'
+import { getTradeReview } from '@/lib/services/reviews.server'
 import { TradeActions } from '@/components/trades/trade-actions'
+import { ReviewForm } from '@/components/reviews/review-form'
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
@@ -47,6 +49,11 @@ export default async function TradeDetailPage({
   }
 
   const isProposer = authUser.id === trade.proposer_id
+  const { data: myReview } =
+    trade.status === 'completed'
+      ? await getTradeReview(id, authUser.id)
+      : { data: null }
+
   const myDecks = trade.trade_decks.filter(
     (td) => td.offered_by === authUser.id,
   )
@@ -102,7 +109,7 @@ export default async function TradeDetailPage({
                 key={td.id}
                 className="bg-card flex items-center gap-3 rounded-lg border p-3"
               >
-                {td.deck.commander_scryfall_id && (
+                {td.deck?.commander_scryfall_id && (
                   <img
                     src={scryfallArtUrl(td.deck.commander_scryfall_id)}
                     alt={td.deck.commander_name ?? ''}
@@ -110,9 +117,11 @@ export default async function TradeDetailPage({
                   />
                 )}
                 <div>
-                  <p className="text-sm font-medium">{td.deck.name}</p>
+                  <p className="text-sm font-medium">
+                    {td.deck?.name ?? 'Unknown deck'}
+                  </p>
                   <p className="text-muted-foreground text-xs">
-                    {formatPrice(td.deck.estimated_value_cents)}
+                    {formatPrice(td.deck?.estimated_value_cents ?? null)}
                   </p>
                 </div>
               </div>
@@ -131,7 +140,7 @@ export default async function TradeDetailPage({
                 key={td.id}
                 className="bg-card flex items-center gap-3 rounded-lg border p-3"
               >
-                {td.deck.commander_scryfall_id && (
+                {td.deck?.commander_scryfall_id && (
                   <img
                     src={scryfallArtUrl(td.deck.commander_scryfall_id)}
                     alt={td.deck.commander_name ?? ''}
@@ -139,9 +148,11 @@ export default async function TradeDetailPage({
                   />
                 )}
                 <div>
-                  <p className="text-sm font-medium">{td.deck.name}</p>
+                  <p className="text-sm font-medium">
+                    {td.deck?.name ?? 'Unknown deck'}
+                  </p>
                   <p className="text-muted-foreground text-xs">
-                    {formatPrice(td.deck.estimated_value_cents)}
+                    {formatPrice(td.deck?.estimated_value_cents ?? null)}
                   </p>
                 </div>
               </div>
@@ -159,13 +170,25 @@ export default async function TradeDetailPage({
         </p>
       )}
 
-      {/* Message */}
-      {trade.message && (
-        <div className="bg-card mt-6 rounded-lg border p-4">
-          <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
-            Message from {trade.proposer.username}
-          </p>
-          <p className="text-sm">{trade.message}</p>
+      {/* Messages */}
+      {(trade.message || trade.receiver_message) && (
+        <div className="mt-6 space-y-3">
+          {trade.message && (
+            <div className="bg-card rounded-lg border p-4">
+              <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
+                Message from {trade.proposer.username}
+              </p>
+              <p className="text-sm">{trade.message}</p>
+            </div>
+          )}
+          {trade.receiver_message && (
+            <div className="bg-card rounded-lg border p-4">
+              <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
+                Message from {trade.receiver.username}
+              </p>
+              <p className="text-sm">{trade.receiver_message}</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -173,6 +196,34 @@ export default async function TradeDetailPage({
       {['proposed', 'accepted'].includes(trade.status) && (
         <div className="mt-8">
           <TradeActions trade={trade} userId={authUser.id} />
+        </div>
+      )}
+
+      {/* Review */}
+      {trade.status === 'completed' && !myReview && (
+        <div className="bg-card mt-8 rounded-lg border p-4">
+          <ReviewForm
+            tradeId={trade.id}
+            reviewerId={authUser.id}
+            revieweeId={them.id}
+            revieweeUsername={them.username}
+          />
+        </div>
+      )}
+      {trade.status === 'completed' && myReview && (
+        <div className="bg-card mt-8 rounded-lg border p-4">
+          <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
+            Your review
+          </p>
+          <p className="text-yellow-400">
+            {'★'.repeat(myReview.rating)}
+            {'☆'.repeat(5 - myReview.rating)}
+          </p>
+          {myReview.comment && (
+            <p className="text-muted-foreground mt-1 text-sm">
+              {myReview.comment}
+            </p>
+          )}
         </div>
       )}
     </main>

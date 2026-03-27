@@ -75,6 +75,7 @@ export interface Trade {
   status: TradeStatus
   cash_difference_cents: number
   message: string | null
+  receiver_message: string | null
   proposer_contact_shared: boolean
   receiver_contact_shared: boolean
   created_at: string
