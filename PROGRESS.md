@@ -2,36 +2,46 @@
 
 ## Current Focus
 
-**Milestone:** M7 — Want Lists
-**Status:** Complete
-**Next step:** M8 Email Notifications (depends on M5+M7, now both done)
+**Milestone:** M9 — Onboarding & Landing Page
+**Status:** In progress
+**Next step:** M10 Polish & Mobile (or ship M9 and open PR)
 
 ---
 
 ## Milestone Status
 
-| Milestone                     | Status           | Notes                                 |
-| ----------------------------- | ---------------- | ------------------------------------- |
-| M0: Project Scaffolding       | Complete         |                                       |
-| M1: Auth & User Profiles      | Complete         | Google OAuth deferred to M9           |
-| M2: Card Data Infrastructure  | Complete         |                                       |
-| M3: Deck Management (Phase A) | Complete         | Text import only, URL importers in M4 |
-| M4: Public Browsing           | Complete         |                                       |
-| M5: Trading (Phase B)         | Complete         | Realtime updates optional polish      |
-| M6: Reviews & Reputation      | Complete         |                                       |
-| M7: Want Lists                | Complete         |                                       |
-| M8: Email Notifications       | Blocked by M5+M7 |                                       |
-| M9: Onboarding & Landing Page | Blocked by M3    |                                       |
-| M10: Polish & Mobile          | Blocked by all   |                                       |
+| Milestone                     | Status         | Notes                                 |
+| ----------------------------- | -------------- | ------------------------------------- |
+| M0: Project Scaffolding       | Complete       |                                       |
+| M1: Auth & User Profiles      | Complete       | Google OAuth deferred to M9           |
+| M2: Card Data Infrastructure  | Complete       |                                       |
+| M3: Deck Management (Phase A) | Complete       | Text import only, URL importers in M4 |
+| M4: Public Browsing           | Complete       |                                       |
+| M5: Trading (Phase B)         | Complete       | Realtime updates optional polish      |
+| M6: Reviews & Reputation      | Complete       |                                       |
+| M7: Want Lists                | Complete       |                                       |
+| M8: Email Notifications       | Complete       |                                       |
+| M9: Onboarding & Landing Page | In progress    | Google OAuth deferred                 |
+| M10: Polish & Mobile          | Blocked by all |                                       |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
 
+### 2026-03-27 — Deck details in trade notification emails
+
+**Done:** Extended `/api/notify/trade` query to join `trade_decks(offered_by, deck:decks(name, commander_name, format))`. Partition rows by `offered_by` to get `proposerDecks` / `receiverDecks` arrays. Added `deckList()` HTML helper in `email.ts`. Updated `sendTradeProposedEmail` ("They're offering:" / "In exchange for:"), `sendTradeAcceptedEmail` ("You're giving:" / "You're receiving:"), and `sendTradeCompletedEmail` ("You gave:" / "You received:"). `sendTradeDeclinedEmail` left minimal. All params are optional with `[]` defaults so existing callers without deck data won't break.
+**Next:** Continue M8 Email Notifications (want-list match emails, if remaining) or begin M9 Onboarding & Landing Page
+
 ### 2026-03-26 — Archetype field on decks + polish
 
 **Done:** `014_deck_archetype.sql` adds `archetype text` to `decks`. `Deck` type updated. `createDeck`/`updateDeck` services accept `archetype`. Archetype Select added to `deck-form.tsx` and `deck-edit-form.tsx` (Radix sentinel `"none"` pattern for empty option; `max-h-72` on SelectContent to prevent overflow). Archetype displayed on browse card and deck detail sidebar. `getMatchingDecks` now filters by archetype when set on want list.
 **Next:** M8 Email Notifications
+
+### 2026-03-27 — M9 Landing page, enhanced onboarding, OG metadata
+
+**Done:** Landing page at `/` with hero, 3 value props, live featured decks grid (6 most recent), and bottom CTA. Enhanced onboarding — after username/city/province step, users are routed to `/decks/new?onboarding=true` which shows a welcome banner with a skip link. OG/meta `generateMetadata` added to deck detail and profile pages. `getPublicDecks` now accepts optional `limit` param. Google OAuth deferred.
+**Next:** M10 Polish & Mobile, or open PR for M9.
 
 ### 2026-03-27 — M7 Want Lists complete
 

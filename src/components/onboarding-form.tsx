@@ -86,7 +86,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
       return
     }
 
-    router.push('/dashboard')
+    router.push('/decks/new?onboarding=true')
     router.refresh()
   }
 

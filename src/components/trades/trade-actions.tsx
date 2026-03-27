@@ -38,9 +38,18 @@ export function TradeActions({
     ? trade.receiver_contact_shared
     : trade.proposer_contact_shared
 
+  function notifyTrade(event: 'accepted' | 'declined' | 'completed') {
+    fetch('/api/notify/trade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tradeId: trade.id, event }),
+    }).catch(() => {})
+  }
+
   async function run(
     action: string,
     fn: () => Promise<{ data: Trade | null; error: string | null }>,
+    notifyEvent?: 'accepted' | 'declined' | 'completed',
   ) {
     setLoading(action)
     setError(null)
@@ -49,6 +58,7 @@ export function TradeActions({
       setError(err)
       setLoading(null)
     } else {
+      if (notifyEvent) notifyTrade(notifyEvent)
       router.refresh()
       setLoading(null)
     }
@@ -101,7 +111,9 @@ export function TradeActions({
               <Button
                 className="flex-1"
                 disabled={loading === 'accept'}
-                onClick={() => run('accept', () => acceptTrade(trade.id))}
+                onClick={() =>
+                  run('accept', () => acceptTrade(trade.id), 'accepted')
+                }
               >
                 {loading === 'accept' ? 'Accepting…' : 'Accept'}
               </Button>
@@ -109,7 +121,9 @@ export function TradeActions({
                 variant="outline"
                 className="flex-1"
                 disabled={loading === 'decline'}
-                onClick={() => run('decline', () => declineTrade(trade.id))}
+                onClick={() =>
+                  run('decline', () => declineTrade(trade.id), 'declined')
+                }
               >
                 {loading === 'decline' ? 'Declining…' : 'Decline'}
               </Button>
@@ -158,7 +172,9 @@ export function TradeActions({
           variant="outline"
           className="w-full"
           disabled={loading === 'complete'}
-          onClick={() => run('complete', () => completeTrade(trade.id))}
+          onClick={() =>
+            run('complete', () => completeTrade(trade.id), 'completed')
+          }
         >
           {loading === 'complete' ? 'Confirming…' : 'Confirm trade complete'}
         </Button>

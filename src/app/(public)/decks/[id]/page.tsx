@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import {
   getPublicDeck,
@@ -10,6 +11,25 @@ import {
 import { DeckCardList } from '@/components/deck/deck-card-list'
 import { DeckStats } from '@/components/deck/deck-stats'
 import { Button } from '@/components/ui/button'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const { data: deck } = await getPublicDeck(id)
+  if (!deck) return {}
+  const title = deck.commander_name
+    ? `${deck.name} — ${deck.commander_name} | DeckTrader`
+    : `${deck.name} | DeckTrader`
+  const description = `${deck.format} deck listed for trade by ${deck.owner.username}${deck.owner.city ? ` in ${deck.owner.city}` : ''}.`
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: 'website' },
+  }
+}
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'

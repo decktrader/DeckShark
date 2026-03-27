@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import type { ServiceResponse, User } from '@/types'
+import type { ServiceResponse, User, NotificationPreferences } from '@/types'
 
 export async function getUserById(id: string): Promise<ServiceResponse<User>> {
   const supabase = createClient()
@@ -30,8 +30,16 @@ export async function getUserByUsername(
 export async function updateUser(
   id: string,
   updates: Partial<
-    Pick<User, 'username' | 'bio' | 'city' | 'province' | 'avatar_url'>
-  >,
+    Pick<
+      User,
+      | 'username'
+      | 'bio'
+      | 'city'
+      | 'province'
+      | 'avatar_url'
+      | 'notification_preferences'
+    >
+  > & { notification_preferences?: NotificationPreferences },
 ): Promise<ServiceResponse<User>> {
   const supabase = createClient()
   const { data, error } = await supabase

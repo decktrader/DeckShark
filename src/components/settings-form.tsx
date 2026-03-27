@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateUser, isUsernameAvailable } from '@/lib/services/users'
-import type { User } from '@/types'
+import type { User, NotificationPreferences } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const PROVINCES = [
   { value: 'AB', label: 'Alberta' },
@@ -45,6 +46,12 @@ export function SettingsForm({ user }: { user: User }) {
   const [bio, setBio] = useState(user.bio ?? '')
   const [city, setCity] = useState(user.city ?? '')
   const [province, setProvince] = useState(user.province ?? '')
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>(
+    user.notification_preferences ?? {
+      trade_updates: true,
+      want_list_matches: true,
+    },
+  )
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -85,6 +92,7 @@ export function SettingsForm({ user }: { user: User }) {
       bio: bio || null,
       city,
       province,
+      notification_preferences: notifPrefs,
     })
 
     if (updateError) {
@@ -156,6 +164,39 @@ export function SettingsForm({ user }: { user: User }) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2 pt-2">
+            <Label>Email notifications</Label>
+            <div className="space-y-2">
+              <label className="flex cursor-pointer items-center gap-3">
+                <Checkbox
+                  checked={notifPrefs.trade_updates}
+                  onCheckedChange={(checked) =>
+                    setNotifPrefs((p) => ({
+                      ...p,
+                      trade_updates: checked === true,
+                    }))
+                  }
+                />
+                <span className="text-sm">
+                  Trade updates (proposed, accepted, declined, completed)
+                </span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-3">
+                <Checkbox
+                  checked={notifPrefs.want_list_matches}
+                  onCheckedChange={(checked) =>
+                    setNotifPrefs((p) => ({
+                      ...p,
+                      want_list_matches: checked === true,
+                    }))
+                  }
+                />
+                <span className="text-sm">
+                  Want list matches (when a deck matching your list is listed)
+                </span>
+              </label>
+            </div>
           </div>
         </CardContent>
         <CardFooter>

@@ -18,7 +18,16 @@ export function TradeToggle({
     setAvailable(next)
     startTransition(async () => {
       const { error } = await updateDeck(deckId, { available_for_trade: next })
-      if (error) setAvailable(!next) // revert on failure
+      if (error) {
+        setAvailable(!next) // revert on failure
+      } else if (next) {
+        // Deck just listed — check for want list matches
+        fetch('/api/notify/want-list-match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deckId }),
+        }).catch(() => {})
+      }
     })
   }
 
