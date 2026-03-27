@@ -37,6 +37,12 @@ export async function Header() {
           >
             Browse
           </Link>
+          <Link
+            href="/want-lists"
+            className="text-muted-foreground hover:text-foreground text-sm"
+          >
+            Want Lists
+          </Link>
           {profile && (
             <Link
               href="/trades"

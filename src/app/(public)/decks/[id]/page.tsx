@@ -108,12 +108,26 @@ export default async function PublicDeckPage({
                   .join(', ')}
               </p>
             )}
-            <p className="text-muted-foreground mt-3 text-sm">
-              Estimated value:{' '}
-              <span className="text-foreground font-medium">
-                {formatPrice(deck.estimated_value_cents)}
-              </span>
-            </p>
+            <div className="text-muted-foreground mt-3 space-y-1 text-sm">
+              <p>
+                Format:{' '}
+                <span className="text-foreground capitalize">
+                  {deck.format}
+                </span>
+              </p>
+              {deck.archetype && (
+                <p>
+                  Archetype:{' '}
+                  <span className="text-foreground">{deck.archetype}</span>
+                </p>
+              )}
+              <p>
+                Estimated value:{' '}
+                <span className="text-foreground font-medium">
+                  {formatPrice(deck.estimated_value_cents)}
+                </span>
+              </p>
+            </div>
             <Button className="mt-4 w-full" asChild>
               <Link href={`/profile/${deck.owner.username}`}>View profile</Link>
             </Button>

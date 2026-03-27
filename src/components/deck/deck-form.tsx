@@ -10,7 +10,7 @@ import {
 import { searchCards } from '@/lib/services/cards'
 import { parseDecklist } from '@/lib/importers/text'
 import { getCardByName } from '@/lib/scryfall/api'
-import { FORMATS } from '@/lib/constants'
+import { FORMATS, ARCHETYPES } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -33,6 +33,7 @@ export function DeckForm({ userId }: { userId: string }) {
   const router = useRouter()
   const [name, setName] = useState('')
   const [format, setFormat] = useState('commander')
+  const [archetype, setArchetype] = useState('')
   const [description, setDescription] = useState('')
   const [conditionNotes, setConditionNotes] = useState('')
   const [decklistText, setDecklistText] = useState('')
@@ -99,6 +100,7 @@ export function DeckForm({ userId }: { userId: string }) {
     const { data: deck, error: deckError } = await createDeck(userId, {
       name,
       format,
+      archetype: archetype || undefined,
       description: description || undefined,
       condition_notes: conditionNotes || undefined,
       commander_name: commander?.name,
@@ -186,6 +188,25 @@ export function DeckForm({ userId }: { userId: string }) {
                 {FORMATS.map((f) => (
                   <SelectItem key={f.value} value={f.value}>
                     {f.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="archetype">Archetype (optional)</Label>
+            <Select
+              value={archetype || 'none'}
+              onValueChange={(v) => setArchetype(v === 'none' ? '' : v)}
+            >
+              <SelectTrigger id="archetype">
+                <SelectValue placeholder="Any archetype" />
+              </SelectTrigger>
+              <SelectContent className="max-h-72">
+                <SelectItem value="none">Any archetype</SelectItem>
+                {ARCHETYPES.map((a) => (
+                  <SelectItem key={a} value={a}>
+                    {a}
                   </SelectItem>
                 ))}
               </SelectContent>

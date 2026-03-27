@@ -23,7 +23,7 @@ import {
   deleteDeckPhoto as deletePhotoRecord,
 } from '@/lib/services/decks'
 import { getDeckPhotoUrl } from '@/lib/services/storage'
-import { FORMATS } from '@/lib/constants'
+import { FORMATS, ARCHETYPES } from '@/lib/constants'
 import type { Deck, DeckCard, DeckPhoto } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -64,6 +64,7 @@ export function DeckEditForm({
   const [photos, setPhotos] = useState(initialPhotos)
   const [name, setName] = useState(deck.name)
   const [format, setFormat] = useState(deck.format)
+  const [archetype, setArchetype] = useState(deck.archetype ?? '')
   const [description, setDescription] = useState(deck.description ?? '')
   const [conditionNotes, setConditionNotes] = useState(
     deck.condition_notes ?? '',
@@ -85,6 +86,7 @@ export function DeckEditForm({
     const { data, error: err } = await updateDeck(deck.id, {
       name,
       format,
+      archetype: archetype || null,
       description: description || null,
       condition_notes: conditionNotes || null,
     })
@@ -358,6 +360,25 @@ export function DeckEditForm({
                   {FORMATS.map((f) => (
                     <SelectItem key={f.value} value={f.value}>
                       {f.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="archetype">Archetype</Label>
+              <Select
+                value={archetype || 'none'}
+                onValueChange={(v) => setArchetype(v === 'none' ? '' : v)}
+              >
+                <SelectTrigger id="archetype">
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="none">None</SelectItem>
+                  {ARCHETYPES.map((a) => (
+                    <SelectItem key={a} value={a}>
+                      {a}
                     </SelectItem>
                   ))}
                 </SelectContent>

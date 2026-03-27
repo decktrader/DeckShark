@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M6 — Reviews & Reputation
+**Milestone:** M7 — Want Lists
 **Status:** Complete
-**Next step:** M7 Want Lists, or M8 Email Notifications (depends on M5+M7)
+**Next step:** M8 Email Notifications (depends on M5+M7, now both done)
 
 ---
 
@@ -19,7 +19,7 @@
 | M4: Public Browsing           | Complete         |                                       |
 | M5: Trading (Phase B)         | Complete         | Realtime updates optional polish      |
 | M6: Reviews & Reputation      | Complete         |                                       |
-| M7: Want Lists                | Blocked by M3    | Can run parallel with M5-M6           |
+| M7: Want Lists                | Complete         |                                       |
 | M8: Email Notifications       | Blocked by M5+M7 |                                       |
 | M9: Onboarding & Landing Page | Blocked by M3    |                                       |
 | M10: Polish & Mobile          | Blocked by all   |                                       |
@@ -27,6 +27,16 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-26 — Archetype field on decks + polish
+
+**Done:** `014_deck_archetype.sql` adds `archetype text` to `decks`. `Deck` type updated. `createDeck`/`updateDeck` services accept `archetype`. Archetype Select added to `deck-form.tsx` and `deck-edit-form.tsx` (Radix sentinel `"none"` pattern for empty option; `max-h-72` on SelectContent to prevent overflow). Archetype displayed on browse card and deck detail sidebar. `getMatchingDecks` now filters by archetype when set on want list.
+**Next:** M8 Email Notifications
+
+### 2026-03-27 — M7 Want Lists complete
+
+**Done:** `012_want_lists.sql` (want_lists table, RLS, updated_at trigger). WantList type updated with format field. Client service (wantlists.ts): createWantList, updateWantList, deleteWantList. Server service (wantlists.server.ts): getUserWantLists, getWantList, getPublicWantLists, getMatchingDecks. WantListForm component (title, format, commander, value range, description). Public browse at /want-lists. Want list detail at /want-lists/[id] with live matching decks. Create/edit pages. Dashboard updated with want lists section. Want Lists nav link in header.
+**Next:** M8 Email Notifications
 
 ### 2026-03-26 — M6 Reviews & Reputation complete
 

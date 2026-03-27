@@ -41,6 +41,7 @@ export interface Deck {
   commander_name: string | null
   commander_scryfall_id: string | null
   format: string
+  archetype: string | null
   description: string | null
   estimated_value_cents: number | null
   condition_notes: string | null
@@ -121,6 +122,8 @@ export interface WantList {
   id: string
   user_id: string
   title: string
+  format: string | null
+  archetype: string | null
   commander_name: string | null
   color_identity: string[] | null
   min_value_cents: number | null

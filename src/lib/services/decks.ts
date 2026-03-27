@@ -6,6 +6,7 @@ export async function createDeck(
   deck: {
     name: string
     format: string
+    archetype?: string
     description?: string
     commander_name?: string
     commander_scryfall_id?: string
@@ -56,6 +57,7 @@ export async function updateDeck(
       Deck,
       | 'name'
       | 'format'
+      | 'archetype'
       | 'description'
       | 'commander_name'
       | 'commander_scryfall_id'

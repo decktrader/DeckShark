@@ -50,7 +50,12 @@ export function PublicDeckCard({ deck }: { deck: PublicDeck }) {
             )}
           </div>
           <div className="text-muted-foreground mt-3 flex items-center justify-between text-sm">
-            <span className="capitalize">{deck.format}</span>
+            <span>
+              <span className="capitalize">{deck.format}</span>
+              {deck.archetype && (
+                <span className="ml-1">· {deck.archetype}</span>
+              )}
+            </span>
             <span className="text-foreground font-medium">
               {formatPrice(deck.estimated_value_cents)}
             </span>
