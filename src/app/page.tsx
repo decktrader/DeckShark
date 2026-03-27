@@ -37,14 +37,50 @@ const VALUE_PROPS = [
   },
 ]
 
+function scryfallArtUrl(scryfallId: string) {
+  return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
+}
+
 export default async function HomePage() {
   const { data: featuredDecks } = await getPublicDecks({ limit: 6 })
+
+  const artDecks = (featuredDecks ?? [])
+    .filter((d) => d.commander_scryfall_id)
+    .slice(0, 5)
+
+  const mid = Math.floor(artDecks.length / 2)
 
   return (
     <main>
       {/* Hero */}
-      <section className="border-b">
-        <div className="container mx-auto max-w-4xl px-4 py-20 text-center">
+      <section className="relative overflow-hidden border-b">
+        {/* Commander art fan */}
+        {artDecks.length >= 3 && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            {artDecks.map((deck, i) => {
+              const offset = i - mid
+              return (
+                <div
+                  key={deck.id}
+                  className="absolute h-64 w-44 flex-shrink-0 rounded-xl shadow-2xl"
+                  style={{
+                    backgroundImage: `url(${scryfallArtUrl(deck.commander_scryfall_id!)})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    transform: `translateX(${offset * 100}px) rotate(${offset * 8}deg)`,
+                    opacity: 0.55,
+                    zIndex: artDecks.length - Math.abs(offset),
+                  }}
+                />
+              )
+            })}
+            {/* Gradient overlay: fade art into background at top and bottom */}
+            <div className="from-background/60 via-background/75 to-background absolute inset-0 bg-gradient-to-b" />
+          </div>
+        )}
+
+        {/* Hero content */}
+        <div className="relative z-10 container mx-auto max-w-4xl px-4 py-24 text-center">
           <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
             Trade MTG decks
             <br />
