@@ -1,9 +1,29 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import { getUserByUsername } from '@/lib/services/users.server'
 import { getPublicDecks } from '@/lib/services/decks.server'
 import { getReviewsForUser } from '@/lib/services/reviews.server'
 import { ProfileCard } from '@/components/profile/profile-card'
 import { PublicDeckCard } from '@/components/deck/public-deck-card'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>
+}): Promise<Metadata> {
+  const { username } = await params
+  const { data: user } = await getUserByUsername(username)
+  if (!user) return {}
+  const title = `${username}'s profile | DeckTrader`
+  const description = user.city
+    ? `MTG trader in ${user.city}${user.province ? `, ${user.province}` : ''}.`
+    : 'MTG deck trader on DeckTrader.'
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: 'profile' },
+  }
+}
 
 export default async function PublicProfilePage({
   params,

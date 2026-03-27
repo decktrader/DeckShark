@@ -9,6 +9,7 @@ export interface PublicDeckFilters {
   province?: string
   format?: string
   commander?: string
+  limit?: number
 }
 
 export interface PublicDeck extends Deck {
@@ -26,6 +27,7 @@ export async function getPublicDecks(
     .eq('available_for_trade', true)
     .eq('status', 'active')
     .order('updated_at', { ascending: false })
+    .limit(filters.limit ?? 1000)
 
   if (filters.userId) {
     query = query.eq('user_id', filters.userId)
