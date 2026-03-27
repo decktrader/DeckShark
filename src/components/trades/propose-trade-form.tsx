@@ -75,6 +75,13 @@ export function ProposeTradeForm({
       return
     }
 
+    // Fire-and-forget notification to the receiver
+    fetch('/api/notify/trade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tradeId: data.id, event: 'proposed' }),
+    }).catch(() => {})
+
     router.push(`/trades/${data.id}`)
     router.refresh()
   }

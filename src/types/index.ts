@@ -20,6 +20,11 @@ export type TradeStatus =
   | 'disputed'
 export type WantListStatus = 'active' | 'fulfilled'
 
+export interface NotificationPreferences {
+  trade_updates: boolean
+  want_list_matches: boolean
+}
+
 export interface User {
   id: string
   username: string
@@ -30,6 +35,7 @@ export interface User {
   reputation_score: number
   completed_trades: number
   trade_rating: number
+  notification_preferences: NotificationPreferences
   created_at: string
   updated_at: string
 }

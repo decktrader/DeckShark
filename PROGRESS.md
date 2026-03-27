@@ -28,6 +28,11 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
+### 2026-03-27 — Deck details in trade notification emails
+
+**Done:** Extended `/api/notify/trade` query to join `trade_decks(offered_by, deck:decks(name, commander_name, format))`. Partition rows by `offered_by` to get `proposerDecks` / `receiverDecks` arrays. Added `deckList()` HTML helper in `email.ts`. Updated `sendTradeProposedEmail` ("They're offering:" / "In exchange for:"), `sendTradeAcceptedEmail` ("You're giving:" / "You're receiving:"), and `sendTradeCompletedEmail` ("You gave:" / "You received:"). `sendTradeDeclinedEmail` left minimal. All params are optional with `[]` defaults so existing callers without deck data won't break.
+**Next:** Continue M8 Email Notifications (want-list match emails, if remaining) or begin M9 Onboarding & Landing Page
+
 ### 2026-03-26 — Archetype field on decks + polish
 
 **Done:** `014_deck_archetype.sql` adds `archetype text` to `decks`. `Deck` type updated. `createDeck`/`updateDeck` services accept `archetype`. Archetype Select added to `deck-form.tsx` and `deck-edit-form.tsx` (Radix sentinel `"none"` pattern for empty option; `max-h-72` on SelectContent to prevent overflow). Archetype displayed on browse card and deck detail sidebar. `getMatchingDecks` now filters by archetype when set on want list.
