@@ -7,10 +7,12 @@ import {
   deleteDeck,
   addDeckCards,
   deleteDeckCard,
+  updateDeckCard,
   clearDeckCards,
   calculateDeckValue,
 } from '@/lib/services/decks'
 import { searchCards } from '@/lib/services/cards'
+import { getCardByName } from '@/lib/scryfall/api'
 import { parseDecklist } from '@/lib/importers/text'
 import {
   uploadDeckPhoto,
@@ -28,6 +30,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -35,7 +43,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { DeckCardList } from '@/components/deck/deck-card-list'
+import { Checkbox } from '@/components/ui/checkbox'
 import { DeckStats } from '@/components/deck/deck-stats'
 import { CardAutocomplete } from '@/components/deck/card-autocomplete'
 
@@ -66,6 +74,8 @@ export function DeckEditForm({
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [bulkMode, setBulkMode] = useState(false)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
 
   async function handleSaveDetails(e: React.FormEvent) {
     e.preventDefault()
@@ -115,6 +125,65 @@ export function DeckEditForm({
     await deleteDeckCard(cardId)
     setCards((prev) => prev.filter((c) => c.id !== cardId))
     await calculateDeckValue(deck.id)
+    const { getDeck } = await import('@/lib/services/decks')
+    const { data: updated } = await getDeck(deck.id)
+    if (updated) setDeck(updated)
+  }
+
+  function toggleSelected(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    setSelected((prev) =>
+      prev.size === cards.length ? new Set() : new Set(cards.map((c) => c.id)),
+    )
+  }
+
+  async function handleBulkDelete() {
+    if (selected.size === 0) return
+    await Promise.all([...selected].map((id) => deleteDeckCard(id)))
+    setCards((prev) => prev.filter((c) => !selected.has(c.id)))
+    setSelected(new Set())
+    setBulkMode(false)
+    await calculateDeckValue(deck.id)
+    const { getDeck } = await import('@/lib/services/decks')
+    const { data: updated } = await getDeck(deck.id)
+    if (updated) setDeck(updated)
+  }
+
+  async function handleSetCommander(card: (typeof cards)[number]) {
+    // Clear is_commander on any existing commander
+    const currentCommander = cards.find((c) => c.is_commander)
+    if (currentCommander && currentCommander.id !== card.id) {
+      await updateDeckCard(currentCommander.id, { is_commander: false })
+    }
+    // Resolve scryfall_id if missing — try card cache first, then Scryfall directly
+    let scryfallId = card.scryfall_id ?? undefined
+    if (!scryfallId) {
+      const { data: matches } = await searchCards(card.card_name, 1)
+      const match = matches?.find(
+        (m) => m.name.toLowerCase() === card.card_name.toLowerCase(),
+      )
+      if (match) {
+        scryfallId = match.scryfall_id
+      } else {
+        const scryfallCard = await getCardByName(card.card_name)
+        if (scryfallCard) scryfallId = scryfallCard.id
+      }
+    }
+    await updateDeckCard(card.id, { is_commander: true })
+    await updateDeck(deck.id, {
+      commander_name: card.card_name,
+      commander_scryfall_id: scryfallId,
+    })
+    setCards((prev) =>
+      prev.map((c) => ({ ...c, is_commander: c.id === card.id })),
+    )
     const { getDeck } = await import('@/lib/services/decks')
     const { data: updated } = await getDeck(deck.id)
     if (updated) setDeck(updated)
@@ -237,11 +306,29 @@ export function DeckEditForm({
     router.refresh()
   }
 
+  const commanderImageUrl = deck.commander_scryfall_id
+    ? `https://cards.scryfall.io/normal/front/${deck.commander_scryfall_id[0]}/${deck.commander_scryfall_id[1]}/${deck.commander_scryfall_id}.jpg`
+    : null
+
   return (
     <div className="space-y-6">
       {error && <p className="text-destructive text-sm">{error}</p>}
 
-      <DeckStats deck={deck} cards={cards} />
+      {/* Commander card + stats */}
+      <div className="flex gap-6">
+        {commanderImageUrl && (
+          <div className="shrink-0">
+            <img
+              src={commanderImageUrl}
+              alt={deck.commander_name ?? 'Commander'}
+              className="w-56 rounded-xl shadow-lg shadow-black/40"
+            />
+          </div>
+        )}
+        <div className="flex items-start pt-1">
+          <DeckStats deck={deck} cards={cards} />
+        </div>
+      </div>
 
       <Separator />
 
@@ -302,71 +389,142 @@ export function DeckEditForm({
       {/* Cards */}
       <Card>
         <CardHeader>
-          <CardTitle>Cards</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Cards</CardTitle>
+            {cards.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setBulkMode((prev) => !prev)
+                  setSelected(new Set())
+                }}
+              >
+                {bulkMode ? 'Cancel' : 'Bulk edit'}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Add a card</Label>
-            <CardAutocomplete onSelect={handleAddCard} />
-          </div>
-          <Separator />
-          <DeckCardList cards={cards} />
-          {cards.length > 0 && (
+          {!bulkMode && (
             <div className="space-y-2">
+              <Label>Add a card</Label>
+              <CardAutocomplete onSelect={handleAddCard} />
+            </div>
+          )}
+          <Separator />
+          {cards.length > 0 && (
+            <div className="space-y-1">
+              {bulkMode && (
+                <div className="flex items-center justify-between pb-1">
+                  <button
+                    className="text-muted-foreground flex items-center gap-2 text-xs"
+                    onClick={toggleSelectAll}
+                  >
+                    <Checkbox checked={selected.size === cards.length} />
+                    Select all
+                  </button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={selected.size === 0}
+                    onClick={handleBulkDelete}
+                  >
+                    Delete {selected.size > 0 ? `(${selected.size})` : ''}
+                  </Button>
+                </div>
+              )}
               {cards.map((card) => (
                 <div
                   key={card.id}
-                  className="flex items-center justify-between text-sm"
+                  className="flex items-center justify-between gap-2 text-sm"
                 >
-                  <span>
+                  {bulkMode && (
+                    <Checkbox
+                      checked={selected.has(card.id)}
+                      onCheckedChange={() => toggleSelected(card.id)}
+                      className="shrink-0"
+                    />
+                  )}
+                  <span className="flex flex-1 items-center gap-2 truncate">
                     {card.quantity}x {card.card_name}
+                    {card.is_commander && (
+                      <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-xs font-medium">
+                        Commander
+                      </span>
+                    )}
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveCard(card.id)}
-                  >
-                    Remove
-                  </Button>
+                  {!bulkMode && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-muted-foreground h-7 w-7 shrink-0 p-0"
+                        >
+                          ···
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {!card.is_commander && (
+                          <DropdownMenuItem
+                            onClick={() => handleSetCommander(card)}
+                          >
+                            Set as commander
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => handleRemoveCard(card.id)}
+                        >
+                          Remove
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               ))}
             </div>
           )}
-          <Separator />
-          <div className="space-y-2">
-            <Label>Replace from Moxfield or Archidekt URL</Label>
-            <div className="flex gap-2">
-              <Input
-                placeholder="https://www.moxfield.com/decks/..."
-                value={importUrl}
-                onChange={(e) => setImportUrl(e.target.value)}
+          {!bulkMode && <Separator />}
+          {!bulkMode && (
+            <div className="space-y-2">
+              <Label>Replace from Moxfield or Archidekt URL</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://www.moxfield.com/decks/..."
+                  value={importUrl}
+                  onChange={(e) => setImportUrl(e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleFetchUrl}
+                  disabled={fetchingUrl || !importUrl.trim()}
+                >
+                  {fetchingUrl ? 'Fetching...' : 'Fetch'}
+                </Button>
+              </div>
+            </div>
+          )}
+          {!bulkMode && (
+            <div className="space-y-2">
+              <Label>Replace decklist (paste text)</Label>
+              <textarea
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[120px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                placeholder="Paste a full decklist to replace all cards..."
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
               />
               <Button
-                type="button"
                 variant="outline"
-                onClick={handleFetchUrl}
-                disabled={fetchingUrl || !importUrl.trim()}
+                onClick={handleImport}
+                disabled={!importText.trim()}
               >
-                {fetchingUrl ? 'Fetching...' : 'Fetch'}
+                Import & replace
               </Button>
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Replace decklist (paste text)</Label>
-            <textarea
-              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[120px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-              placeholder="Paste a full decklist to replace all cards..."
-              value={importText}
-              onChange={(e) => setImportText(e.target.value)}
-            />
-            <Button
-              variant="outline"
-              onClick={handleImport}
-              disabled={!importText.trim()}
-            >
-              Import & replace
-            </Button>
-          </div>
+          )}
         </CardContent>
       </Card>
 

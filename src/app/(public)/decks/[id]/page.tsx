@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/server'
 import {
   getPublicDeck,
   getDeckCards,
@@ -22,6 +23,11 @@ export default async function PublicDeckPage({
 }) {
   const { id } = await params
 
+  const supabase = await createClient()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
+
   const { data: deck } = await getPublicDeck(id)
 
   if (!deck) notFound()
@@ -30,6 +36,9 @@ export default async function PublicDeckPage({
     getDeckCards(deck.id),
     getDeckPhotos(deck.id),
   ])
+
+  const isOwner = authUser?.id === deck.user_id
+  const canPropose = !!authUser && !isOwner
 
   const primaryPhoto = photos?.find((p) => p.is_primary) ?? photos?.[0]
 
@@ -108,6 +117,20 @@ export default async function PublicDeckPage({
             <Button className="mt-4 w-full" asChild>
               <Link href={`/profile/${deck.owner.username}`}>View profile</Link>
             </Button>
+            {canPropose && (
+              <Button className="mt-2 w-full" variant="default" asChild>
+                <Link href={`/trades/new?deckId=${deck.id}`}>
+                  Propose trade
+                </Link>
+              </Button>
+            )}
+            {!authUser && (
+              <Button className="mt-2 w-full" variant="outline" asChild>
+                <Link href={`/login?next=/decks/${deck.id}`}>
+                  Sign in to propose trade
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

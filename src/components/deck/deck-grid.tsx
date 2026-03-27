@@ -1,11 +1,15 @@
 import Link from 'next/link'
 import type { Deck } from '@/types'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { TradeToggle } from '@/components/deck/trade-toggle'
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
   return `$${(cents / 100).toFixed(2)}`
+}
+
+function scryfallArtUrl(scryfallId: string): string {
+  return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
 }
 
 export function DeckGrid({
@@ -27,10 +31,23 @@ export function DeckGrid({
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {decks.map((deck) => (
         <Link key={deck.id} href={`/decks/${deck.id}/edit`}>
-          <Card className="hover:border-primary/50 transition-colors">
-            <CardHeader className="pb-2">
+          <Card className="hover:border-primary/50 overflow-hidden transition-colors">
+            {/* Commander art banner */}
+            {deck.commander_scryfall_id && (
+              <div
+                className="h-28 w-full bg-cover bg-center"
+                style={{
+                  backgroundImage: `linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.7) 100%), url(${scryfallArtUrl(deck.commander_scryfall_id)})`,
+                }}
+              />
+            )}
+            <CardContent
+              className={deck.commander_scryfall_id ? 'pt-3' : 'pt-6'}
+            >
               <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-lg">{deck.name}</CardTitle>
+                <CardTitle className="text-base leading-tight">
+                  {deck.name}
+                </CardTitle>
                 {showTradeToggle && (
                   <TradeToggle
                     deckId={deck.id}
@@ -38,9 +55,7 @@ export function DeckGrid({
                   />
                 )}
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-muted-foreground flex items-center justify-between text-sm">
+              <div className="text-muted-foreground mt-2 flex items-center justify-between text-sm">
                 <span className="capitalize">{deck.format}</span>
                 <span>{formatPrice(deck.estimated_value_cents)}</span>
               </div>

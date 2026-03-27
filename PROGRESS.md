@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M5 — Trading (Phase B)
-**Status:** Not started
-**Next step:** Test M4 features (browse, trade toggle, URL importers), then begin M5 — write 004_trades.sql migration, build trade proposal flow
+**Milestone:** M5 — Trading
+**Status:** Core complete
+**Next step:** Add realtime trade status updates (Supabase Realtime subscription in trade detail page), then M6 Reviews or M7 Want Lists
 
 ---
 
@@ -17,7 +17,7 @@
 | M2: Card Data Infrastructure  | Complete         |                                       |
 | M3: Deck Management (Phase A) | Complete         | Text import only, URL importers in M4 |
 | M4: Public Browsing           | Complete         |                                       |
-| M5: Trading (Phase B)         | Not started      |                                       |
+| M5: Trading (Phase B)         | Complete         | Realtime updates optional polish      |
 | M6: Reviews & Reputation      | Blocked by M5    |                                       |
 | M7: Want Lists                | Blocked by M3    | Can run parallel with M5-M6           |
 | M8: Email Notifications       | Blocked by M5+M7 |                                       |
@@ -27,6 +27,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-26 — M5 Trading complete
+
+**Done:** `005_trades.sql` migration (trades + trade_decks tables, RLS, status check constraint). Types updated (TradeStatus, Trade, TradeDeck). Client service (`trades.ts`) with proposeTrade, acceptTrade, declineTrade, cancelTrade, completeTrade, shareContact. Server service (`trades.server.ts`) with full joins. ProposeTradeForm component. TradeActions client component (Accept/Decline/Cancel/Complete + PIPEDA contact sharing). "Propose trade" button on public deck detail page. New trade page (`/trades/new`). Trade detail page (`/trades/[id]`). Trades inbox (`/trades`) with Active/Past split. "Trades" link added to header nav. Type-check passes clean.
+**Next:** Optional: add Supabase Realtime subscription for live trade status in detail page. Otherwise begin M6 Reviews or M7 Want Lists.
 
 ### 2026-03-26 — M4 Complete
 

@@ -9,6 +9,7 @@ import {
 } from '@/lib/services/decks'
 import { searchCards } from '@/lib/services/cards'
 import { parseDecklist } from '@/lib/importers/text'
+import { getCardByName } from '@/lib/scryfall/api'
 import { FORMATS } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -126,13 +127,18 @@ export function DeckForm({ userId }: { userId: string }) {
       }),
     )
 
-    // If commander was found in card cache, update deck with scryfall ID
+    // Set commander_scryfall_id — try cache first, fall back to Scryfall directly
     if (commander) {
       const commanderCard = resolvedCards.find((c) => c.is_commander)
-      if (commanderCard?.scryfall_id) {
+      let commanderScryfallId = commanderCard?.scryfall_id
+      if (!commanderScryfallId) {
+        const scryfallCard = await getCardByName(commander.name)
+        if (scryfallCard) commanderScryfallId = scryfallCard.id
+      }
+      if (commanderScryfallId) {
         const { updateDeck } = await import('@/lib/services/decks')
         await updateDeck(deck.id, {
-          commander_scryfall_id: commanderCard.scryfall_id,
+          commander_scryfall_id: commanderScryfallId,
         })
       }
     }

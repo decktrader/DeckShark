@@ -29,6 +29,14 @@ export async function Header() {
           >
             Browse
           </Link>
+          {profile && (
+            <Link
+              href="/trades"
+              className="text-muted-foreground hover:text-foreground text-sm"
+            >
+              Trades
+            </Link>
+          )}
           {profile ? (
             <UserMenu username={profile.username} />
           ) : (

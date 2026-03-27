@@ -46,10 +46,9 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Auth pages — redirect to dashboard if already authenticated
-  const authPaths = ['/login', '/register']
-  const isAuthPage = authPaths.some((path) => pathname.startsWith(path))
-  if (user && isAuthPage) {
+  // Login page — redirect to dashboard if already authenticated
+  // (register stays accessible so new accounts can always be created)
+  if (user && pathname.startsWith('/login')) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
