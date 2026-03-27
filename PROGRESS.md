@@ -4,7 +4,7 @@
 
 **Milestone:** M5 — Trading (Phase B)
 **Status:** Not started
-**Next step:** Begin M5 — write 004_trades.sql migration, build trade proposal flow
+**Next step:** Test M4 features (browse, trade toggle, URL importers), then begin M5 — write 004_trades.sql migration, build trade proposal flow
 
 ---
 
