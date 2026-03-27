@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M4 — Public Browsing
-**Status:** In progress
-**Next step:** Build URL importers (moxfield.ts, archidekt.ts), then open PR for M4
+**Milestone:** M5 — Trading (Phase B)
+**Status:** Not started
+**Next step:** Begin M5 — write 004_trades.sql migration, build trade proposal flow
 
 ---
 
@@ -16,8 +16,8 @@
 | M1: Auth & User Profiles      | Complete         | Google OAuth deferred to M9           |
 | M2: Card Data Infrastructure  | Complete         |                                       |
 | M3: Deck Management (Phase A) | Complete         | Text import only, URL importers in M4 |
-| M4: Public Browsing           | In progress      | Core browsing done; URL importers TBD |
-| M5: Trading (Phase B)         | Blocked by M4    |                                       |
+| M4: Public Browsing           | Complete         |                                       |
+| M5: Trading (Phase B)         | Not started      |                                       |
 | M6: Reviews & Reputation      | Blocked by M5    |                                       |
 | M7: Want Lists                | Blocked by M3    | Can run parallel with M5-M6           |
 | M8: Email Notifications       | Blocked by M5+M7 |                                       |
@@ -27,6 +27,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-26 — M4 Complete
+
+**Done:** URL importers for Moxfield and Archidekt (server-side fetch → ParseResult). Single `/api/import/url` route auto-detects platform. URL fetch field added to both create and edit deck forms.
+**Next:** Begin M5 — trades migration, proposal flow.
 
 ### 2026-03-26 — M4 Public Browsing (core)
 
