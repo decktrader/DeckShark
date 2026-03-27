@@ -61,6 +61,7 @@ export async function updateDeck(
       | 'commander_scryfall_id'
       | 'condition_notes'
       | 'status'
+      | 'available_for_trade'
       | 'estimated_value_cents'
     >
   >,

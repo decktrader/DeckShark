@@ -23,6 +23,12 @@ export async function Header() {
           DeckTrader
         </Link>
         <nav className="flex items-center gap-4">
+          <Link
+            href="/decks"
+            className="text-muted-foreground hover:text-foreground text-sm"
+          >
+            Browse
+          </Link>
           {profile ? (
             <UserMenu username={profile.username} />
           ) : (

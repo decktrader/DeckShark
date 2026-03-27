@@ -10,6 +10,13 @@ Architectural and implementation decisions made during development. Newest first
 **Rationale:** Why this option won
 -->
 
+## 2026-03-26 — Color identity filter deferred from M4
+
+**Context:** PLAN.md listed color identity as an M4 browse filter. The `decks` table has no `color_identity` column, and `commander_scryfall_id` has no FK to `card_cache`, so PostgREST can't join them for filtering.
+**Decision:** Defer color identity filter. The remaining filters (format, province, city, commander name, value range) provide a functional browse experience for launch.
+**Alternatives considered:** Add `color_identity text[]` column to `decks` (populated from card_cache on deck save); RPC function; client-side post-filter after fetching all decks.
+**Rationale:** Adding a stored column requires updating deck create/edit logic and is a larger change than M4 warrants. Can be added in M10 polish or as a standalone follow-up.
+
 ## 2026-03-21 — Use `.env.production.local` for real Supabase credentials
 
 **Context:** `.env.local` overrides `.env.development`, causing local dev to hit real Supabase instead of local.
