@@ -120,6 +120,7 @@ Claude manages all git operations: branching, committing, pushing, PRs.
 Users just describe what they want done.
 
 - Branch names: kebab-case, descriptive (e.g., `add-deck-list-page`, `fix-auth-redirect`)
+- For milestone work, name branches after the milestone range being tackled (e.g., `m8-m10-email-onboarding-polish`). Rename the branch when starting a new milestone group rather than leaving a stale name from a prior milestone.
 - Use feature branches for larger or riskier changes
 - Worktrees optional for parallel work across branches (`../decktrader-worktrees/<branch-name>/`)
 

@@ -16,9 +16,9 @@ Scan the full conversation for:
 
 Read these files for comparison:
 
-- `/Users/nsmeds/repos/decktrader/CLAUDE.md`
-- `/Users/nsmeds/.claude/projects/-Users-nsmeds-repos-decktrader/memory/MEMORY.md` (and any referenced memory files that seem relevant)
-- List commands in `/Users/nsmeds/repos/decktrader/.claude/commands/`
+- `/Users/jordangraham/Desktop/Projects/DeckTrader/CLAUDE.md`
+- `/Users/jordangraham/.claude/projects/-Users-jordangraham/memory/MEMORY.md` (and any referenced memory files that seem relevant)
+- List commands in `/Users/jordangraham/Desktop/Projects/DeckTrader/.claude/commands/`
 
 ### 3. Generate suggestions
 
