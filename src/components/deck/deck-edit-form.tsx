@@ -61,6 +61,8 @@ export function DeckEditForm({
     deck.condition_notes ?? '',
   )
   const [importText, setImportText] = useState('')
+  const [importUrl, setImportUrl] = useState('')
+  const [fetchingUrl, setFetchingUrl] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -116,6 +118,37 @@ export function DeckEditForm({
     const { getDeck } = await import('@/lib/services/decks')
     const { data: updated } = await getDeck(deck.id)
     if (updated) setDeck(updated)
+  }
+
+  async function handleFetchUrl() {
+    if (!importUrl.trim()) return
+    setFetchingUrl(true)
+    setError(null)
+
+    const res = await fetch('/api/import/url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: importUrl.trim() }),
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      setError(data.error ?? 'Failed to import from URL.')
+      setFetchingUrl(false)
+      return
+    }
+
+    if (data.cards?.length > 0) {
+      const lines = data.cards.map(
+        (c: { name: string; quantity: number; isCommander: boolean }) =>
+          c.isCommander ? `COMMANDER: ${c.name}` : `${c.quantity}x ${c.name}`,
+      )
+      setImportText(lines.join('\n'))
+      setImportUrl('')
+    } else {
+      setError('No cards found at that URL.')
+    }
+    setFetchingUrl(false)
   }
 
   async function handleImport() {
@@ -300,6 +333,24 @@ export function DeckEditForm({
             </div>
           )}
           <Separator />
+          <div className="space-y-2">
+            <Label>Replace from Moxfield or Archidekt URL</Label>
+            <div className="flex gap-2">
+              <Input
+                placeholder="https://www.moxfield.com/decks/..."
+                value={importUrl}
+                onChange={(e) => setImportUrl(e.target.value)}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleFetchUrl}
+                disabled={fetchingUrl || !importUrl.trim()}
+              >
+                {fetchingUrl ? 'Fetching...' : 'Fetch'}
+              </Button>
+            </div>
+          </div>
           <div className="space-y-2">
             <Label>Replace decklist (paste text)</Label>
             <textarea

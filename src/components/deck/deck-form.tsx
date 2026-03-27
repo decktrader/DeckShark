@@ -35,9 +35,44 @@ export function DeckForm({ userId }: { userId: string }) {
   const [description, setDescription] = useState('')
   const [conditionNotes, setConditionNotes] = useState('')
   const [decklistText, setDecklistText] = useState('')
+  const [importUrl, setImportUrl] = useState('')
+  const [fetchingUrl, setFetchingUrl] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [parseErrors, setParseErrors] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+
+  async function handleFetchUrl() {
+    if (!importUrl.trim()) return
+    setFetchingUrl(true)
+    setError(null)
+
+    const res = await fetch('/api/import/url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: importUrl.trim() }),
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      setError(data.error ?? 'Failed to import from URL.')
+      setFetchingUrl(false)
+      return
+    }
+
+    if (data.errors?.length) setParseErrors(data.errors)
+    if (data.cards?.length > 0) {
+      // Convert parsed cards to text so the existing submit flow can use them
+      const lines = data.cards.map(
+        (c: { name: string; quantity: number; isCommander: boolean }) =>
+          c.isCommander ? `COMMANDER: ${c.name}` : `${c.quantity}x ${c.name}`,
+      )
+      setDecklistText(lines.join('\n'))
+      setImportUrl('')
+    } else {
+      setError('No cards found at that URL.')
+    }
+    setFetchingUrl(false)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -169,7 +204,28 @@ export function DeckForm({ userId }: { userId: string }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="decklist">Decklist</Label>
+            <Label htmlFor="import-url">
+              Import from Moxfield or Archidekt
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="import-url"
+                placeholder="https://www.moxfield.com/decks/..."
+                value={importUrl}
+                onChange={(e) => setImportUrl(e.target.value)}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleFetchUrl}
+                disabled={fetchingUrl || !importUrl.trim()}
+              >
+                {fetchingUrl ? 'Fetching...' : 'Fetch'}
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="decklist">Or paste decklist</Label>
             <textarea
               id="decklist"
               className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[200px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -193,7 +249,10 @@ export function DeckForm({ userId }: { userId: string }) {
           )}
         </CardContent>
         <CardFooter>
-          <Button type="submit" disabled={loading || !name || !decklistText}>
+          <Button
+            type="submit"
+            disabled={loading || !name || (!decklistText && !fetchingUrl)}
+          >
             {loading ? 'Creating deck...' : 'Create deck'}
           </Button>
         </CardFooter>
