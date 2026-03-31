@@ -4,8 +4,20 @@ import {
   importFromArchidekt,
   extractArchidektId,
 } from '@/lib/importers/archidekt'
+import { rateLimit, rateLimitKey } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  const { success } = rateLimit(rateLimitKey(req, 'import'), {
+    limit: 10,
+    windowMs: 60_000,
+  })
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait a moment.' },
+      { status: 429 },
+    )
+  }
+
   const { url } = await req.json()
 
   if (!url || typeof url !== 'string') {
