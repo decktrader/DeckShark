@@ -235,27 +235,29 @@ export function DeckForm({ userId }: { userId: string }) {
               onChange={(e) => setConditionNotes(e.target.value)}
             />
           </div>
-          <div className="space-y-3">
-            <Label>Included accessories</Label>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="sleeves"
-                checked={includesSleeves}
-                onCheckedChange={(v) => setIncludesSleeves(!!v)}
-              />
-              <Label htmlFor="sleeves" className="cursor-pointer font-normal">
-                Selling with Sleeves
-              </Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="deckbox"
-                checked={includesDeckbox}
-                onCheckedChange={(v) => setIncludesDeckbox(!!v)}
-              />
-              <Label htmlFor="deckbox" className="cursor-pointer font-normal">
-                Selling with Deckbox
-              </Label>
+          <div className="space-y-2">
+            <Label>Selling with</Label>
+            <div className="flex gap-6">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="sleeves"
+                  checked={includesSleeves}
+                  onCheckedChange={(v) => setIncludesSleeves(!!v)}
+                />
+                <Label htmlFor="sleeves" className="cursor-pointer font-normal">
+                  Sleeves
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="deckbox"
+                  checked={includesDeckbox}
+                  onCheckedChange={(v) => setIncludesDeckbox(!!v)}
+                />
+                <Label htmlFor="deckbox" className="cursor-pointer font-normal">
+                  Deckbox
+                </Label>
+              </div>
             </div>
           </div>
           <div className="space-y-2">
