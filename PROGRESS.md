@@ -2,31 +2,39 @@
 
 ## Current Focus
 
-**Milestone:** M9 — Onboarding & Landing Page
-**Status:** In progress
-**Next step:** M10 Polish & Mobile (or ship M9 and open PR)
+**Milestone:** M10 — Polish & Mobile
+**Status:** Complete — branch `m10-polish-mobile` pushed, ready to PR
+**Next step:** Open PR for m10-polish-mobile → main, then start M11 (Counter-offers) on new branch
 
 ---
 
 ## Milestone Status
 
-| Milestone                     | Status         | Notes                                 |
-| ----------------------------- | -------------- | ------------------------------------- |
-| M0: Project Scaffolding       | Complete       |                                       |
-| M1: Auth & User Profiles      | Complete       | Google OAuth deferred to M9           |
-| M2: Card Data Infrastructure  | Complete       |                                       |
-| M3: Deck Management (Phase A) | Complete       | Text import only, URL importers in M4 |
-| M4: Public Browsing           | Complete       |                                       |
-| M5: Trading (Phase B)         | Complete       | Realtime updates optional polish      |
-| M6: Reviews & Reputation      | Complete       |                                       |
-| M7: Want Lists                | Complete       |                                       |
-| M8: Email Notifications       | Complete       |                                       |
-| M9: Onboarding & Landing Page | In progress    | Google OAuth deferred                 |
-| M10: Polish & Mobile          | Blocked by all |                                       |
+| Milestone                     | Status   | Notes                                                                                                                |
+| ----------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| M0: Project Scaffolding       | Complete |                                                                                                                      |
+| M1: Auth & User Profiles      | Complete | Google OAuth deferred to M9                                                                                          |
+| M2: Card Data Infrastructure  | Complete |                                                                                                                      |
+| M3: Deck Management (Phase A) | Complete | Text import only, URL importers in M4                                                                                |
+| M4: Public Browsing           | Complete |                                                                                                                      |
+| M5: Trading (Phase B)         | Complete | Realtime updates optional polish                                                                                     |
+| M6: Reviews & Reputation      | Complete |                                                                                                                      |
+| M7: Want Lists                | Complete |                                                                                                                      |
+| M8: Email Notifications       | Complete |                                                                                                                      |
+| M9: Onboarding & Landing Page | Complete | Google OAuth deferred                                                                                                |
+| M10: Polish & Mobile          | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA |
+| M11: Counter-Offers           | Planned  | Next up                                                                                                              |
+| M12: Color Identity Filter    | Planned  |                                                                                                                      |
+| M13: Disputes                 | Deferred | Build when user base warrants                                                                                        |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-30 — M10 Polish & Mobile complete
+
+**Done:** Sleeves/deckbox checkboxes on deck listing (migration 016, deck form/edit-form, public deck card + detail). Loading skeletons for deck browse, dashboard, trades, want-lists. `error.tsx` boundaries in (public) and (protected) route groups. Pagination on /decks, /want-lists, and /trades. Rate limiting on `/api/import/url` and `/api/notify/want-list-match`. Account deletion + data export (`/api/account/delete`, `/api/account/export`, `AccountDangerZone` component on settings page). Connected MobileNav in Header (was never wired up). Flex-wrap fixes on trade/want-list detail headers. Aria-labels on icon-only buttons. SVG favicon + PWA manifest with dark theme_color.
+**Next:** Open PR for `m10-polish-mobile` → main, then start M11 (Counter-Offers) on new branch `m11-counter-offers`.
 
 ### 2026-03-27 — Deck details in trade notification emails
 
