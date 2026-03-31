@@ -41,7 +41,7 @@ export default async function WantListPage({
         </Link>
       </div>
 
-      <div className="mb-6 flex items-start justify-between">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-y-3">
         <div>
           <h1 className="text-2xl font-bold">{wantList.title}</h1>
           <p className="text-muted-foreground text-sm">

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUserById } from '@/lib/services/users.server'
 import { UserMenu } from '@/components/user-menu'
+import { MobileNav } from '@/components/mobile-nav'
 import { Button } from '@/components/ui/button'
 
 export async function Header() {
@@ -30,7 +31,8 @@ export async function Header() {
         <Link href="/" className="text-xl font-bold">
           DeckTrader
         </Link>
-        <nav className="flex items-center gap-4">
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-4 sm:flex">
           <Link
             href="/decks"
             className="text-muted-foreground hover:text-foreground text-sm"
@@ -64,6 +66,14 @@ export async function Header() {
             </Button>
           )}
         </nav>
+
+        {/* Mobile nav */}
+        <div className="sm:hidden">
+          <MobileNav
+            isLoggedIn={!!profile}
+            pendingTradeCount={pendingTradeCount}
+          />
+        </div>
       </div>
     </header>
   )

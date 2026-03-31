@@ -517,6 +517,7 @@ export function DeckEditForm({
                           variant="ghost"
                           size="sm"
                           className="text-muted-foreground h-7 w-7 shrink-0 p-0"
+                          aria-label="Card options"
                         >
                           ···
                         </Button>
@@ -613,9 +614,10 @@ export function DeckEditForm({
                     variant="destructive"
                     size="sm"
                     className="absolute top-1 right-1 h-6 px-2 text-xs"
+                    aria-label="Delete photo"
                     onClick={() => handleDeletePhoto(photo)}
                   >
-                    X
+                    ✕
                   </Button>
                 </div>
               ))}
