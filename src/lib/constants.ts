@@ -61,6 +61,30 @@ export const ARCHETYPES = [
   'Voltron',
 ] as const
 
+export const POWER_LEVELS = [
+  { value: 'casual', label: 'Casual' },
+  { value: 'precon', label: 'Precon' },
+  { value: 'mid', label: 'Mid-power' },
+  { value: 'high', label: 'High-power' },
+  { value: 'cedh', label: 'cEDH' },
+] as const
+
+export const MTG_COLORS = [
+  { value: 'W', label: 'White' },
+  { value: 'U', label: 'Blue' },
+  { value: 'B', label: 'Black' },
+  { value: 'R', label: 'Red' },
+  { value: 'G', label: 'Green' },
+] as const
+
+export const SORT_OPTIONS = [
+  { value: 'recent', label: 'Recently added' },
+  { value: 'value_asc', label: 'Price: low to high' },
+  { value: 'value_desc', label: 'Price: high to low' },
+  { value: 'power_asc', label: 'Power: low to high' },
+  { value: 'power_desc', label: 'Power: high to low' },
+] as const
+
 export const PROVINCES = [
   { value: 'AB', label: 'Alberta' },
   { value: 'BC', label: 'British Columbia' },

@@ -55,6 +55,8 @@ export interface Deck {
   available_for_trade: boolean
   includes_sleeves: boolean
   includes_deckbox: boolean
+  power_level: string | null
+  color_identity: string[]
   created_at: string
   updated_at: string
 }

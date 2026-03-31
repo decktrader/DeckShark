@@ -7,6 +7,8 @@ export async function createDeck(
     name: string
     format: string
     archetype?: string
+    power_level?: string
+    color_identity?: string[]
     description?: string
     commander_name?: string
     commander_scryfall_id?: string
@@ -60,6 +62,8 @@ export async function updateDeck(
       | 'name'
       | 'format'
       | 'archetype'
+      | 'power_level'
+      | 'color_identity'
       | 'description'
       | 'commander_name'
       | 'commander_scryfall_id'

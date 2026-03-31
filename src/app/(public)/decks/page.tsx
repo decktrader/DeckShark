@@ -19,6 +19,10 @@ export default async function BrowseDecksPage({
   const params = await searchParams
   const page = Math.max(1, Number(params.page ?? 1))
 
+  const colorIdentity = params.colorIdentity
+    ? params.colorIdentity.split(',').filter(Boolean)
+    : undefined
+
   const { data: allDecks } = await getPublicDecks({
     format: params.format,
     province: params.province,
@@ -26,6 +30,12 @@ export default async function BrowseDecksPage({
     commander: params.commander,
     minValueCents: params.minValue ? Number(params.minValue) : undefined,
     maxValueCents: params.maxValue ? Number(params.maxValue) : undefined,
+    powerLevel: params.powerLevel,
+    colorIdentity,
+    archetype: params.archetype,
+    sortBy: params.sortBy as
+      | import('@/lib/services/decks.server').SortOption
+      | undefined,
   })
 
   const decks = allDecks ?? []
@@ -44,6 +54,10 @@ export default async function BrowseDecksPage({
     if (params.commander) qs.set('commander', params.commander)
     if (params.minValue) qs.set('minValue', params.minValue)
     if (params.maxValue) qs.set('maxValue', params.maxValue)
+    if (params.powerLevel) qs.set('powerLevel', params.powerLevel)
+    if (params.colorIdentity) qs.set('colorIdentity', params.colorIdentity)
+    if (params.archetype) qs.set('archetype', params.archetype)
+    if (params.sortBy) qs.set('sortBy', params.sortBy)
     if (p > 1) qs.set('page', String(p))
     const str = qs.toString()
     return str ? `/decks?${str}` : '/decks'

@@ -23,7 +23,8 @@ import {
   deleteDeckPhoto as deletePhotoRecord,
 } from '@/lib/services/decks'
 import { getDeckPhotoUrl } from '@/lib/services/storage'
-import { FORMATS, ARCHETYPES } from '@/lib/constants'
+import { FORMATS, ARCHETYPES, POWER_LEVELS } from '@/lib/constants'
+import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
 import type { Deck, DeckCard, DeckPhoto } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -65,6 +66,10 @@ export function DeckEditForm({
   const [name, setName] = useState(deck.name)
   const [format, setFormat] = useState(deck.format)
   const [archetype, setArchetype] = useState(deck.archetype ?? '')
+  const [powerLevel, setPowerLevel] = useState(deck.power_level ?? '')
+  const [colorIdentity, setColorIdentity] = useState<string[]>(
+    deck.color_identity ?? [],
+  )
   const [description, setDescription] = useState(deck.description ?? '')
   const [conditionNotes, setConditionNotes] = useState(
     deck.condition_notes ?? '',
@@ -89,6 +94,8 @@ export function DeckEditForm({
       name,
       format,
       archetype: archetype || null,
+      power_level: powerLevel || null,
+      color_identity: colorIdentity,
       description: description || null,
       condition_notes: conditionNotes || null,
       includes_sleeves: includesSleeves,
@@ -387,6 +394,32 @@ export function DeckEditForm({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="power-level">Power level</Label>
+              <Select
+                value={powerLevel || 'none'}
+                onValueChange={(v) => setPowerLevel(v === 'none' ? '' : v)}
+              >
+                <SelectTrigger id="power-level">
+                  <SelectValue placeholder="Not specified" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Not specified</SelectItem>
+                  {POWER_LEVELS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Color identity</Label>
+              <ColorIdentitySelector
+                value={colorIdentity}
+                onChange={setColorIdentity}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
