@@ -29,7 +29,7 @@ export async function Header() {
     <header className="border-b">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         <Link href="/" className="text-xl font-bold">
-          DeckShark<span className="text-purple-500">.gg</span>
+          DeckShark<span className="text-primary">.gg</span>
         </Link>
         {/* Desktop nav */}
         <nav className="hidden items-center gap-4 sm:flex">
