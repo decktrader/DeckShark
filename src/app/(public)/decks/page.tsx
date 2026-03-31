@@ -1,5 +1,7 @@
 import { Suspense } from 'react'
 import { getPublicDecks } from '@/lib/services/decks.server'
+import { getUserById } from '@/lib/services/users.server'
+import { createClient } from '@/lib/supabase/server'
 import { BrowseFilters } from '@/components/deck/browse-filters'
 import { PublicDeckCard } from '@/components/deck/public-deck-card'
 import { PaginationNav } from '@/components/ui/pagination-nav'
@@ -18,6 +20,23 @@ export default async function BrowseDecksPage({
 }) {
   const params = await searchParams
   const page = Math.max(1, Number(params.page ?? 1))
+
+  // Fetch the authenticated user's profile city/province to use as defaults
+  let defaultCity: string | null = null
+  let defaultProvince: string | null = null
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+    if (authUser) {
+      const { data: profile } = await getUserById(authUser.id)
+      defaultCity = profile?.city ?? null
+      defaultProvince = profile?.province ?? null
+    }
+  } catch {
+    // Non-critical — browse page works fine without defaults
+  }
 
   const colorIdentity = params.colorIdentity
     ? params.colorIdentity.split(',').filter(Boolean)
@@ -74,7 +93,10 @@ export default async function BrowseDecksPage({
 
       <div className="mb-6">
         <Suspense>
-          <BrowseFilters />
+          <BrowseFilters
+            defaultCity={defaultCity}
+            defaultProvince={defaultProvince}
+          />
         </Suspense>
       </div>
 

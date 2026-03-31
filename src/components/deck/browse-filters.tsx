@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
 import { CommanderAutocomplete } from '@/components/ui/commander-autocomplete'
+import { CityAutocomplete } from '@/components/ui/city-autocomplete'
 import {
   FORMATS,
   PROVINCES,
@@ -32,7 +33,6 @@ function buildParams(
   updates: Record<string, string | string[] | null>,
 ): URLSearchParams {
   const next = new URLSearchParams(current.toString())
-  // Always reset page when filters change
   next.delete('page')
   for (const [key, val] of Object.entries(updates)) {
     if (
@@ -97,12 +97,20 @@ function FilterSection({
 
 // ---------- main component ----------
 
-export function BrowseFilters() {
+interface BrowseFiltersProps {
+  defaultCity?: string | null
+  defaultProvince?: string | null
+}
+
+export function BrowseFilters({
+  defaultCity,
+  defaultProvince,
+}: BrowseFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [panelOpen, setPanelOpen] = useState(false)
+  const didInit = useRef(false)
 
-  // Derive current filter values from URL
   const colorIdentity =
     searchParams.get('colorIdentity')?.split(',').filter(Boolean) ?? []
   const powerLevel = searchParams.get('powerLevel') ?? ''
@@ -132,13 +140,29 @@ export function BrowseFilters() {
     [router, searchParams],
   )
 
+  // On first mount: if no location filters set and user has a profile city,
+  // apply it automatically so results are scoped to their area by default.
+  useEffect(() => {
+    if (didInit.current) return
+    didInit.current = true
+    if (
+      !searchParams.has('city') &&
+      !searchParams.has('province') &&
+      (defaultCity || defaultProvince)
+    ) {
+      updateFilter({
+        city: defaultCity ?? null,
+        province: defaultProvince ?? null,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   function clearFilters() {
     router.replace('/decks')
   }
 
-  // Quick filter toggle helpers
   function toggleQuick(updates: Record<string, string | null>) {
-    // If already active (all keys match), clear them; otherwise apply
     const allActive = Object.entries(updates).every(
       ([k, v]) => searchParams.get(k) === v,
     )
@@ -192,8 +216,8 @@ export function BrowseFilters() {
         )}
       </div>
 
-      {/* Row 2: Price inputs + More/Hide filters toggle */}
-      <div className="flex flex-wrap items-end gap-3">
+      {/* Row 2: Price + Location */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-1.5">
           <Label htmlFor="min-value-filter">Min ($)</Label>
           <Input
@@ -201,7 +225,6 @@ export function BrowseFilters() {
             type="number"
             min={0}
             placeholder="0"
-            className="w-28"
             defaultValue={
               searchParams.get('minValue')
                 ? String(Number(searchParams.get('minValue')) / 100)
@@ -225,7 +248,6 @@ export function BrowseFilters() {
             type="number"
             min={0}
             placeholder="Any"
-            className="w-28"
             defaultValue={
               searchParams.get('maxValue')
                 ? String(Number(searchParams.get('maxValue')) / 100)
@@ -242,11 +264,47 @@ export function BrowseFilters() {
           />
         </div>
 
+        <div className="space-y-1.5">
+          <Label htmlFor="province-filter">Province</Label>
+          <Select
+            value={province || 'all'}
+            onValueChange={(v) =>
+              updateFilter({ province: v === 'all' ? null : v })
+            }
+          >
+            <SelectTrigger id="province-filter">
+              <SelectValue placeholder="All provinces" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All provinces</SelectItem>
+              {PROVINCES.map((p) => (
+                <SelectItem key={p.value} value={p.value}>
+                  {p.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="city-filter">City</Label>
+          <CityAutocomplete
+            key={searchParams.get('city') ?? 'empty'}
+            id="city-filter"
+            defaultValue={searchParams.get('city') ?? ''}
+            onCommit={(v) => updateFilter({ city: v || null })}
+            placeholder="e.g. Vancouver"
+          />
+        </div>
+      </div>
+
+      {/* More/Hide filters toggle */}
+      <div className="flex justify-end">
         <Button
           variant="outline"
           size="sm"
           onClick={() => setPanelOpen((o) => !o)}
-          className="ml-auto gap-1.5"
+          className="gap-1.5"
           aria-expanded={panelOpen}
           aria-controls="filter-panel"
         >
@@ -359,51 +417,6 @@ export function BrowseFilters() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-          </div>
-        </FilterSection>
-
-        {/* Location */}
-        <FilterSection title="Location">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="province-filter">Province</Label>
-              <Select
-                value={province || 'all'}
-                onValueChange={(v) =>
-                  updateFilter({ province: v === 'all' ? null : v })
-                }
-              >
-                <SelectTrigger id="province-filter">
-                  <SelectValue placeholder="All provinces" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All provinces</SelectItem>
-                  {PROVINCES.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="city-filter">City</Label>
-              <Input
-                id="city-filter"
-                placeholder="e.g. Vancouver"
-                defaultValue={searchParams.get('city') ?? ''}
-                onBlur={(e) =>
-                  updateFilter({ city: e.target.value.trim() || null })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter')
-                    updateFilter({
-                      city: e.currentTarget.value.trim() || null,
-                    })
-                }}
-              />
             </div>
           </div>
         </FilterSection>
