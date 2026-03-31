@@ -1,6 +1,6 @@
 {
-  "name": "DeckTrader",
-  "short_name": "DeckTrader",
+  "name": "DeckShark",
+  "short_name": "DeckShark",
   "description": "Trade Magic: The Gathering decks with players near you",
   "start_url": "/",
   "display": "standalone",

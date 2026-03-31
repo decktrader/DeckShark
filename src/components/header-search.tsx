@@ -18,7 +18,7 @@ export function HeaderSearch() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="absolute left-1/2 hidden -translate-x-1/2 sm:block"
+      className="hidden flex-1 justify-center sm:flex"
     >
       <div className="relative w-64">
         <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2" />

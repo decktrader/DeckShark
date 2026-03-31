@@ -28,8 +28,8 @@ export async function Header() {
   }
 
   return (
-    <header className="border-b">
-      <div className="relative container mx-auto flex h-14 items-center px-4">
+    <header className="relative z-50 border-b">
+      <div className="container mx-auto flex h-14 items-center justify-between px-4">
         <Link
           href="/"
           className="flex shrink-0 items-center text-2xl font-bold"
@@ -44,9 +44,8 @@ export async function Header() {
           />
           DeckShark<span className="text-primary">.gg</span>
         </Link>
-        <HeaderSearch />
         {/* Desktop nav */}
-        <nav className="ml-auto hidden items-center gap-4 sm:flex">
+        <nav className="hidden items-center gap-4 sm:flex">
           <Link
             href="/decks"
             className="text-muted-foreground hover:text-foreground text-sm"
@@ -82,7 +81,7 @@ export async function Header() {
         </nav>
 
         {/* Mobile nav */}
-        <div className="ml-auto sm:hidden">
+        <div className="sm:hidden">
           <MobileNav
             isLoggedIn={!!profile}
             pendingTradeCount={pendingTradeCount}

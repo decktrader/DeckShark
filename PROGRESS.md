@@ -3,8 +3,9 @@
 ## Current Focus
 
 **Milestone:** M10.5 — Browse Filter Enhancements
-**Status:** Complete — branch `m10.5` pushed, ready to PR
-**Next step:** Open PR for m10.5 → main, then start M11 (Counter-Offers) on new branch
+**Status:** Complete — PR #9 open, ready to merge
+**Next step:** Merge PR #9, then start M11 (Counter-Offers) on new branch
+**Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — exhausted React synthetic events, native touchstart via ref, button/anchor/a tags, touch-action manipulation. Root cause unknown; suspect Radix DropdownMenu global listener or stacking context issue. Needs remote DevTools inspection to diagnose.
 
 ---
 
@@ -31,6 +32,16 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-31 — iOS hamburger debugging (unresolved)
+
+**Done:** Tried every approach to fix hamburger menu on iPhone Chrome: Radix Sheet → plain button → anchor tag → `<button type="button">` with `touch-action: manipulation` → native `touchstart` addEventListener via ref bypassing React delegation. None worked. Left with native touchstart + dedup guard in place. Need to use Chrome remote DevTools (`chrome://inspect`) to identify what element is actually receiving taps on the right side of the header.
+**Next:** When resuming, use `chrome://inspect` on the laptop while the phone loads the dev server to inspect elements and check for invisible overlays. Also consider temporarily removing `UserMenu` from header to test if Radix DropdownMenu is the culprit.
+
+### 2026-03-31 — Header polish + PR opened
+
+**Done:** Added DeckShark shark logo (`public/logo.png`) to header alongside text. Added `HeaderSearch` client component — searches deck name OR commander name via `/decks?q=`, hidden on mobile. Extended `getPublicDecks` with `q` filter (Postgres `or()` on name + commander_name). Removed emoji icons from landing page value props. PR #9 opened for m10.5 → main.
+**Next:** Merge PR #9, start M11 (Counter-Offers) on new branch.
 
 ### 2026-03-31 — M10.5 complete
 
