@@ -3,40 +3,40 @@
 ## Current Focus
 
 **Milestone:** M10.5 — Browse Filter Enhancements
-**Status:** In progress — branch `m10.5`
-**Next step:** Continue M10.5 additions per Jordan's list
+**Status:** Complete — branch `m10.5` pushed, ready to PR
+**Next step:** Open PR for m10.5 → main, then start M11 (Counter-Offers) on new branch
 
 ---
 
 ## Milestone Status
 
-| Milestone                     | Status      | Notes                                                                                                                |
-| ----------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| M0: Project Scaffolding       | Complete    |                                                                                                                      |
-| M1: Auth & User Profiles      | Complete    | Google OAuth deferred to M9                                                                                          |
-| M2: Card Data Infrastructure  | Complete    |                                                                                                                      |
-| M3: Deck Management (Phase A) | Complete    | Text import only, URL importers in M4                                                                                |
-| M4: Public Browsing           | Complete    |                                                                                                                      |
-| M5: Trading (Phase B)         | Complete    | Realtime updates optional polish                                                                                     |
-| M6: Reviews & Reputation      | Complete    |                                                                                                                      |
-| M7: Want Lists                | Complete    |                                                                                                                      |
-| M8: Email Notifications       | Complete    |                                                                                                                      |
-| M9: Onboarding & Landing Page | Complete    | Google OAuth deferred                                                                                                |
-| M10: Polish & Mobile          | Complete    | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA |
-| M10.5: Browse Filters         | In progress | Power level, color identity, archetype, sort, quick chips, commander autocomplete                                    |
-| M11: Counter-Offers           | Planned     | After M10.5                                                                                                          |
-| M12: Color Identity Filter    | Planned     |                                                                                                                      |
-| M13: Disputes                 | Deferred    | Build when user base warrants                                                                                        |
+| Milestone                     | Status   | Notes                                                                                                                       |
+| ----------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| M0: Project Scaffolding       | Complete |                                                                                                                             |
+| M1: Auth & User Profiles      | Complete | Google OAuth deferred to M9                                                                                                 |
+| M2: Card Data Infrastructure  | Complete |                                                                                                                             |
+| M3: Deck Management (Phase A) | Complete | Text import only, URL importers in M4                                                                                       |
+| M4: Public Browsing           | Complete |                                                                                                                             |
+| M5: Trading (Phase B)         | Complete | Realtime updates optional polish                                                                                            |
+| M6: Reviews & Reputation      | Complete |                                                                                                                             |
+| M7: Want Lists                | Complete |                                                                                                                             |
+| M8: Email Notifications       | Complete |                                                                                                                             |
+| M9: Onboarding & Landing Page | Complete | Google OAuth deferred                                                                                                       |
+| M10: Polish & Mobile          | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA        |
+| M10.5: Browse Filters         | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand |
+| M11: Counter-Offers           | Planned  | After M10.5                                                                                                                 |
+| M12: Color Identity Filter    | Planned  |                                                                                                                             |
+| M13: Disputes                 | Deferred | Build when user base warrants                                                                                               |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
 
-### 2026-03-30 — M10.5 Browse filter enhancements (pass 1)
+### 2026-03-31 — M10.5 complete
 
-**Done:** Migration 017 adds `power_level text` (casual/precon/mid/high/cedh) and `color_identity text[]` to `decks`. Constants: `POWER_LEVELS`, `MTG_COLORS`, `SORT_OPTIONS`. Service layer updated — `getPublicDecks` supports power level, color identity (`@>` contains), archetype, sort (recent/value_asc/value_desc/power_asc/power_desc). Commander search API at `/api/commanders/search?q=`. New components: `ColorIdentitySelector` (WUBRG toggles), `CommanderAutocomplete` (debounced, dropdown suggestions). `BrowseFilters` rewritten with quick filter chips (cEDH, High-power, Under $200), grouped sections (Gameplay/Location/Price/Sort), mobile Show/Hide toggle, clear all. Deck form + edit form updated with power level and color identity fields.
+**Done:** All browse filter enhancements: power level + color identity on decks (migration 017, deck forms), `ColorIdentitySelector` replaced with grouped dropdown (31 color identity options mono→5-color), collapsible filter panel (quick chips + price + location always visible, More/Hide filters toggle), city autocomplete (`/api/cities/search`), commander autocomplete (`/api/commanders/search`), profile city/province auto-applied on first browse visit, DeckShark.gg rebrand in header with `text-primary` .gg. Branch pushed.
 **Deferred:** Distance radius filter — no lat/lng in DB; see DECISIONS.md.
-**Next:** Remaining M10.5 additions from Jordan's list, or open PR.
+**Next:** Open PR for m10.5 → main, then start M11 (Counter-Offers) on new branch.
 
 ### 2026-03-30 — M10 Polish & Mobile complete
 
