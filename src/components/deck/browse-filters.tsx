@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,
@@ -22,7 +23,7 @@ import {
   SORT_OPTIONS,
 } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { SlidersHorizontal, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, X } from 'lucide-react'
 
 // ---------- helpers ----------
 
@@ -156,7 +157,7 @@ export function BrowseFilters() {
 
   return (
     <div className="bg-card space-y-4 rounded-lg border p-4">
-      {/* Quick filters row */}
+      {/* Row 1: Quick filter chips */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-muted-foreground text-xs font-medium">
           Quick:
@@ -177,38 +178,99 @@ export function BrowseFilters() {
           onClick={() => toggleQuick({ maxValue: '20000' })}
         />
 
-        <div className="ml-auto flex items-center gap-2">
-          {hasFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="text-muted-foreground h-7 gap-1 px-2 text-xs"
-              aria-label="Clear all filters"
-            >
-              <X className="h-3 w-3" />
-              Clear all
-            </Button>
-          )}
+        {hasFilters && (
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={() => setPanelOpen((o) => !o)}
-            className="h-7 gap-1.5 px-2 text-xs sm:hidden"
-            aria-expanded={panelOpen}
-            aria-controls="filter-panel"
+            onClick={clearFilters}
+            className="text-muted-foreground ml-auto h-7 gap-1 px-2 text-xs"
+            aria-label="Clear all filters"
           >
-            <SlidersHorizontal className="h-3 w-3" />
-            {panelOpen ? 'Hide filters' : 'Filters'}
+            <X className="h-3 w-3" />
+            Clear all
           </Button>
-        </div>
+        )}
       </div>
 
-      {/* Full filter panel — always visible on sm+, toggle on mobile */}
+      {/* Row 2: Price inputs + More/Hide filters toggle */}
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="min-value-filter">Min ($)</Label>
+          <Input
+            id="min-value-filter"
+            type="number"
+            min={0}
+            placeholder="0"
+            className="w-28"
+            defaultValue={
+              searchParams.get('minValue')
+                ? String(Number(searchParams.get('minValue')) / 100)
+                : ''
+            }
+            onBlur={(e) => {
+              const dollars = parseFloat(e.target.value)
+              updateFilter({
+                minValue: isNaN(dollars)
+                  ? null
+                  : String(Math.round(dollars * 100)),
+              })
+            }}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="max-value-filter">Max ($)</Label>
+          <Input
+            id="max-value-filter"
+            type="number"
+            min={0}
+            placeholder="Any"
+            className="w-28"
+            defaultValue={
+              searchParams.get('maxValue')
+                ? String(Number(searchParams.get('maxValue')) / 100)
+                : ''
+            }
+            onBlur={(e) => {
+              const dollars = parseFloat(e.target.value)
+              updateFilter({
+                maxValue: isNaN(dollars)
+                  ? null
+                  : String(Math.round(dollars * 100)),
+              })
+            }}
+          />
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPanelOpen((o) => !o)}
+          className="ml-auto gap-1.5"
+          aria-expanded={panelOpen}
+          aria-controls="filter-panel"
+        >
+          {panelOpen ? (
+            <>
+              <ChevronUp className="h-3.5 w-3.5" />
+              Hide filters
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-3.5 w-3.5" />
+              More filters
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Expandable filter panel */}
       <div
         id="filter-panel"
-        className={cn('space-y-5', !panelOpen && 'hidden sm:block')}
+        className={cn('space-y-5', !panelOpen && 'hidden')}
       >
+        <Separator />
+
         {/* Gameplay */}
         <FilterSection title="Gameplay">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -346,57 +408,6 @@ export function BrowseFilters() {
           </div>
         </FilterSection>
 
-        {/* Price */}
-        <FilterSection title="Price">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="min-value-filter">Min ($)</Label>
-              <Input
-                id="min-value-filter"
-                type="number"
-                min={0}
-                placeholder="0"
-                defaultValue={
-                  searchParams.get('minValue')
-                    ? String(Number(searchParams.get('minValue')) / 100)
-                    : ''
-                }
-                onBlur={(e) => {
-                  const dollars = parseFloat(e.target.value)
-                  updateFilter({
-                    minValue: isNaN(dollars)
-                      ? null
-                      : String(Math.round(dollars * 100)),
-                  })
-                }}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="max-value-filter">Max ($)</Label>
-              <Input
-                id="max-value-filter"
-                type="number"
-                min={0}
-                placeholder="Any"
-                defaultValue={
-                  searchParams.get('maxValue')
-                    ? String(Number(searchParams.get('maxValue')) / 100)
-                    : ''
-                }
-                onBlur={(e) => {
-                  const dollars = parseFloat(e.target.value)
-                  updateFilter({
-                    maxValue: isNaN(dollars)
-                      ? null
-                      : String(Math.round(dollars * 100)),
-                  })
-                }}
-              />
-            </div>
-          </div>
-        </FilterSection>
-
         {/* Sort */}
         <FilterSection title="Sort by">
           <div className="max-w-xs">
@@ -419,6 +430,18 @@ export function BrowseFilters() {
             </Select>
           </div>
         </FilterSection>
+
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setPanelOpen(false)}
+            className="gap-1.5"
+          >
+            <ChevronUp className="h-3.5 w-3.5" />
+            Hide filters
+          </Button>
+        </div>
       </div>
     </div>
   )
