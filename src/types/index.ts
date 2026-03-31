@@ -53,6 +53,8 @@ export interface Deck {
   condition_notes: string | null
   status: DeckStatus
   available_for_trade: boolean
+  includes_sleeves: boolean
+  includes_deckbox: boolean
   created_at: string
   updated_at: string
 }

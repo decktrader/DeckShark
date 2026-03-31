@@ -60,6 +60,20 @@ export function PublicDeckCard({ deck }: { deck: PublicDeck }) {
               {formatPrice(deck.estimated_value_cents)}
             </span>
           </div>
+          {(deck.includes_sleeves || deck.includes_deckbox) && (
+            <div className="mt-2 flex gap-1.5">
+              {deck.includes_sleeves && (
+                <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs">
+                  Sleeves
+                </span>
+              )}
+              {deck.includes_deckbox && (
+                <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs">
+                  Deckbox
+                </span>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>

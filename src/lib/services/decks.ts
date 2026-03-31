@@ -11,6 +11,8 @@ export async function createDeck(
     commander_name?: string
     commander_scryfall_id?: string
     condition_notes?: string
+    includes_sleeves?: boolean
+    includes_deckbox?: boolean
   },
 ): Promise<ServiceResponse<Deck>> {
   const supabase = createClient()
@@ -64,6 +66,8 @@ export async function updateDeck(
       | 'condition_notes'
       | 'status'
       | 'available_for_trade'
+      | 'includes_sleeves'
+      | 'includes_deckbox'
       | 'estimated_value_cents'
     >
   >,

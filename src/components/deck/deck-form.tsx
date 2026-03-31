@@ -12,6 +12,7 @@ import { parseDecklist } from '@/lib/importers/text'
 import { getCardByName } from '@/lib/scryfall/api'
 import { FORMATS, ARCHETYPES } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -41,6 +42,8 @@ export function DeckForm({ userId }: { userId: string }) {
   const [fetchingUrl, setFetchingUrl] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [parseErrors, setParseErrors] = useState<string[]>([])
+  const [includesSleeves, setIncludesSleeves] = useState(false)
+  const [includesDeckbox, setIncludesDeckbox] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleFetchUrl() {
@@ -104,6 +107,8 @@ export function DeckForm({ userId }: { userId: string }) {
       description: description || undefined,
       condition_notes: conditionNotes || undefined,
       commander_name: commander?.name,
+      includes_sleeves: includesSleeves,
+      includes_deckbox: includesDeckbox,
     })
 
     if (deckError || !deck) {
@@ -229,6 +234,29 @@ export function DeckForm({ userId }: { userId: string }) {
               value={conditionNotes}
               onChange={(e) => setConditionNotes(e.target.value)}
             />
+          </div>
+          <div className="space-y-3">
+            <Label>Included accessories</Label>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="sleeves"
+                checked={includesSleeves}
+                onCheckedChange={(v) => setIncludesSleeves(!!v)}
+              />
+              <Label htmlFor="sleeves" className="cursor-pointer font-normal">
+                Selling with Sleeves
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="deckbox"
+                checked={includesDeckbox}
+                onCheckedChange={(v) => setIncludesDeckbox(!!v)}
+              />
+              <Label htmlFor="deckbox" className="cursor-pointer font-normal">
+                Selling with Deckbox
+              </Label>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="import-url">

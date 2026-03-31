@@ -69,6 +69,8 @@ export function DeckEditForm({
   const [conditionNotes, setConditionNotes] = useState(
     deck.condition_notes ?? '',
   )
+  const [includesSleeves, setIncludesSleeves] = useState(deck.includes_sleeves)
+  const [includesDeckbox, setIncludesDeckbox] = useState(deck.includes_deckbox)
   const [importText, setImportText] = useState('')
   const [importUrl, setImportUrl] = useState('')
   const [fetchingUrl, setFetchingUrl] = useState(false)
@@ -89,6 +91,8 @@ export function DeckEditForm({
       archetype: archetype || null,
       description: description || null,
       condition_notes: conditionNotes || null,
+      includes_sleeves: includesSleeves,
+      includes_deckbox: includesDeckbox,
     })
 
     if (err) {
@@ -399,6 +403,29 @@ export function DeckEditForm({
                 value={conditionNotes}
                 onChange={(e) => setConditionNotes(e.target.value)}
               />
+            </div>
+            <div className="space-y-3">
+              <Label>Included accessories</Label>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="sleeves"
+                  checked={includesSleeves}
+                  onCheckedChange={(v) => setIncludesSleeves(!!v)}
+                />
+                <Label htmlFor="sleeves" className="cursor-pointer font-normal">
+                  Selling with Sleeves
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="deckbox"
+                  checked={includesDeckbox}
+                  onCheckedChange={(v) => setIncludesDeckbox(!!v)}
+                />
+                <Label htmlFor="deckbox" className="cursor-pointer font-normal">
+                  Selling with Deckbox
+                </Label>
+              </div>
             </div>
             <Button type="submit" disabled={saving}>
               {saving ? 'Saving...' : 'Save details'}
