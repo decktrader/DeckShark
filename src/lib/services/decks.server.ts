@@ -24,6 +24,7 @@ export interface PublicDeckFilters {
   province?: string
   format?: string
   commander?: string
+  q?: string
   powerLevel?: string
   colorIdentity?: string[]
   archetype?: string
@@ -71,6 +72,11 @@ export async function getPublicDecks(
   }
   if (filters.commander) {
     query = query.ilike('commander_name', `%${filters.commander}%`)
+  }
+  if (filters.q) {
+    query = query.or(
+      `name.ilike.%${filters.q}%,commander_name.ilike.%${filters.q}%`,
+    )
   }
   if (filters.powerLevel) {
     query = query.eq('power_level', filters.powerLevel)

@@ -108,7 +108,6 @@ export default async function HomePage() {
           <div className="grid gap-8 sm:grid-cols-3">
             {VALUE_PROPS.map((prop) => (
               <div key={prop.title} className="space-y-2">
-                <div className="text-3xl">{prop.icon}</div>
                 <h2 className="font-semibold">{prop.title}</h2>
                 <p className="text-muted-foreground text-sm">
                   {prop.description}

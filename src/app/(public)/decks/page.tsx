@@ -47,6 +47,7 @@ export default async function BrowseDecksPage({
     province: params.province,
     city: params.city,
     commander: params.commander,
+    q: params.q,
     minValueCents: params.minValue ? Number(params.minValue) : undefined,
     maxValueCents: params.maxValue ? Number(params.maxValue) : undefined,
     powerLevel: params.powerLevel,
