@@ -27,6 +27,19 @@ export async function signIn(
   return { data: data.user, error: null }
 }
 
+export async function signInWithGoogle(): Promise<ServiceResponse<null>> {
+  const supabase = createClient()
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  })
+
+  if (error) return { data: null, error: error.message }
+  return { data: null, error: null }
+}
+
 export async function signOut(): Promise<ServiceResponse<null>> {
   const supabase = createClient()
   const { error } = await supabase.auth.signOut()
