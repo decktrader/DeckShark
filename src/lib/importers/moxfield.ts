@@ -43,7 +43,7 @@ export async function importFromMoxfield(url: string): Promise<ParseResult> {
         return {
           cards: [],
           errors: [
-            'Moxfield blocks automated imports. To import this deck, open it on Moxfield, click Download → Text, then paste the text into the "Paste text" tab.',
+            'Moxfield import is not currently supported — coming soon! For now, open your deck on Moxfield, click Download → Text, then paste it into the "Paste text" tab.',
           ],
         }
       }
