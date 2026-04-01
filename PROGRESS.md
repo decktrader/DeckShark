@@ -26,6 +26,7 @@
 | M10: Polish & Mobile          | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA        |
 | M10.5: Browse Filters         | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand |
 | Production Deploy             | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                           |
+| Branch Protection             | Planned  | Protect main branch — require PRs, no direct pushes to production                                                           |
 | M11: Counter-Offers           | Planned  | Next up                                                                                                                     |
 | M12: Color Identity Filter    | Planned  |                                                                                                                             |
 | M13: Disputes                 | Deferred | Build when user base warrants                                                                                               |
