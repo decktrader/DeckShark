@@ -1,7 +1,10 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUserById } from '@/lib/services/users.server'
+import { HeaderSearch } from '@/components/header-search'
 import { UserMenu } from '@/components/user-menu'
+import { MobileNav } from '@/components/mobile-nav'
 import { Button } from '@/components/ui/button'
 
 export async function Header() {
@@ -25,12 +28,24 @@ export async function Header() {
   }
 
   return (
-    <header className="border-b">
+    <header className="relative z-50 border-b">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold">
-          DeckTrader
+        <Link
+          href="/"
+          className="flex shrink-0 items-center text-2xl font-bold"
+        >
+          <Image
+            src="/logo.png"
+            alt="DeckShark logo"
+            width={35}
+            height={35}
+            className="mr-2 h-[35px] w-auto"
+            priority
+          />
+          DeckShark<span className="text-primary">.gg</span>
         </Link>
-        <nav className="flex items-center gap-4">
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-4 sm:flex">
           <Link
             href="/decks"
             className="text-muted-foreground hover:text-foreground text-sm"
@@ -64,6 +79,14 @@ export async function Header() {
             </Button>
           )}
         </nav>
+
+        {/* Mobile nav */}
+        <div className="sm:hidden">
+          <MobileNav
+            isLoggedIn={!!profile}
+            pendingTradeCount={pendingTradeCount}
+          />
+        </div>
       </div>
     </header>
   )

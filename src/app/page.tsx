@@ -5,11 +5,11 @@ import { PublicDeckCard } from '@/components/deck/public-deck-card'
 import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
-  title: 'DeckTrader — Trade MTG Decks Near You',
+  title: 'DeckShark — Trade MTG Decks Near You',
   description:
     'Find local Magic: The Gathering players and trade decks in person. Browse trade-available decks across Canada.',
   openGraph: {
-    title: 'DeckTrader — Trade MTG Decks Near You',
+    title: 'DeckShark — Trade MTG Decks Near You',
     description:
       'Find local Magic: The Gathering players and trade decks in person. Browse trade-available decks across Canada.',
     type: 'website',
@@ -87,7 +87,7 @@ export default async function HomePage() {
             <span className="text-white/60">near you</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-white/70 [text-shadow:0_1px_16px_rgba(0,0,0,1),0_1px_4px_rgba(0,0,0,0.9)]">
-            DeckTrader connects Magic: The Gathering players across Canada for
+            DeckShark connects Magic: The Gathering players across Canada for
             in-person deck trades. Browse what&apos;s available, propose a swap,
             and meet up locally.
           </p>
@@ -108,7 +108,6 @@ export default async function HomePage() {
           <div className="grid gap-8 sm:grid-cols-3">
             {VALUE_PROPS.map((prop) => (
               <div key={prop.title} className="space-y-2">
-                <div className="text-3xl">{prop.icon}</div>
                 <h2 className="font-semibold">{prop.title}</h2>
                 <p className="text-muted-foreground text-sm">
                   {prop.description}

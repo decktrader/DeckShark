@@ -10,8 +10,10 @@ import {
 import { searchCards } from '@/lib/services/cards'
 import { parseDecklist } from '@/lib/importers/text'
 import { getCardByName } from '@/lib/scryfall/api'
-import { FORMATS, ARCHETYPES } from '@/lib/constants'
+import { FORMATS, ARCHETYPES, POWER_LEVELS } from '@/lib/constants'
+import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -34,6 +36,8 @@ export function DeckForm({ userId }: { userId: string }) {
   const [name, setName] = useState('')
   const [format, setFormat] = useState('commander')
   const [archetype, setArchetype] = useState('')
+  const [powerLevel, setPowerLevel] = useState('')
+  const [colorIdentity, setColorIdentity] = useState<string[]>([])
   const [description, setDescription] = useState('')
   const [conditionNotes, setConditionNotes] = useState('')
   const [decklistText, setDecklistText] = useState('')
@@ -41,6 +45,8 @@ export function DeckForm({ userId }: { userId: string }) {
   const [fetchingUrl, setFetchingUrl] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [parseErrors, setParseErrors] = useState<string[]>([])
+  const [includesSleeves, setIncludesSleeves] = useState(false)
+  const [includesDeckbox, setIncludesDeckbox] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleFetchUrl() {
@@ -101,9 +107,13 @@ export function DeckForm({ userId }: { userId: string }) {
       name,
       format,
       archetype: archetype || undefined,
+      power_level: powerLevel || undefined,
+      color_identity: colorIdentity.length ? colorIdentity : undefined,
       description: description || undefined,
       condition_notes: conditionNotes || undefined,
       commander_name: commander?.name,
+      includes_sleeves: includesSleeves,
+      includes_deckbox: includesDeckbox,
     })
 
     if (deckError || !deck) {
@@ -213,6 +223,32 @@ export function DeckForm({ userId }: { userId: string }) {
             </Select>
           </div>
           <div className="space-y-2">
+            <Label htmlFor="power-level">Power level (optional)</Label>
+            <Select
+              value={powerLevel || 'none'}
+              onValueChange={(v) => setPowerLevel(v === 'none' ? '' : v)}
+            >
+              <SelectTrigger id="power-level">
+                <SelectValue placeholder="Select power level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Not specified</SelectItem>
+                {POWER_LEVELS.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Color identity (optional)</Label>
+            <ColorIdentitySelector
+              value={colorIdentity}
+              onChange={setColorIdentity}
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="description">Description (optional)</Label>
             <Input
               id="description"
@@ -229,6 +265,31 @@ export function DeckForm({ userId }: { userId: string }) {
               value={conditionNotes}
               onChange={(e) => setConditionNotes(e.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Selling with</Label>
+            <div className="flex gap-6">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="sleeves"
+                  checked={includesSleeves}
+                  onCheckedChange={(v) => setIncludesSleeves(!!v)}
+                />
+                <Label htmlFor="sleeves" className="cursor-pointer font-normal">
+                  Sleeves
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="deckbox"
+                  checked={includesDeckbox}
+                  onCheckedChange={(v) => setIncludesDeckbox(!!v)}
+                />
+                <Label htmlFor="deckbox" className="cursor-pointer font-normal">
+                  Deckbox
+                </Label>
+              </div>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="import-url">

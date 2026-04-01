@@ -1,6 +1,21 @@
 import { createClient } from '@/lib/supabase/server'
 import type { Deck, DeckCard, DeckPhoto, ServiceResponse, User } from '@/types'
 
+export type SortOption =
+  | 'recent'
+  | 'value_asc'
+  | 'value_desc'
+  | 'power_asc'
+  | 'power_desc'
+
+const POWER_LEVEL_ORDER: Record<string, number> = {
+  casual: 1,
+  precon: 2,
+  mid: 3,
+  high: 4,
+  cedh: 5,
+}
+
 export interface PublicDeckFilters {
   userId?: string
   minValueCents?: number
@@ -9,6 +24,11 @@ export interface PublicDeckFilters {
   province?: string
   format?: string
   commander?: string
+  q?: string
+  powerLevel?: string
+  colorIdentity?: string[]
+  archetype?: string
+  sortBy?: SortOption
   limit?: number
 }
 
@@ -21,13 +41,28 @@ export async function getPublicDecks(
 ): Promise<ServiceResponse<PublicDeck[]>> {
   const supabase = await createClient()
 
+  // Build sort — power level is client-side (custom order), others are DB-level
+  const sortBy = filters.sortBy ?? 'recent'
   let query = supabase
     .from('decks')
     .select('*, owner:users!user_id(id, username, city, province, avatar_url)')
     .eq('available_for_trade', true)
     .eq('status', 'active')
-    .order('updated_at', { ascending: false })
     .limit(filters.limit ?? 1000)
+
+  if (sortBy === 'value_asc') {
+    query = query.order('estimated_value_cents', {
+      ascending: true,
+      nullsFirst: false,
+    })
+  } else if (sortBy === 'value_desc') {
+    query = query.order('estimated_value_cents', {
+      ascending: false,
+      nullsFirst: false,
+    })
+  } else {
+    query = query.order('updated_at', { ascending: false })
+  }
 
   if (filters.userId) {
     query = query.eq('user_id', filters.userId)
@@ -37,6 +72,21 @@ export async function getPublicDecks(
   }
   if (filters.commander) {
     query = query.ilike('commander_name', `%${filters.commander}%`)
+  }
+  if (filters.q) {
+    query = query.or(
+      `name.ilike.%${filters.q}%,commander_name.ilike.%${filters.q}%`,
+    )
+  }
+  if (filters.powerLevel) {
+    query = query.eq('power_level', filters.powerLevel)
+  }
+  if (filters.colorIdentity && filters.colorIdentity.length > 0) {
+    // Deck's color_identity must contain all selected colors
+    query = query.contains('color_identity', filters.colorIdentity)
+  }
+  if (filters.archetype) {
+    query = query.eq('archetype', filters.archetype)
   }
   if (filters.minValueCents !== undefined) {
     query = query.gte('estimated_value_cents', filters.minValueCents)
@@ -59,6 +109,21 @@ export async function getPublicDecks(
   }
   if (filters.province) {
     decks = decks.filter((d) => d.owner?.province === filters.province)
+  }
+
+  // Client-side power level sort (custom ordering, not alphabetical)
+  if (sortBy === 'power_asc') {
+    decks = decks.sort(
+      (a, b) =>
+        (POWER_LEVEL_ORDER[a.power_level ?? ''] ?? 0) -
+        (POWER_LEVEL_ORDER[b.power_level ?? ''] ?? 0),
+    )
+  } else if (sortBy === 'power_desc') {
+    decks = decks.sort(
+      (a, b) =>
+        (POWER_LEVEL_ORDER[b.power_level ?? ''] ?? 0) -
+        (POWER_LEVEL_ORDER[a.power_level ?? ''] ?? 0),
+    )
   }
 
   return { data: decks, error: null }

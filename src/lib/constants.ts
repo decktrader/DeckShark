@@ -61,6 +61,96 @@ export const ARCHETYPES = [
   'Voltron',
 ] as const
 
+export const POWER_LEVELS = [
+  { value: 'casual', label: 'Casual' },
+  { value: 'precon', label: 'Precon' },
+  { value: 'mid', label: 'Mid-power' },
+  { value: 'high', label: 'High-power' },
+  { value: 'cedh', label: 'cEDH' },
+] as const
+
+export const MTG_COLORS = [
+  { value: 'W', label: 'White' },
+  { value: 'U', label: 'Blue' },
+  { value: 'B', label: 'Black' },
+  { value: 'R', label: 'Red' },
+  { value: 'G', label: 'Green' },
+] as const
+
+// All predefined MTG color identities, mono through five-color.
+// value = WUBRG-ordered key used as Select value and for array reconstruction.
+// colors = string[] stored in DB / URL.
+export const COLOR_IDENTITY_OPTIONS = [
+  // Mono
+  { value: 'W', label: 'White', colors: ['W'] },
+  { value: 'U', label: 'Blue (U)', colors: ['U'] },
+  { value: 'B', label: 'Black (B)', colors: ['B'] },
+  { value: 'R', label: 'Red', colors: ['R'] },
+  { value: 'G', label: 'Green', colors: ['G'] },
+  // Dual — Ravnica guilds
+  { value: 'WU', label: 'Azorius (W, U)', colors: ['W', 'U'] },
+  { value: 'WB', label: 'Orzhov (W, B)', colors: ['W', 'B'] },
+  { value: 'WR', label: 'Boros (W, R)', colors: ['W', 'R'] },
+  { value: 'WG', label: 'Selesnya (W, G)', colors: ['W', 'G'] },
+  { value: 'UB', label: 'Dimir (U, B)', colors: ['U', 'B'] },
+  { value: 'UR', label: 'Izzet (U, R)', colors: ['U', 'R'] },
+  { value: 'UG', label: 'Simic (U, G)', colors: ['U', 'G'] },
+  { value: 'BR', label: 'Rakdos (B, R)', colors: ['B', 'R'] },
+  { value: 'BG', label: 'Golgari (B, G)', colors: ['B', 'G'] },
+  { value: 'RG', label: 'Gruul (R, G)', colors: ['R', 'G'] },
+  // Tri — Shards of Alara & Khans of Tarkir
+  { value: 'WUB', label: 'Esper (W, U, B)', colors: ['W', 'U', 'B'] },
+  { value: 'WUR', label: 'Jeskai (W, U, R)', colors: ['W', 'U', 'R'] },
+  { value: 'WUG', label: 'Bant (W, U, G)', colors: ['W', 'U', 'G'] },
+  { value: 'WBR', label: 'Mardu (W, B, R)', colors: ['W', 'B', 'R'] },
+  { value: 'WBG', label: 'Abzan (W, B, G)', colors: ['W', 'B', 'G'] },
+  { value: 'WRG', label: 'Naya (W, R, G)', colors: ['W', 'R', 'G'] },
+  { value: 'UBR', label: 'Grixis (U, B, R)', colors: ['U', 'B', 'R'] },
+  { value: 'UBG', label: 'Sultai (U, B, G)', colors: ['U', 'B', 'G'] },
+  { value: 'URG', label: 'Temur (U, R, G)', colors: ['U', 'R', 'G'] },
+  { value: 'BRG', label: 'Jund (B, R, G)', colors: ['B', 'R', 'G'] },
+  // Four-color
+  {
+    value: 'WUBR',
+    label: 'Non-Green (W, U, B, R)',
+    colors: ['W', 'U', 'B', 'R'],
+  },
+  {
+    value: 'WUBG',
+    label: 'Non-Red (W, U, B, G)',
+    colors: ['W', 'U', 'B', 'G'],
+  },
+  {
+    value: 'WURG',
+    label: 'Non-Black (W, U, R, G)',
+    colors: ['W', 'U', 'R', 'G'],
+  },
+  {
+    value: 'WBRG',
+    label: 'Non-Blue (W, B, R, G)',
+    colors: ['W', 'B', 'R', 'G'],
+  },
+  {
+    value: 'UBRG',
+    label: 'Non-White (U, B, R, G)',
+    colors: ['U', 'B', 'R', 'G'],
+  },
+  // Five-color
+  {
+    value: 'WUBRG',
+    label: 'Five Color (W, U, B, R, G)',
+    colors: ['W', 'U', 'B', 'R', 'G'],
+  },
+] as const
+
+export const SORT_OPTIONS = [
+  { value: 'recent', label: 'Recently added' },
+  { value: 'value_asc', label: 'Price: low to high' },
+  { value: 'value_desc', label: 'Price: high to low' },
+  { value: 'power_asc', label: 'Power: low to high' },
+  { value: 'power_desc', label: 'Power: high to low' },
+] as const
+
 export const PROVINCES = [
   { value: 'AB', label: 'Alberta' },
   { value: 'BC', label: 'British Columbia' },

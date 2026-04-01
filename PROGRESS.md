@@ -2,31 +2,57 @@
 
 ## Current Focus
 
-**Milestone:** M9 — Onboarding & Landing Page
-**Status:** In progress
-**Next step:** M10 Polish & Mobile (or ship M9 and open PR)
+**Milestone:** M10.5 — Browse Filter Enhancements
+**Status:** Complete — PR #9 open, ready to merge
+**Next step:** Merge PR #9, then start M11 (Counter-Offers) on new branch
+**Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — exhausted React synthetic events, native touchstart via ref, button/anchor/a tags, touch-action manipulation. Root cause unknown; suspect Radix DropdownMenu global listener or stacking context issue. Needs remote DevTools inspection to diagnose.
 
 ---
 
 ## Milestone Status
 
-| Milestone                     | Status         | Notes                                 |
-| ----------------------------- | -------------- | ------------------------------------- |
-| M0: Project Scaffolding       | Complete       |                                       |
-| M1: Auth & User Profiles      | Complete       | Google OAuth deferred to M9           |
-| M2: Card Data Infrastructure  | Complete       |                                       |
-| M3: Deck Management (Phase A) | Complete       | Text import only, URL importers in M4 |
-| M4: Public Browsing           | Complete       |                                       |
-| M5: Trading (Phase B)         | Complete       | Realtime updates optional polish      |
-| M6: Reviews & Reputation      | Complete       |                                       |
-| M7: Want Lists                | Complete       |                                       |
-| M8: Email Notifications       | Complete       |                                       |
-| M9: Onboarding & Landing Page | In progress    | Google OAuth deferred                 |
-| M10: Polish & Mobile          | Blocked by all |                                       |
+| Milestone                     | Status   | Notes                                                                                                                       |
+| ----------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| M0: Project Scaffolding       | Complete |                                                                                                                             |
+| M1: Auth & User Profiles      | Complete | Google OAuth deferred to M9                                                                                                 |
+| M2: Card Data Infrastructure  | Complete |                                                                                                                             |
+| M3: Deck Management (Phase A) | Complete | Text import only, URL importers in M4                                                                                       |
+| M4: Public Browsing           | Complete |                                                                                                                             |
+| M5: Trading (Phase B)         | Complete | Realtime updates optional polish                                                                                            |
+| M6: Reviews & Reputation      | Complete |                                                                                                                             |
+| M7: Want Lists                | Complete |                                                                                                                             |
+| M8: Email Notifications       | Complete |                                                                                                                             |
+| M9: Onboarding & Landing Page | Complete | Google OAuth deferred                                                                                                       |
+| M10: Polish & Mobile          | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA        |
+| M10.5: Browse Filters         | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand |
+| M11: Counter-Offers           | Planned  | After M10.5                                                                                                                 |
+| M12: Color Identity Filter    | Planned  |                                                                                                                             |
+| M13: Disputes                 | Deferred | Build when user base warrants                                                                                               |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-03-31 — iOS hamburger debugging (unresolved)
+
+**Done:** Tried every approach to fix hamburger menu on iPhone Chrome: Radix Sheet → plain button → anchor tag → `<button type="button">` with `touch-action: manipulation` → native `touchstart` addEventListener via ref bypassing React delegation. None worked. Left with native touchstart + dedup guard in place. Need to use Chrome remote DevTools (`chrome://inspect`) to identify what element is actually receiving taps on the right side of the header.
+**Next:** When resuming, use `chrome://inspect` on the laptop while the phone loads the dev server to inspect elements and check for invisible overlays. Also consider temporarily removing `UserMenu` from header to test if Radix DropdownMenu is the culprit.
+
+### 2026-03-31 — Header polish + PR opened
+
+**Done:** Added DeckShark shark logo (`public/logo.png`) to header alongside text. Added `HeaderSearch` client component — searches deck name OR commander name via `/decks?q=`, hidden on mobile. Extended `getPublicDecks` with `q` filter (Postgres `or()` on name + commander_name). Removed emoji icons from landing page value props. PR #9 opened for m10.5 → main.
+**Next:** Merge PR #9, start M11 (Counter-Offers) on new branch.
+
+### 2026-03-31 — M10.5 complete
+
+**Done:** All browse filter enhancements: power level + color identity on decks (migration 017, deck forms), `ColorIdentitySelector` replaced with grouped dropdown (31 color identity options mono→5-color), collapsible filter panel (quick chips + price + location always visible, More/Hide filters toggle), city autocomplete (`/api/cities/search`), commander autocomplete (`/api/commanders/search`), profile city/province auto-applied on first browse visit, DeckShark.gg rebrand in header with `text-primary` .gg. Branch pushed.
+**Deferred:** Distance radius filter — no lat/lng in DB; see DECISIONS.md.
+**Next:** Open PR for m10.5 → main, then start M11 (Counter-Offers) on new branch.
+
+### 2026-03-30 — M10 Polish & Mobile complete
+
+**Done:** Sleeves/deckbox checkboxes on deck listing (migration 016, deck form/edit-form, public deck card + detail). Loading skeletons for deck browse, dashboard, trades, want-lists. `error.tsx` boundaries in (public) and (protected) route groups. Pagination on /decks, /want-lists, and /trades. Rate limiting on `/api/import/url` and `/api/notify/want-list-match`. Account deletion + data export (`/api/account/delete`, `/api/account/export`, `AccountDangerZone` component on settings page). Connected MobileNav in Header (was never wired up). Flex-wrap fixes on trade/want-list detail headers. Aria-labels on icon-only buttons. SVG favicon + PWA manifest with dark theme_color.
+**Next:** Open PR for `m10-polish-mobile` → main, then start M11 (Counter-Offers) on new branch `m11-counter-offers`.
 
 ### 2026-03-27 — Deck details in trade notification emails
 

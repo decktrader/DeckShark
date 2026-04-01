@@ -23,7 +23,8 @@ import {
   deleteDeckPhoto as deletePhotoRecord,
 } from '@/lib/services/decks'
 import { getDeckPhotoUrl } from '@/lib/services/storage'
-import { FORMATS, ARCHETYPES } from '@/lib/constants'
+import { FORMATS, ARCHETYPES, POWER_LEVELS } from '@/lib/constants'
+import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
 import type { Deck, DeckCard, DeckPhoto } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -65,10 +66,16 @@ export function DeckEditForm({
   const [name, setName] = useState(deck.name)
   const [format, setFormat] = useState(deck.format)
   const [archetype, setArchetype] = useState(deck.archetype ?? '')
+  const [powerLevel, setPowerLevel] = useState(deck.power_level ?? '')
+  const [colorIdentity, setColorIdentity] = useState<string[]>(
+    deck.color_identity ?? [],
+  )
   const [description, setDescription] = useState(deck.description ?? '')
   const [conditionNotes, setConditionNotes] = useState(
     deck.condition_notes ?? '',
   )
+  const [includesSleeves, setIncludesSleeves] = useState(deck.includes_sleeves)
+  const [includesDeckbox, setIncludesDeckbox] = useState(deck.includes_deckbox)
   const [importText, setImportText] = useState('')
   const [importUrl, setImportUrl] = useState('')
   const [fetchingUrl, setFetchingUrl] = useState(false)
@@ -87,8 +94,12 @@ export function DeckEditForm({
       name,
       format,
       archetype: archetype || null,
+      power_level: powerLevel || null,
+      color_identity: colorIdentity,
       description: description || null,
       condition_notes: conditionNotes || null,
+      includes_sleeves: includesSleeves,
+      includes_deckbox: includesDeckbox,
     })
 
     if (err) {
@@ -385,6 +396,32 @@ export function DeckEditForm({
               </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="power-level">Power level</Label>
+              <Select
+                value={powerLevel || 'none'}
+                onValueChange={(v) => setPowerLevel(v === 'none' ? '' : v)}
+              >
+                <SelectTrigger id="power-level">
+                  <SelectValue placeholder="Not specified" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Not specified</SelectItem>
+                  {POWER_LEVELS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Color identity</Label>
+              <ColorIdentitySelector
+                value={colorIdentity}
+                onChange={setColorIdentity}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <Input
                 id="description"
@@ -399,6 +436,37 @@ export function DeckEditForm({
                 value={conditionNotes}
                 onChange={(e) => setConditionNotes(e.target.value)}
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Selling with</Label>
+              <div className="flex gap-6">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="sleeves"
+                    checked={includesSleeves}
+                    onCheckedChange={(v) => setIncludesSleeves(!!v)}
+                  />
+                  <Label
+                    htmlFor="sleeves"
+                    className="cursor-pointer font-normal"
+                  >
+                    Sleeves
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="deckbox"
+                    checked={includesDeckbox}
+                    onCheckedChange={(v) => setIncludesDeckbox(!!v)}
+                  />
+                  <Label
+                    htmlFor="deckbox"
+                    className="cursor-pointer font-normal"
+                  >
+                    Deckbox
+                  </Label>
+                </div>
+              </div>
             </div>
             <Button type="submit" disabled={saving}>
               {saving ? 'Saving...' : 'Save details'}
@@ -482,6 +550,7 @@ export function DeckEditForm({
                           variant="ghost"
                           size="sm"
                           className="text-muted-foreground h-7 w-7 shrink-0 p-0"
+                          aria-label="Card options"
                         >
                           ···
                         </Button>
@@ -578,9 +647,10 @@ export function DeckEditForm({
                     variant="destructive"
                     size="sm"
                     className="absolute top-1 right-1 h-6 px-2 text-xs"
+                    aria-label="Delete photo"
                     onClick={() => handleDeletePhoto(photo)}
                   >
-                    X
+                    ✕
                   </Button>
                 </div>
               ))}

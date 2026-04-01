@@ -10,6 +10,20 @@ Architectural and implementation decisions made during development. Newest first
 **Rationale:** Why this option won
 -->
 
+## 2026-03-30 — Distance radius filter deferred to future milestone
+
+**Context:** M10.5 browse filter additions included a distance radius filter (10/25/50/100 km, Anywhere). The `users` table stores `city` and `province` text only — no lat/lng coordinates.
+**Decision:** Defer distance filtering. Noted in PLAN.md as a potential M12.5 feature.
+**Alternatives considered:** Geocode city+province to lat/lng on user save (requires external geocoding API, cost, accuracy issues); add lat/lng columns and populate via geocoding.
+**Rationale:** Requires geocoding service integration, new DB columns, and non-trivial UI. Not worth the complexity for the current user base size. City + province filters cover the use case adequately for now.
+
+## 2026-03-30 — Color identity stored as text[] column on decks (M10.5)
+
+**Context:** Color identity filter was deferred in M4. M10.5 implements it.
+**Decision:** Added `color_identity text[]` column to `decks`. Users set it manually in the deck form (checkboxes for W/U/B/R/G). Filter uses Postgres `@>` (contains) operator — selecting W+U shows decks whose identity includes both.
+**Alternatives considered:** Auto-derive from commander via card_cache join; RPC function. Auto-derive is a nice enhancement but adds form complexity. Manual entry is sufficient for MVP.
+**Rationale:** Stored column allows efficient PostgREST filtering. Manual entry keeps the form flow simple. Auto-derive from commander can be added as a follow-up.
+
 ## 2026-03-26 — Color identity filter deferred from M4
 
 **Context:** PLAN.md listed color identity as an M4 browse filter. The `decks` table has no `color_identity` column, and `commander_scryfall_id` has no FK to `card_cache`, so PostgREST can't join them for filtering.

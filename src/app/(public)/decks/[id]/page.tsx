@@ -147,6 +147,19 @@ export default async function PublicDeckPage({
                   {formatPrice(deck.estimated_value_cents)}
                 </span>
               </p>
+              {(deck.includes_sleeves || deck.includes_deckbox) && (
+                <p>
+                  Includes:{' '}
+                  <span className="text-foreground">
+                    {[
+                      deck.includes_sleeves ? 'Sleeves' : null,
+                      deck.includes_deckbox ? 'Deckbox' : null,
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </span>
+                </p>
+              )}
             </div>
             <Button className="mt-4 w-full" asChild>
               <Link href={`/profile/${deck.owner.username}`}>View profile</Link>
