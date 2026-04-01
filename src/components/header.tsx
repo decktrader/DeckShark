@@ -44,6 +44,7 @@ export async function Header() {
           />
           DeckShark<span className="text-primary">.gg</span>
         </Link>
+        <HeaderSearch />
         {/* Desktop nav */}
         <nav className="hidden items-center gap-4 sm:flex">
           <Link
