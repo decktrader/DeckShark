@@ -4,5 +4,10 @@
       "path": "/api/cron/sync-cards",
       "schedule": "0 6 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "src/app/api/cron/sync-cards/route.ts": {
+      "maxDuration": 60
+    }
+  }
 }
