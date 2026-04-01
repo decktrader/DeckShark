@@ -2,10 +2,10 @@
 
 ## Current Focus
 
-**Milestone:** M10.5 — Browse Filter Enhancements
-**Status:** Complete — PR #9 open, ready to merge
-**Next step:** Merge PR #9, then start M11 (Counter-Offers) on new branch
-**Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — exhausted React synthetic events, native touchstart via ref, button/anchor/a tags, touch-action manipulation. Root cause unknown; suspect Radix DropdownMenu global listener or stacking context issue. Needs remote DevTools inspection to diagnose.
+**Milestone:** Production Deployment + Google OAuth
+**Status:** Complete — deckshark.gg is live, Google OAuth working
+**Next step:** Start M11 (Counter-Offers) on new branch
+**Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
 ---
 
@@ -25,13 +25,19 @@
 | M9: Onboarding & Landing Page | Complete | Google OAuth deferred                                                                                                       |
 | M10: Polish & Mobile          | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA        |
 | M10.5: Browse Filters         | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand |
-| M11: Counter-Offers           | Planned  | After M10.5                                                                                                                 |
+| Production Deploy             | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                           |
+| M11: Counter-Offers           | Planned  | Next up                                                                                                                     |
 | M12: Color Identity Filter    | Planned  |                                                                                                                             |
 | M13: Disputes                 | Deferred | Build when user base warrants                                                                                               |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-01 — Production deployment + Google OAuth
+
+**Done:** Deployed DeckShark to Vercel at deckshark.gg. Bought domain via GoDaddy, configured DNS (A record + CNAME for www). Created Vercel project, linked to GitHub repo (made repo public for Hobby plan). Set all env vars for production and preview environments. Ran all 17 migrations against production Supabase. Added Google OAuth — `signInWithGoogle()` in auth service, Google buttons on login/register forms. Configured Google Cloud OAuth credentials and Supabase Google provider. Set up Supabase Auth redirect URLs for production and preview deployments. PR #10 merged.
+**Next:** Start M11 (Counter-Offers) on new branch. Optionally: sync card cache on production (hit `/api/cron/sync-cards`), set up Resend domain verification for email deliverability.
 
 ### 2026-03-31 — iOS hamburger debugging (unresolved)
 
