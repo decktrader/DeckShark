@@ -27,10 +27,25 @@ export function CardAutocomplete({
       setIsOpen(false)
       return
     }
-    const { data } = await searchCards(q, 10)
+    const { data } = await searchCards(q, 30)
     if (data) {
-      setResults(data)
-      setIsOpen(data.length > 0)
+      // Deduplicate by oracle_id — keep the cheapest printing per card
+      const seen = new Map<string, CardCache>()
+      for (const card of data) {
+        const key = card.oracle_id ?? card.scryfall_id
+        const existing = seen.get(key)
+        if (
+          !existing ||
+          (card.price_usd_cents !== null &&
+            (existing.price_usd_cents === null ||
+              card.price_usd_cents < existing.price_usd_cents))
+        ) {
+          seen.set(key, card)
+        }
+      }
+      const deduped = [...seen.values()].slice(0, 10)
+      setResults(deduped)
+      setIsOpen(deduped.length > 0)
       setActiveIndex(-1)
     }
   }, [])
@@ -118,6 +133,11 @@ export function CardAutocomplete({
                   </span>
                 )}
                 <span>{card.name}</span>
+                {card.set_code && (
+                  <span className="bg-muted rounded px-1 py-0.5 font-mono text-[10px] uppercase">
+                    {card.set_code}
+                  </span>
+                )}
               </div>
               {card.price_usd_cents !== null && (
                 <span className="text-muted-foreground text-xs">

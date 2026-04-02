@@ -1,4 +1,4 @@
-import type { ParseResult } from './text'
+import type { ParseResult, ParsedCard } from './text'
 
 // Moxfield public deck URL: https://www.moxfield.com/decks/{publicId}
 // API endpoint: https://api2.moxfield.com/v3/decks/all/{publicId}
@@ -7,6 +7,9 @@ interface MoxfieldCardEntry {
   quantity: number
   card: {
     name: string
+    set?: string
+    cn?: string
+    collector_number?: string
   }
 }
 
@@ -59,16 +62,20 @@ export async function importFromMoxfield(url: string): Promise<ParseResult> {
     return { cards: [], errors: ['Failed to reach Moxfield. Try again.'] }
   }
 
-  const cards = []
+  const cards: ParsedCard[] = []
   const errors: string[] = []
 
   // Commanders
   for (const entry of Object.values(deck.commanders ?? {})) {
     if (entry.card?.name && entry.quantity > 0) {
+      const setCode = entry.card.set?.toUpperCase()
+      const collectorNumber = entry.card.cn ?? entry.card.collector_number
       cards.push({
         name: entry.card.name,
         quantity: entry.quantity,
         isCommander: true,
+        ...(setCode && { setCode }),
+        ...(collectorNumber && { collectorNumber }),
       })
     }
   }
@@ -76,10 +83,14 @@ export async function importFromMoxfield(url: string): Promise<ParseResult> {
   // Mainboard
   for (const entry of Object.values(deck.mainboard ?? {})) {
     if (entry.card?.name && entry.quantity > 0) {
+      const setCode = entry.card.set?.toUpperCase()
+      const collectorNumber = entry.card.cn ?? entry.card.collector_number
       cards.push({
         name: entry.card.name,
         quantity: entry.quantity,
         isCommander: false,
+        ...(setCode && { setCode }),
+        ...(collectorNumber && { collectorNumber }),
       })
     }
   }

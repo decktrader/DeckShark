@@ -76,6 +76,8 @@ export async function GET(request: Request) {
         type_line: card.type_line ?? null,
         color_identity: card.color_identity,
         set_code: card.set,
+        set_name: card.set_name,
+        collector_number: card.collector_number,
         image_uri_normal: images.normal,
         image_uri_small: images.small,
         image_uri_art_crop: images.art_crop,

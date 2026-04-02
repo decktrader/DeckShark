@@ -11,7 +11,7 @@ import {
   clearDeckCards,
   calculateDeckValue,
 } from '@/lib/services/decks'
-import { searchCards } from '@/lib/services/cards'
+import { resolveCardPrinting } from '@/lib/services/cards'
 import { getCardByName } from '@/lib/scryfall/api'
 import { parseDecklist } from '@/lib/importers/text'
 import {
@@ -47,6 +47,7 @@ import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DeckStats } from '@/components/deck/deck-stats'
 import { CardAutocomplete } from '@/components/deck/card-autocomplete'
+import { PrintingSelector } from '@/components/deck/printing-selector'
 
 export function DeckEditForm({
   deck: initialDeck,
@@ -178,10 +179,7 @@ export function DeckEditForm({
     // Resolve scryfall_id if missing — try card cache first, then Scryfall directly
     let scryfallId = card.scryfall_id ?? undefined
     if (!scryfallId) {
-      const { data: matches } = await searchCards(card.card_name, 1)
-      const match = matches?.find(
-        (m) => m.name.toLowerCase() === card.card_name.toLowerCase(),
-      )
+      const { data: match } = await resolveCardPrinting(card.card_name)
       if (match) {
         scryfallId = match.scryfall_id
       } else {
@@ -197,6 +195,31 @@ export function DeckEditForm({
     setCards((prev) =>
       prev.map((c) => ({ ...c, is_commander: c.id === card.id })),
     )
+    const { getDeck } = await import('@/lib/services/decks')
+    const { data: updated } = await getDeck(deck.id)
+    if (updated) setDeck(updated)
+  }
+
+  async function handleChangePrinting(
+    card: DeckCard,
+    printing: { scryfall_id: string; price_usd_cents: number | null },
+  ) {
+    await updateDeckCard(card.id, {
+      scryfall_id: printing.scryfall_id,
+      price_cents: printing.price_usd_cents,
+    })
+    setCards((prev) =>
+      prev.map((c) =>
+        c.id === card.id
+          ? {
+              ...c,
+              scryfall_id: printing.scryfall_id,
+              price_cents: printing.price_usd_cents,
+            }
+          : c,
+      ),
+    )
+    await calculateDeckValue(deck.id)
     const { getDeck } = await import('@/lib/services/decks')
     const { data: updated } = await getDeck(deck.id)
     if (updated) setDeck(updated)
@@ -221,9 +244,22 @@ export function DeckEditForm({
     }
 
     if (data.cards?.length > 0) {
+      // Include (SET) collector format so the text parser preserves printing info
       const lines = data.cards.map(
-        (c: { name: string; quantity: number; isCommander: boolean }) =>
-          c.isCommander ? `COMMANDER: ${c.name}` : `${c.quantity}x ${c.name}`,
+        (c: {
+          name: string
+          quantity: number
+          isCommander: boolean
+          setCode?: string
+          collectorNumber?: string
+        }) => {
+          const setInfo = c.setCode
+            ? ` (${c.setCode})${c.collectorNumber ? ` ${c.collectorNumber}` : ''}`
+            : ''
+          return c.isCommander
+            ? `COMMANDER: ${c.name}${setInfo}`
+            : `${c.quantity}x ${c.name}${setInfo}`
+        },
       )
       setImportText(lines.join('\n'))
       setImportUrl('')
@@ -246,12 +282,13 @@ export function DeckEditForm({
     // Clear existing cards
     await clearDeckCards(deck.id)
 
-    // Resolve and add
+    // Resolve cards to specific printings (using set code + collector number when available)
     const resolved = await Promise.all(
       parsedCards.map(async (parsed) => {
-        const { data: matches } = await searchCards(parsed.name, 1)
-        const match = matches?.find(
-          (m) => m.name.toLowerCase() === parsed.name.toLowerCase(),
+        const { data: match } = await resolveCardPrinting(
+          parsed.name,
+          parsed.setCode,
+          parsed.collectorNumber,
         )
         return {
           card_name: match?.name ?? parsed.name,
@@ -543,6 +580,19 @@ export function DeckEditForm({
                       </span>
                     )}
                   </span>
+                  {!bulkMode && card.price_cents != null && (
+                    <span className="text-muted-foreground shrink-0 text-xs">
+                      ${(card.price_cents / 100).toFixed(2)}
+                    </span>
+                  )}
+                  {!bulkMode && card.scryfall_id && (
+                    <PrintingSelector
+                      card={card}
+                      onSelect={(printing) =>
+                        handleChangePrinting(card, printing)
+                      }
+                    />
+                  )}
                   {!bulkMode && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

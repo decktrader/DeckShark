@@ -144,7 +144,9 @@ export async function getDeckCards(
 
 export async function updateDeckCard(
   id: string,
-  updates: Partial<Pick<DeckCard, 'quantity' | 'is_commander'>>,
+  updates: Partial<
+    Pick<DeckCard, 'quantity' | 'is_commander' | 'scryfall_id' | 'price_cents'>
+  >,
 ): Promise<ServiceResponse<DeckCard>> {
   const supabase = createClient()
   const { data, error } = await supabase

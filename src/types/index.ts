@@ -118,6 +118,8 @@ export interface CardCache {
   type_line: string | null
   color_identity: string[]
   set_code: string | null
+  set_name: string | null
+  collector_number: string | null
   image_uri_normal: string | null
   image_uri_small: string | null
   image_uri_art_crop: string | null

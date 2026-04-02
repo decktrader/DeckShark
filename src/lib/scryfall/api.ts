@@ -12,6 +12,8 @@ export interface ScryfallCard {
   type_line?: string
   color_identity: string[]
   set: string
+  set_name: string
+  collector_number: string
   image_uris?: {
     normal?: string
     small?: string
