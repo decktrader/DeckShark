@@ -1,4 +1,4 @@
-import type { ParseResult } from './text'
+import type { ParseResult, ParsedCard } from './text'
 
 // Archidekt public deck URL: https://archidekt.com/decks/{deckId}/...
 // API endpoint: https://archidekt.com/api/decks/{deckId}/
@@ -9,6 +9,10 @@ interface ArchidektCard {
     oracleCard: {
       name: string
     }
+    edition?: {
+      editioncode?: string
+    }
+    collectorNumber?: string
   }
   categories: string[]
 }
@@ -49,7 +53,7 @@ export async function importFromArchidekt(url: string): Promise<ParseResult> {
     return { cards: [], errors: ['Failed to reach Archidekt. Try again.'] }
   }
 
-  const cards = []
+  const cards: ParsedCard[] = []
   const errors: string[] = []
 
   for (const entry of deck.cards ?? []) {
@@ -67,7 +71,16 @@ export async function importFromArchidekt(url: string): Promise<ParseResult> {
     )
     if (skip) continue
 
-    cards.push({ name, quantity: entry.quantity, isCommander })
+    const setCode = entry.card.edition?.editioncode?.toUpperCase()
+    const collectorNumber = entry.card.collectorNumber
+
+    cards.push({
+      name,
+      quantity: entry.quantity,
+      isCommander,
+      ...(setCode && { setCode }),
+      ...(collectorNumber && { collectorNumber }),
+    })
   }
 
   if (cards.length === 0) {

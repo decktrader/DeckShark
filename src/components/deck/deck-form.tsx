@@ -7,7 +7,7 @@ import {
   addDeckCards,
   calculateDeckValue,
 } from '@/lib/services/decks'
-import { searchCards } from '@/lib/services/cards'
+import { resolveCardPrinting } from '@/lib/services/cards'
 import { parseDecklist } from '@/lib/importers/text'
 import { getCardByName } from '@/lib/scryfall/api'
 import { FORMATS, ARCHETYPES, POWER_LEVELS } from '@/lib/constants'
@@ -70,9 +70,22 @@ export function DeckForm({ userId }: { userId: string }) {
     if (data.errors?.length) setParseErrors(data.errors)
     if (data.cards?.length > 0) {
       // Convert parsed cards to text so the existing submit flow can use them
+      // Include (SET) collector format so the text parser preserves printing info
       const lines = data.cards.map(
-        (c: { name: string; quantity: number; isCommander: boolean }) =>
-          c.isCommander ? `COMMANDER: ${c.name}` : `${c.quantity}x ${c.name}`,
+        (c: {
+          name: string
+          quantity: number
+          isCommander: boolean
+          setCode?: string
+          collectorNumber?: string
+        }) => {
+          const setInfo = c.setCode
+            ? ` (${c.setCode})${c.collectorNumber ? ` ${c.collectorNumber}` : ''}`
+            : ''
+          return c.isCommander
+            ? `COMMANDER: ${c.name}${setInfo}`
+            : `${c.quantity}x ${c.name}${setInfo}`
+        },
       )
       setDecklistText(lines.join('\n'))
       setImportUrl('')
@@ -122,12 +135,13 @@ export function DeckForm({ userId }: { userId: string }) {
       return
     }
 
-    // Resolve card names to scryfall IDs and prices
+    // Resolve card names to specific printings (using set code + collector number when available)
     const resolvedCards = await Promise.all(
       parsedCards.map(async (parsed) => {
-        const { data: matches } = await searchCards(parsed.name, 1)
-        const match = matches?.find(
-          (m) => m.name.toLowerCase() === parsed.name.toLowerCase(),
+        const { data: match } = await resolveCardPrinting(
+          parsed.name,
+          parsed.setCode,
+          parsed.collectorNumber,
         )
         return {
           card_name: match?.name ?? parsed.name,
