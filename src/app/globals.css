@@ -96,3 +96,19 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Pointer cursor on all interactive elements */
+button,
+[role='button'],
+a,
+select,
+label[for],
+label:has(input, [role='checkbox'], [role='radio']),
+input[type='checkbox'],
+input[type='radio'],
+input[type='submit'],
+input[type='reset'],
+input[type='button'],
+summary {
+  cursor: pointer;
+}

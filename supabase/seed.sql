@@ -132,6 +132,71 @@ INSERT INTO auth.identities (
   now()
 ) ON CONFLICT (provider, provider_id) DO NOTHING;
 
+-- Third test user for trading/counter-offer testing
+INSERT INTO auth.users (
+  id,
+  instance_id,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  created_at,
+  updated_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  aud,
+  role,
+  confirmation_token,
+  recovery_token,
+  email_change_token_new,
+  email_change
+) VALUES (
+  '00000000-0000-0000-0000-000000000003',
+  '00000000-0000-0000-0000-000000000000',
+  'trader@test.com',
+  crypt('123456', gen_salt('bf')),
+  now(),
+  now(),
+  now(),
+  '{"provider":"email","providers":["email"]}',
+  '{}',
+  'authenticated',
+  'authenticated',
+  '',
+  '',
+  '',
+  ''
+) ON CONFLICT (id) DO NOTHING;
+
+UPDATE public.users
+SET
+  username   = 'trader',
+  city       = 'Montreal',
+  province   = 'QC',
+  updated_at = now()
+WHERE id = '00000000-0000-0000-0000-000000000003';
+
+INSERT INTO auth.identities (
+  id,
+  user_id,
+  identity_data,
+  provider,
+  provider_id,
+  last_sign_in_at,
+  created_at,
+  updated_at
+) VALUES (
+  '00000000-0000-0000-0000-000000000003',
+  '00000000-0000-0000-0000-000000000003',
+  jsonb_build_object('sub', '00000000-0000-0000-0000-000000000003', 'email', 'trader@test.com'),
+  'email',
+  '00000000-0000-0000-0000-000000000003',
+  now(),
+  now(),
+  now()
+) ON CONFLICT (provider, provider_id) DO NOTHING;
+
+-- ─── Decks for testuser ─────────────────────────────────────────────────────
+
 -- Test user deck 1: Commander deck
 INSERT INTO public.decks (
   id, user_id, name, commander_name, format, description,
@@ -182,4 +247,81 @@ INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUE
   ('00000000-0000-0000-0000-100000000002', 'Monastery Swiftspear', 4, false),
   ('00000000-0000-0000-0000-100000000002', 'Goblin Guide', 4, false),
   ('00000000-0000-0000-0000-100000000002', 'Eidolon of the Great Revel', 4, false)
+ON CONFLICT DO NOTHING;
+
+-- ─── Decks for trader ───────────────────────────────────────────────────────
+
+-- Trader deck 1: Commander deck
+INSERT INTO public.decks (
+  id, user_id, name, commander_name, format, description,
+  estimated_value_cents, available_for_trade, power_level, color_identity, archetype
+) VALUES (
+  '00000000-0000-0000-0000-200000000001',
+  '00000000-0000-0000-0000-000000000003',
+  'Korvold Sacrifice',
+  'Korvold, Fae-Cursed King',
+  'commander',
+  'Aristocrats strategy. Sacrifice permanents for value and card draw.',
+  32000,
+  true,
+  'high',
+  '{B,R,G}',
+  'Combo'
+) ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUES
+  ('00000000-0000-0000-0000-200000000001', 'Korvold, Fae-Cursed King', 1, true),
+  ('00000000-0000-0000-0000-200000000001', 'Dockside Extortionist', 1, false),
+  ('00000000-0000-0000-0000-200000000001', 'Viscera Seer', 1, false),
+  ('00000000-0000-0000-0000-200000000001', 'Blood Artist', 1, false),
+  ('00000000-0000-0000-0000-200000000001', 'Pitiless Plunderer', 1, false)
+ON CONFLICT DO NOTHING;
+
+-- Trader deck 2: Modern deck
+INSERT INTO public.decks (
+  id, user_id, name, format, description,
+  estimated_value_cents, available_for_trade, power_level, color_identity, archetype
+) VALUES (
+  '00000000-0000-0000-0000-200000000002',
+  '00000000-0000-0000-0000-000000000003',
+  'Izzet Murktide',
+  'modern',
+  'Tempo deck built around Murktide Regent and cheap cantrips.',
+  55000,
+  true,
+  'high',
+  '{U,R}',
+  'Tempo'
+) ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUES
+  ('00000000-0000-0000-0000-200000000002', 'Murktide Regent', 4, false),
+  ('00000000-0000-0000-0000-200000000002', 'Dragon''s Rage Channeler', 4, false),
+  ('00000000-0000-0000-0000-200000000002', 'Counterspell', 4, false),
+  ('00000000-0000-0000-0000-200000000002', 'Lightning Bolt', 4, false),
+  ('00000000-0000-0000-0000-200000000002', 'Expressive Iteration', 4, false)
+ON CONFLICT DO NOTHING;
+
+-- Trader deck 3: Pauper deck
+INSERT INTO public.decks (
+  id, user_id, name, format, description,
+  estimated_value_cents, available_for_trade, power_level, color_identity, archetype
+) VALUES (
+  '00000000-0000-0000-0000-200000000003',
+  '00000000-0000-0000-0000-000000000003',
+  'Mono Blue Faeries',
+  'pauper',
+  'Classic pauper tempo. Cheap flyers and countermagic.',
+  1500,
+  true,
+  'mid',
+  '{U}',
+  'Tempo'
+) ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUES
+  ('00000000-0000-0000-0000-200000000003', 'Spellstutter Sprite', 4, false),
+  ('00000000-0000-0000-0000-200000000003', 'Faerie Seer', 4, false),
+  ('00000000-0000-0000-0000-200000000003', 'Ninja of the Deep Hours', 4, false),
+  ('00000000-0000-0000-0000-200000000003', 'Counterspell', 4, false)
 ON CONFLICT DO NOTHING;

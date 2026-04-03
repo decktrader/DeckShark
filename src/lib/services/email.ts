@@ -164,6 +164,45 @@ export async function sendTradeDeclinedEmail({
   )
 }
 
+// ─── Trade Counter-Offered ───────────────────────────────────────────────────
+
+export async function sendTradeCounteredEmail({
+  to,
+  recipientUsername,
+  counterByUsername,
+  tradeId,
+  counterByDecks = [],
+  recipientDecks = [],
+  message,
+}: {
+  to: string
+  recipientUsername: string
+  counterByUsername: string
+  tradeId: string
+  counterByDecks?: DeckSummary[]
+  recipientDecks?: DeckSummary[]
+  message?: string | null
+}) {
+  const html = emailWrapper(`
+    <p style="font-size:20px;font-weight:700;margin:0 0 8px">Counter-offer received</p>
+    <p style="color:#555;margin:0 0 16px">Hi ${recipientUsername},</p>
+    <p style="color:#555;margin:0 0 8px">
+      <strong>${counterByUsername}</strong> sent a counter-offer on your trade.
+    </p>
+    <p style="font-weight:600;margin:16px 0 4px">They're now offering:</p>
+    ${deckList(counterByDecks)}
+    <p style="font-weight:600;margin:16px 0 4px">In exchange for:</p>
+    ${deckList(recipientDecks)}
+    ${message ? `<p style="background:#f4f4f5;border-radius:6px;padding:12px;font-size:14px;color:#555;margin:16px 0 0">"${message}"</p>` : ''}
+    ${ctaButton(tradeUrl(tradeId), 'View counter-offer')}
+  `)
+  await send(
+    to,
+    `Counter-offer from ${counterByUsername} [${tradeId.slice(0, 8)}]`,
+    html,
+  )
+}
+
 // ─── Trade Completed ─────────────────────────────────────────────────────────
 
 export async function sendTradeCompletedEmail({

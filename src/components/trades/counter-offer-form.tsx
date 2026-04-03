@@ -2,15 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { proposeTrade } from '@/lib/services/trades'
-import type { Deck } from '@/types'
-import type { PublicDeck } from '@/lib/services/decks.server'
+import { counterTrade } from '@/lib/services/trades'
+import type { Deck, Trade } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import {
   Tooltip,
@@ -28,25 +26,55 @@ function scryfallArtUrl(scryfallId: string): string {
   return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
 }
 
-export function ProposeTradeForm({
-  targetDeck,
-  myDecks,
-  userId,
-}: {
-  targetDeck: PublicDeck
-  myDecks: Deck[]
+interface CounterOfferFormProps {
+  trade: Trade
   userId: string
-}) {
+  theirUserId: string
+  myDecks: Deck[]
+  theirDecks: Deck[]
+  currentMyDeckIds: string[]
+  currentTheirDeckIds: string[]
+  onCancel: () => void
+}
+
+export function CounterOfferForm({
+  trade,
+  userId,
+  theirUserId,
+  myDecks,
+  theirDecks,
+  currentMyDeckIds,
+  currentTheirDeckIds,
+  onCancel,
+}: CounterOfferFormProps) {
   const router = useRouter()
-  const [selectedDeckIds, setSelectedDeckIds] = useState<Set<string>>(new Set())
-  const [cashDollars, setCashDollars] = useState('')
-  const [iPayCash, setIPayCash] = useState(true)
+  const [selectedMyDeckIds, setSelectedMyDeckIds] = useState<Set<string>>(
+    new Set(currentMyDeckIds),
+  )
+  const [selectedTheirDeckIds, setSelectedTheirDeckIds] = useState<Set<string>>(
+    new Set(currentTheirDeckIds),
+  )
+  const [cashDollars, setCashDollars] = useState(
+    trade.cash_difference_cents
+      ? Math.abs(trade.cash_difference_cents / 100).toFixed(2)
+      : '',
+  )
+  const [iPayCash, setIPayCash] = useState(trade.cash_difference_cents > 0)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  function toggleDeck(id: string) {
-    setSelectedDeckIds((prev) => {
+  function toggleMyDeck(id: string) {
+    setSelectedMyDeckIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleTheirDeck(id: string) {
+    setSelectedTheirDeckIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
@@ -56,8 +84,17 @@ export function ProposeTradeForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (selectedDeckIds.size === 0) {
+
+    if (selectedMyDeckIds.size === 0 && selectedTheirDeckIds.size === 0) {
+      setError('Select at least one deck on each side.')
+      return
+    }
+    if (selectedMyDeckIds.size === 0) {
       setError('Select at least one of your decks to offer.')
+      return
+    }
+    if (selectedTheirDeckIds.size === 0) {
+      setError("Select at least one of their decks you'd like.")
       return
     }
 
@@ -65,83 +102,61 @@ export function ProposeTradeForm({
     setError(null)
 
     const rawCents = cashDollars ? Math.round(parseFloat(cashDollars) * 100) : 0
-    // Positive = proposer (you) pays, negative = receiver (they) pay
-    const cashCents = iPayCash ? rawCents : -rawCents
+    // Positive = proposer pays. If I'm countering and I say "I pay", sign depends
+    // on whether I'm the original proposer or receiver.
+    // Simplify: positive = the counter-er pays, negative = they pay.
+    // But the DB convention is positive = proposer pays.
+    // So: if I'm the proposer and I pay → positive. If I'm the receiver and I pay → negative.
+    const isProposer = userId === trade.proposer_id
+    let cashCents = rawCents
+    if (iPayCash) {
+      cashCents = isProposer ? rawCents : -rawCents
+    } else {
+      cashCents = isProposer ? -rawCents : rawCents
+    }
 
-    const { data, error: err } = await proposeTrade(
+    const { error: err } = await counterTrade(
+      trade.id,
       userId,
-      targetDeck.user_id,
-      [...selectedDeckIds],
-      [targetDeck.id],
+      [...selectedMyDeckIds],
+      [...selectedTheirDeckIds],
+      theirUserId,
       cashCents,
       message || undefined,
     )
 
-    if (err || !data) {
-      setError(err ?? 'Failed to propose trade.')
+    if (err) {
+      setError(err)
       setLoading(false)
       return
     }
 
-    // Fire-and-forget notification to the receiver
+    // Notify the other party
     fetch('/api/notify/trade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tradeId: data.id, event: 'proposed' }),
+      body: JSON.stringify({ tradeId: trade.id, event: 'countered' }),
     }).catch(() => {})
 
     router.push('/trades')
     router.refresh()
+    setLoading(false)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <h3 className="text-lg font-semibold">Counter-offer</h3>
+
       {error && <p className="text-destructive text-sm">{error}</p>}
 
-      {/* Target deck summary */}
+      {/* My decks to offer */}
       <div>
-        <h2 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
-          You&apos;re proposing to trade for
-        </h2>
-        <Card>
-          <CardContent className="flex items-center gap-4 pt-4">
-            {targetDeck.commander_scryfall_id && (
-              <img
-                src={scryfallArtUrl(targetDeck.commander_scryfall_id)}
-                alt={targetDeck.commander_name ?? ''}
-                className="h-16 w-24 rounded-md object-cover"
-              />
-            )}
-            <div>
-              <p className="font-semibold">{targetDeck.name}</p>
-              <p className="text-muted-foreground text-sm">
-                by {targetDeck.owner.username}
-                {targetDeck.owner.city &&
-                  ` · ${targetDeck.owner.city}, ${targetDeck.owner.province}`}
-              </p>
-              <p className="text-muted-foreground text-sm">
-                {formatPrice(targetDeck.estimated_value_cents)}
-                {targetDeck.commander_name && ` · ${targetDeck.commander_name}`}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Separator />
-
-      {/* Your decks to offer */}
-      <div>
-        <h2 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
-          Select decks to offer
-        </h2>
+        <h4 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
+          Your decks to offer
+        </h4>
         {myDecks.length === 0 ? (
           <p className="text-muted-foreground text-sm">
-            You have no decks marked as available for trade. Go to your{' '}
-            <a href="/dashboard" className="underline">
-              dashboard
-            </a>{' '}
-            and toggle a deck as available.
+            You have no decks available for trade.
           </p>
         ) : (
           <div className="space-y-2">
@@ -151,8 +166,53 @@ export function ProposeTradeForm({
                 className="hover:bg-accent/30 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
               >
                 <Checkbox
-                  checked={selectedDeckIds.has(deck.id)}
-                  onCheckedChange={() => toggleDeck(deck.id)}
+                  checked={selectedMyDeckIds.has(deck.id)}
+                  onCheckedChange={() => toggleMyDeck(deck.id)}
+                />
+                {deck.commander_scryfall_id && (
+                  <img
+                    src={scryfallArtUrl(deck.commander_scryfall_id)}
+                    alt={deck.commander_name ?? ''}
+                    className="h-10 w-14 rounded object-cover"
+                  />
+                )}
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{deck.name}</p>
+                  <p className="text-muted-foreground text-xs capitalize">
+                    {deck.format}
+                    {deck.commander_name && ` · ${deck.commander_name}`}
+                    {deck.estimated_value_cents
+                      ? ` · ${formatPrice(deck.estimated_value_cents)}`
+                      : ''}
+                  </p>
+                </div>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Their decks to request */}
+      <div>
+        <h4 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
+          Decks you&apos;d like from them
+        </h4>
+        {theirDecks.length === 0 ? (
+          <p className="text-muted-foreground text-sm">
+            They have no decks available for trade.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {theirDecks.map((deck) => (
+              <label
+                key={deck.id}
+                className="hover:bg-accent/30 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
+              >
+                <Checkbox
+                  checked={selectedTheirDeckIds.has(deck.id)}
+                  onCheckedChange={() => toggleTheirDeck(deck.id)}
                 />
                 {deck.commander_scryfall_id && (
                   <img
@@ -248,23 +308,24 @@ export function ProposeTradeForm({
 
       {/* Message */}
       <div className="space-y-2">
-        <Label htmlFor="message">Message (optional)</Label>
+        <Label htmlFor="counter-message">Message (optional)</Label>
         <Textarea
-          id="message"
-          placeholder="Introduce yourself, mention card conditions, suggest a meetup location…"
+          id="counter-message"
+          placeholder="Explain your counter-offer…"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          rows={4}
+          rows={3}
         />
       </div>
 
-      <Button
-        type="submit"
-        disabled={loading || selectedDeckIds.size === 0}
-        className="w-full"
-      >
-        {loading ? 'Sending proposal…' : 'Send trade proposal'}
-      </Button>
+      <div className="flex gap-2">
+        <Button type="submit" disabled={loading} className="flex-1">
+          {loading ? 'Sending counter…' : 'Send counter-offer'}
+        </Button>
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+      </div>
     </form>
   )
 }

@@ -5,6 +5,7 @@ import { getUserById } from '@/lib/services/users.server'
 import { HeaderSearch } from '@/components/header-search'
 import { UserMenu } from '@/components/user-menu'
 import { MobileNav } from '@/components/mobile-nav'
+import { TradeBadge } from '@/components/trade-badge'
 import { Button } from '@/components/ui/button'
 
 export async function Header() {
@@ -14,17 +15,9 @@ export async function Header() {
   } = await supabase.auth.getUser()
 
   let profile = null
-  let pendingTradeCount = 0
   if (authUser) {
     const { data } = await getUserById(authUser.id)
     profile = data
-
-    const { count } = await supabase
-      .from('trades')
-      .select('*', { count: 'exact', head: true })
-      .eq('receiver_id', authUser.id)
-      .eq('status', 'proposed')
-    pendingTradeCount = count ?? 0
   }
 
   return (
@@ -59,19 +52,7 @@ export async function Header() {
           >
             Want Lists
           </Link>
-          {profile && (
-            <Link
-              href="/trades"
-              className="text-muted-foreground hover:text-foreground relative text-sm"
-            >
-              Trades
-              {pendingTradeCount > 0 && (
-                <span className="bg-primary absolute -top-1.5 -right-2.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white">
-                  {pendingTradeCount > 9 ? '9+' : pendingTradeCount}
-                </span>
-              )}
-            </Link>
-          )}
+          {profile && <TradeBadge />}
           {profile ? (
             <UserMenu username={profile.username} />
           ) : (
@@ -83,10 +64,7 @@ export async function Header() {
 
         {/* Mobile nav */}
         <div className="sm:hidden">
-          <MobileNav
-            isLoggedIn={!!profile}
-            pendingTradeCount={pendingTradeCount}
-          />
+          <MobileNav isLoggedIn={!!profile} />
         </div>
       </div>
     </header>

@@ -108,6 +108,66 @@ export async function replyToTrade(
   return { data: data as Trade, error: null }
 }
 
+// ─── Counter-offer ──────────────────────────────────────────────────────────
+
+export async function counterTrade(
+  tradeId: string,
+  counterById: string,
+  myDeckIds: string[],
+  theirDeckIds: string[],
+  theirUserId: string,
+  cashDifferenceCents: number = 0,
+  message?: string,
+): Promise<ServiceResponse<Trade>> {
+  const supabase = createClient()
+
+  // 1. Delete existing trade_decks and replace with new selection
+  const { error: deleteError } = await supabase
+    .from('trade_decks')
+    .delete()
+    .eq('trade_id', tradeId)
+
+  if (deleteError) return { data: null, error: deleteError.message }
+
+  // 2. Insert new deck selections
+  const deckRows = [
+    ...myDeckIds.map((deck_id) => ({
+      trade_id: tradeId,
+      deck_id,
+      offered_by: counterById,
+    })),
+    ...theirDeckIds.map((deck_id) => ({
+      trade_id: tradeId,
+      deck_id,
+      offered_by: theirUserId,
+    })),
+  ]
+
+  if (deckRows.length > 0) {
+    const { error: insertError } = await supabase
+      .from('trade_decks')
+      .insert(deckRows)
+
+    if (insertError) return { data: null, error: insertError.message }
+  }
+
+  // 3. Update trade status, cash, message, and who countered
+  const { data, error } = await supabase
+    .from('trades')
+    .update({
+      status: 'countered' as Trade['status'],
+      cash_difference_cents: cashDifferenceCents,
+      receiver_message: message ?? null,
+      last_counter_by: counterById,
+    })
+    .eq('id', tradeId)
+    .select()
+    .single()
+
+  if (error) return { data: null, error: error.message }
+  return { data: data as Trade, error: null }
+}
+
 // ─── Status transitions ──────────────────────────────────────────────────────
 
 export async function updateTradeStatus(
