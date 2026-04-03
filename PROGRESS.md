@@ -2,38 +2,52 @@
 
 ## Current Focus
 
-**Milestone:** Production Deployment + Google OAuth
-**Status:** Complete — deckshark.gg is live, Google OAuth working
-**Next step:** Start M11 (Counter-Offers) on new branch
+**Milestone:** M13 Counter-Offers — Complete
+**Status:** PR open, ready for merge
+**Next step:** Start M16 (Security Hardening) — migration to restrict user/trade UPDATE columns, add security headers
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
 ---
 
 ## Milestone Status
 
-| Milestone                     | Status   | Notes                                                                                                                       |
-| ----------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| M0: Project Scaffolding       | Complete |                                                                                                                             |
-| M1: Auth & User Profiles      | Complete | Google OAuth deferred to M9                                                                                                 |
-| M2: Card Data Infrastructure  | Complete |                                                                                                                             |
-| M3: Deck Management (Phase A) | Complete | Text import only, URL importers in M4                                                                                       |
-| M4: Public Browsing           | Complete |                                                                                                                             |
-| M5: Trading (Phase B)         | Complete | Realtime updates optional polish                                                                                            |
-| M6: Reviews & Reputation      | Complete |                                                                                                                             |
-| M7: Want Lists                | Complete |                                                                                                                             |
-| M8: Email Notifications       | Complete |                                                                                                                             |
-| M9: Onboarding & Landing Page | Complete | Google OAuth deferred                                                                                                       |
-| M10: Polish & Mobile          | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA        |
-| M10.5: Browse Filters         | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand |
-| Production Deploy             | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                           |
-| Branch Protection             | Planned  | Protect main branch — require PRs, no direct pushes to production                                                           |
-| M11: Counter-Offers           | Planned  | Next up                                                                                                                     |
-| M12: Color Identity Filter    | Planned  |                                                                                                                             |
-| M13: Disputes                 | Deferred | Build when user base warrants                                                                                               |
+| Milestone                      | Status   | Notes                                                                                                                       |
+| ------------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| M0: Project Scaffolding        | Complete |                                                                                                                             |
+| M1: Auth & User Profiles       | Complete | Google OAuth deferred to M9                                                                                                 |
+| M2: Card Data Infrastructure   | Complete |                                                                                                                             |
+| M3: Deck Management (Phase A)  | Complete | Text import only, URL importers in M4                                                                                       |
+| M4: Public Browsing            | Complete |                                                                                                                             |
+| M5: Trading (Phase B)          | Complete | Realtime updates optional polish                                                                                            |
+| M6: Reviews & Reputation       | Complete |                                                                                                                             |
+| M7: Want Lists                 | Complete |                                                                                                                             |
+| M8: Email Notifications        | Complete |                                                                                                                             |
+| M9: Onboarding & Landing Page  | Complete | Google OAuth deferred                                                                                                       |
+| M10: Polish & Mobile           | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA        |
+| M11: Browse Filters            | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand |
+| M12: Production Deploy         | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                           |
+| M13: Counter-Offers            | Complete | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                     |
+| M14: Color Identity Filter     | Planned  |                                                                                                                             |
+| M15: Disputes                  | Deferred | Build when user base warrants                                                                                               |
+| **M16: Security Hardening**    | Planned  | RLS column restrictions, security headers, CSP, account deletion confirmation, input validation. **Pre-launch blocker.**    |
+| **M17: Rate Limiting**         | Planned  | Upstash Redis rate limiting, abuse prevention on all routes, notification idempotency                                       |
+| **M18: Performance & Caching** | Planned  | DB pagination, ISR caching, browse indexes, image optimization, query optimization                                          |
+| **M19: Admin Portal**          | Planned  | Stats dashboard, user mgmt, trade oversight, moderation/reporting, feedback inbox, platform health. After M16-M18.          |
+| Branch Protection              | Planned  | Protect main branch — require PRs, no direct pushes to production                                                           |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-03 — M13 Counter-Offers complete
+
+**Done:** Counter-offer flow end-to-end. Migration 019 adds `last_counter_by` to trades, relaxes trade_decks RLS for counter-offers. `counterTrade()` service function replaces deck selections and updates status. Counter-offer form with They pay/You pay slider toggle, tooltip, bordered pill UI. Same cash slider added to propose trade form. Trade badge moved to client component (fetches on mount + tab focus) — counts both proposals and counter-offers. Trades list page enhanced: inline circular commander art, deck values, cash direction, relative time, message preview with muted background. Email notification for `countered` event with deck lists and message. Redirects to /trades after proposing or countering. Global cursor-pointer on all interactive elements. Third test user (trader) + seed decks added. Tooltip component installed (shadcn).
+**Next:** Merge PR. Start M16 (Security Hardening).
+
+### 2026-04-01 — Printing-accurate card prices (PR #11)
+
+**Done:** Card prices now reflect specific printings. Migration 018 adds `collector_number` and `set_name` to `card_cache`. Text importer extracts `(SET) collector` instead of stripping it. New `resolveCardPrinting()` waterfall: exact printing → name+set → cheapest. Moxfield and Archidekt URL importers pass set codes through. New `PrintingSelector` component on deck edit page lets users change printing per card. Autocomplete deduplicates by oracle_id. Seed data updated with testuser + two decks. All 37 tests pass.
+**Next:** Merge PR #11. Run migration 018 on production Supabase, then re-sync card cache to backfill new columns.
 
 ### 2026-04-01 — Production deployment + Google OAuth
 

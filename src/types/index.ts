@@ -89,6 +89,7 @@ export interface Trade {
   receiver_message: string | null
   proposer_contact_shared: boolean
   receiver_contact_shared: boolean
+  last_counter_by: string | null
   created_at: string
   updated_at: string
 }

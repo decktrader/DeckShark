@@ -1,19 +1,49 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 
-export function MobileNav({
-  isLoggedIn,
-  pendingTradeCount,
-}: {
-  isLoggedIn: boolean
-  pendingTradeCount: number
-}) {
+export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [open, setOpen] = useState(false)
+  const [pendingTradeCount, setPendingTradeCount] = useState(0)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const lastTouchRef = useRef(0)
+
+  const fetchCount = useCallback(async () => {
+    if (!isLoggedIn) return
+    const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { count: proposedCount } = await supabase
+      .from('trades')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', user.id)
+      .eq('status', 'proposed')
+
+    const { count: counterCount } = await supabase
+      .from('trades')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'countered')
+      .neq('last_counter_by', user.id)
+      .or(`proposer_id.eq.${user.id},receiver_id.eq.${user.id}`)
+
+    setPendingTradeCount((proposedCount ?? 0) + (counterCount ?? 0))
+  }, [isLoggedIn])
+
+  useEffect(() => {
+    const onFocus = () => {
+      void fetchCount()
+    }
+    window.addEventListener('focus', onFocus)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch on mount is intentional
+    void fetchCount()
+    return () => window.removeEventListener('focus', onFocus)
+  }, [fetchCount])
 
   useEffect(() => {
     const button = buttonRef.current

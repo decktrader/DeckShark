@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getTrade } from '@/lib/services/trades.server'
+import { getUserDecks } from '@/lib/services/decks.server'
 import { getTradeReview } from '@/lib/services/reviews.server'
 import { TradeActions } from '@/components/trades/trade-actions'
 import { ReviewForm } from '@/components/reviews/review-form'
@@ -49,10 +50,25 @@ export default async function TradeDetailPage({
   }
 
   const isProposer = authUser.id === trade.proposer_id
-  const { data: myReview } =
-    trade.status === 'completed'
-      ? await getTradeReview(id, authUser.id)
-      : { data: null }
+  const themId = isProposer ? trade.receiver_id : trade.proposer_id
+
+  const needsDecks = ['proposed', 'countered'].includes(trade.status)
+
+  const [{ data: myReview }, myDecksResult, theirDecksResult] =
+    await Promise.all([
+      trade.status === 'completed'
+        ? getTradeReview(id, authUser.id)
+        : Promise.resolve({ data: null }),
+      needsDecks ? getUserDecks(authUser.id) : Promise.resolve({ data: null }),
+      needsDecks ? getUserDecks(themId) : Promise.resolve({ data: null }),
+    ])
+
+  const myAvailableDecks = (myDecksResult?.data ?? []).filter(
+    (d) => d.available_for_trade,
+  )
+  const theirAvailableDecks = (theirDecksResult?.data ?? []).filter(
+    (d) => d.available_for_trade,
+  )
 
   const myDecks = trade.trade_decks.filter(
     (td) => td.offered_by === authUser.id,
@@ -193,9 +209,16 @@ export default async function TradeDetailPage({
       )}
 
       {/* Actions */}
-      {['proposed', 'accepted'].includes(trade.status) && (
+      {['proposed', 'countered', 'accepted'].includes(trade.status) && (
         <div className="mt-8">
-          <TradeActions trade={trade} userId={authUser.id} />
+          <TradeActions
+            trade={trade}
+            userId={authUser.id}
+            myAvailableDecks={myAvailableDecks}
+            theirAvailableDecks={theirAvailableDecks}
+            currentMyDeckIds={myDecks.map((td) => td.deck_id)}
+            currentTheirDeckIds={theirDecks.map((td) => td.deck_id)}
+          />
         </div>
       )}
 

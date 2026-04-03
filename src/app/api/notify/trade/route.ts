@@ -5,10 +5,16 @@ import {
   sendTradeProposedEmail,
   sendTradeAcceptedEmail,
   sendTradeDeclinedEmail,
+  sendTradeCounteredEmail,
   sendTradeCompletedEmail,
 } from '@/lib/services/email'
 
-type TradeEvent = 'proposed' | 'accepted' | 'declined' | 'completed'
+type TradeEvent =
+  | 'proposed'
+  | 'accepted'
+  | 'declined'
+  | 'countered'
+  | 'completed'
 type DeckSummary = {
   name: string
   commander_name: string | null
@@ -127,6 +133,33 @@ export async function POST(request: Request) {
             proposerUsername: proposer.username,
             receiverUsername: receiver.username,
             tradeId,
+          })
+        }
+      }
+    } else if (event === 'countered') {
+      // Notify the other party (the one who didn't counter)
+      const otherPartyId =
+        authUser.id === trade.proposer_id ? receiver.id : proposer.id
+      const otherParty = authUser.id === trade.proposer_id ? receiver : proposer
+      const counterBy = authUser.id === trade.proposer_id ? proposer : receiver
+
+      // From the counter-er's perspective: their decks and the recipient's decks
+      const counterByDecks =
+        authUser.id === trade.proposer_id ? proposerDecks : receiverDecks
+      const recipientDecks =
+        authUser.id === trade.proposer_id ? receiverDecks : proposerDecks
+
+      if (otherParty.notification_preferences?.trade_updates !== false) {
+        const email = await getUserEmail(otherPartyId)
+        if (email) {
+          await sendTradeCounteredEmail({
+            to: email,
+            recipientUsername: otherParty.username,
+            counterByUsername: counterBy.username,
+            tradeId,
+            counterByDecks,
+            recipientDecks,
+            message: trade.receiver_message,
           })
         }
       }
