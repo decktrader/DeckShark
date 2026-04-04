@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { isValidUUID } from '@/lib/utils'
 import { getWantList, getMatchingDecks } from '@/lib/services/wantlists.server'
 import { PublicDeckCard } from '@/components/deck/public-deck-card'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ export default async function WantListPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  if (!isValidUUID(id)) notFound()
 
   const supabase = await createClient()
   const {

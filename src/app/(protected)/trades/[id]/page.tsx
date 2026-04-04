@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { isValidUUID } from '@/lib/utils'
 import { getTrade } from '@/lib/services/trades.server'
 import { getUserDecks } from '@/lib/services/decks.server'
 import { getTradeReview } from '@/lib/services/reviews.server'
@@ -32,6 +33,7 @@ export default async function TradeDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  if (!isValidUUID(id)) notFound()
 
   const supabase = await createClient()
   const {

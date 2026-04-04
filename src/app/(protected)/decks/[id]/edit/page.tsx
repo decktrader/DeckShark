@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { isValidUUID } from '@/lib/utils'
 import {
   getDeck,
   getDeckCards,
@@ -13,6 +14,7 @@ export default async function EditDeckPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  if (!isValidUUID(id)) notFound()
 
   const supabase = await createClient()
   const {

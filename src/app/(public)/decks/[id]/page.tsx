@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { isValidUUID } from '@/lib/utils'
 import {
   getPublicDeck,
   getDeckCards,
@@ -42,6 +43,7 @@ export default async function PublicDeckPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  if (!isValidUUID(id)) notFound()
 
   const supabase = await createClient()
   const {
