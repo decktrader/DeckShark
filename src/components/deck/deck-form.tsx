@@ -34,6 +34,7 @@ import {
 export function DeckForm({ userId }: { userId: string }) {
   const router = useRouter()
   const [name, setName] = useState('')
+  const [commanderName, setCommanderName] = useState('')
   const [format, setFormat] = useState('commander')
   const [archetype, setArchetype] = useState('')
   const [powerLevel, setPowerLevel] = useState('')
@@ -112,8 +113,10 @@ export function DeckForm({ userId }: { userId: string }) {
       setParseErrors(errors)
     }
 
-    // Find the commander if any
-    const commander = parsedCards.find((c) => c.isCommander)
+    // Find the commander — explicit field takes priority, then decklist COMMANDER: line
+    const commanderFromList = parsedCards.find((c) => c.isCommander)
+    const resolvedCommanderName =
+      commanderName.trim() || commanderFromList?.name
 
     // Create the deck
     const { data: deck, error: deckError } = await createDeck(userId, {
@@ -124,7 +127,7 @@ export function DeckForm({ userId }: { userId: string }) {
       color_identity: colorIdentity.length ? colorIdentity : undefined,
       description: description || undefined,
       condition_notes: conditionNotes || undefined,
-      commander_name: commander?.name,
+      commander_name: resolvedCommanderName,
       includes_sleeves: includesSleeves,
       includes_deckbox: includesDeckbox,
     })
@@ -154,11 +157,11 @@ export function DeckForm({ userId }: { userId: string }) {
     )
 
     // Set commander_scryfall_id — try cache first, fall back to Scryfall directly
-    if (commander) {
+    if (resolvedCommanderName) {
       const commanderCard = resolvedCards.find((c) => c.is_commander)
       let commanderScryfallId = commanderCard?.scryfall_id
       if (!commanderScryfallId) {
-        const scryfallCard = await getCardByName(commander.name)
+        const scryfallCard = await getCardByName(resolvedCommanderName)
         if (scryfallCard) commanderScryfallId = scryfallCard.id
       }
       if (commanderScryfallId) {
@@ -201,6 +204,18 @@ export function DeckForm({ userId }: { userId: string }) {
               onChange={(e) => setName(e.target.value)}
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="commander">Commander (optional)</Label>
+            <Input
+              id="commander"
+              placeholder="e.g. Atraxa, Praetors' Voice"
+              value={commanderName}
+              onChange={(e) => setCommanderName(e.target.value)}
+            />
+            <p className="text-muted-foreground text-xs">
+              Also detected from COMMANDER: lines in your decklist
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="format">Format</Label>
