@@ -230,6 +230,156 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 
 ---
 
+## Milestone 16: Security Hardening (pre-launch blocker)
+
+**Goal:** Close all security gaps found in the pre-launch audit. Nothing here is optional.
+
+**Migration `018_restrict_user_updates.sql`:**
+
+- Restrict UPDATE on `users` so `trade_rating`, `completed_trades` cannot be set by the row owner — only by triggers.
+- Restrict UPDATE on `trades` so `cash_difference_cents` cannot change after creation.
+- Add path-based validation to `deck-photos` storage policy (upload path must include `auth.uid()`).
+
+**Build:**
+
+- **Security headers** — add `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, and a baseline CSP in `next.config.ts` `headers()`.
+- **Verify `CRON_SECRET`** is set on Vercel production env. Add to `.env.example` with docs.
+- **Remove Resend demo key** from `.env.development` — replace with placeholder.
+- **Input validation** — validate URLs with `new URL()` + length cap in `/api/import/url`. Validate UUIDs on deck/trade ID params in API routes.
+- **Account deletion confirmation** — require password re-entry before deleting. Consider soft-delete with 30-day grace period.
+- **Generify error messages** — never return raw `error.message` from Supabase auth to the client.
+
+**Depends on:** None (can start immediately)
+
+---
+
+## Milestone 17: Rate Limiting & Abuse Prevention
+
+**Goal:** Every public and mutation API route has real, production-safe rate limiting.
+
+**Build:**
+
+- **Migrate rate limiting to Upstash Redis** — replace in-memory `Map` in `rate-limit.ts` with `@upstash/ratelimit`. The current in-memory approach resets per serverless invocation, so it's effectively no-op on Vercel.
+- **Add rate limits to unprotected routes:**
+  - `/api/cities/search` — 20 req/min/IP
+  - `/api/commanders/search` — 20 req/min/IP
+  - `/api/cards/search` — 20 req/min/IP
+  - `/api/notify/trade` — 5 req/min/user
+  - `/api/auth/signout` — 5 req/min/IP
+  - `/api/account/export` — 1 req/hour/user
+  - `/api/account/delete` — 1 req/hour/user
+- **Notification idempotency** — add `last_match_notification_at` to `want_lists` table; skip re-notify within 24h. Add idempotency to trade notifications (don't send same event twice).
+
+**Depends on:** M16 (security headers should land first)
+
+---
+
+## Milestone 18: Performance & Caching
+
+**Goal:** Eliminate the biggest performance bottlenecks before real traffic hits.
+
+**Migration `019_browse_indexes.sql`:**
+
+```sql
+CREATE INDEX idx_decks_available ON decks(available_for_trade) WHERE available_for_trade = true;
+CREATE INDEX idx_decks_value ON decks(estimated_value_cents);
+CREATE INDEX idx_decks_browse ON decks(user_id, available_for_trade, status);
+```
+
+**Build:**
+
+- **Database-level pagination** — refactor `getPublicDecks()` and `getPublicWantLists()` to use `.range(from, to)` instead of fetching all rows and slicing client-side. Pass page as a search param.
+- **ISR caching on public pages:**
+  - Homepage: `export const revalidate = 3600` (1 hour)
+  - `/decks` browse: `export const revalidate = 300` (5 min)
+  - `/decks/[id]` detail: `export const revalidate = 600` (10 min)
+  - `/want-lists` browse: `export const revalidate = 300`
+  - `/profile/[username]`: `export const revalidate = 600`
+- **Optimize card queries** — replace `select('*')` in `cards.ts` with explicit column lists.
+- **Fix profile page waterfall** — fetch user, decks, and reviews in parallel with `Promise.all()`.
+- **Use `next/image`** everywhere — replace raw `<img>` tags in trade detail and landing page.
+- **Add fetch timeout** to Scryfall API calls (10s).
+
+**Depends on:** None (can run in parallel with M16/M17)
+
+---
+
+## Milestone 19: Admin Portal (5-7 days)
+
+**Goal:** Internal admin dashboard for platform oversight, user management, moderation, and feedback collection. Essential once real users are on the platform.
+
+**Route group:** `(admin)/` — requires auth + `is_admin` flag on the `users` table.
+
+**Migration `020_admin.sql`:**
+
+- Add `is_admin boolean DEFAULT false` to `users` table (no public write — only settable via service role).
+- Create `reports` table: `id`, `reporter_id`, `target_type` (enum: `user`, `deck`, `trade`, `message`), `target_id`, `reason`, `status` (enum: `open`, `reviewed`, `resolved`, `dismissed`), `admin_notes`, `created_at`, `resolved_at`, `resolved_by`. RLS: reporters can insert + read own, admins can read/update all.
+- Create `feedback` table: `id`, `user_id` (nullable — allow anonymous), `category` (enum: `bug`, `feature`, `general`), `message`, `status` (enum: `new`, `reviewed`, `archived`), `admin_notes`, `created_at`. RLS: anyone can insert, admins can read/update all.
+- Create `user_suspensions` table: `id`, `user_id`, `reason`, `suspended_by`, `suspended_at`, `expires_at` (nullable — null = permanent), `lifted_at`, `lifted_by`. RLS: admins only.
+
+### Phase 1: Stats Dashboard
+
+- **Platform overview** — total users, decks, active trades, completed trades, want lists, total trade value
+- **Growth charts** — new users/decks/trades per day/week/month (query `created_at` aggregations)
+- **Card sync status** — last sync timestamp, total cards in cache, last error if any
+- **Onboarding funnel** — signup → onboarding complete → first deck created → first trade proposed → first trade completed (drop-off percentages)
+- **Geographic distribution** — user count by province, top cities
+
+### Phase 2: User Management
+
+- **User list** — searchable/sortable table (username, email, city, province, join date, deck count, trade count, rating)
+- **User detail view** — profile info, all decks, trade history, reviews given/received, email preferences
+- **Suspend/unsuspend user** — with reason, optional expiration date, logged in `user_suspensions`
+- **Middleware check** — suspended users see a "Your account is suspended" page with reason and expiry
+
+### Phase 3: Trade Oversight
+
+- **Trade feed** — chronological stream of trade activity with status badges (proposed, accepted, completed, declined, cancelled)
+- **Trade detail view** — both parties, decks involved, messages, timeline, value
+- **Trade analytics** — average trade value, most-traded formats, most-traded commanders, completion rate
+
+### Phase 4: Content Moderation & Reporting
+
+- **"Report" button** — add to deck detail, profile, and trade pages site-wide. Opens a modal with reason selector + optional description. Creates a `reports` row.
+- **Reports queue** — admin view of open reports, filterable by type/status. Mark as reviewed/resolved/dismissed with notes.
+- **Deck moderation** — flag or hide decks with suspicious content. Bulk actions on the reports queue.
+- **Photo moderation** — thumbnail grid of recently uploaded deck photos for quick review.
+
+### Phase 5: Feedback & Support
+
+- **Feedback form** — accessible from footer or help menu. Category selector (bug/feature/general) + message. Works for logged-in and anonymous users.
+- **Feedback inbox** — admin view with status filters (new/reviewed/archived). Add internal notes.
+- **Email delivery stats** — surface Resend delivery/bounce rates (via Resend API) on the admin dashboard.
+
+### Phase 6: Platform Health
+
+- **Rate limit dashboard** — show top rate-limited IPs/users, hit counts by endpoint (requires logging rate limit events to a table or reading from Upstash).
+- **Error summary** — aggregate recent server errors by route/type (lightweight — can start with a simple error logging table).
+- **Storage usage** — deck-photos bucket size and growth (Supabase Storage API).
+
+**Build:**
+
+- `src/lib/services/admin.ts` / `admin.server.ts` — admin service layer (stats queries, user management, reports, feedback)
+- `src/lib/middleware/admin.ts` — admin route protection (check `is_admin` flag)
+- `src/components/admin/` — dashboard charts, data tables, report cards, feedback list
+- `src/app/(admin)/admin/` — admin route group with nested pages:
+  - `/admin` — stats dashboard
+  - `/admin/users` — user list
+  - `/admin/users/[id]` — user detail
+  - `/admin/trades` — trade feed
+  - `/admin/reports` — reports queue
+  - `/admin/feedback` — feedback inbox
+- Public-facing additions:
+  - Report modal component (reusable, placed on deck/profile/trade pages)
+  - Feedback form (footer link or help menu)
+  - Suspension check in middleware
+
+**Dev split:** Phase 1-2 can be one dev, Phase 3-4 another. Phases 5-6 are smaller and can be picked up by whoever finishes first.
+
+**Depends on:** M16-M18 (hardening should land first — admin portal assumes rate limiting and security headers are in place)
+
+---
+
 ## Timeline & Parallelization
 
 ```
@@ -283,3 +433,44 @@ End-to-end smoke test for full MVP:
 3. Second user proposes trade → first user accepts → contact info shared
 4. Both confirm complete → leave reviews → reputation updates
 5. Create want list → list matching deck → email notification sent
+
+---
+
+## Phase 3 Concept: Deck Rotation Subscription (future exploration)
+
+> **Status:** Idea stage — not planned for implementation yet. Captured here for future reference.
+
+### Core Idea
+
+A monthly/bi-monthly subscription service where members pay a fee (~$15/mo) and receive a rotating deck. After the rotation period, you ship your deck to the next subscriber and receive a new one. If you love the deck you received, you can buy it outright.
+
+### Why This Could Work
+
+- Solves "I want to try new decks but can't afford them all" — competitive MTG decks cost $200-500+
+- Builds on DeckShark's existing deck logistics and trading infrastructure
+- Buy-out option creates additional revenue beyond subscriptions
+- Recurring revenue model for the business
+
+### Open Questions
+
+- **Deck condition tracking** — need inspection/grading between rotations to handle wear and disputes
+- **Buy-out pricing** — flat price? Depreciation with use? Market-based?
+- **Format matching** — subscribers specify formats (Standard, Modern, Commander, Pioneer) so they get playable decks
+- **Rotation logistics** — coordinating "ship old, receive new" timing so nobody is deckless for weeks
+- **Loss/damage insurance** — what happens if a deck is lost in mail or cards go missing?
+- **Deck sourcing** — does DeckShark own the inventory, or are decks contributed by other users?
+
+### Potential Tiers
+
+| Tier      | Price      | Rotation       | Deck Level             |
+| --------- | ---------- | -------------- | ---------------------- |
+| Budget    | ~$15/mo    | Every 2 months | Budget-friendly builds |
+| Premium   | ~$25-30/mo | Monthly        | Competitive-tier decks |
+| Commander | ~$20/mo    | Every 2 months | EDH/Commander focused  |
+
+### Prerequisites
+
+- Phase 2 (US-Canada cross-border shipping) must be operational first
+- Reliable deck condition grading system
+- Sufficient deck inventory or user-contributed pool
+- Payment/subscription infrastructure (Stripe recurring billing)
