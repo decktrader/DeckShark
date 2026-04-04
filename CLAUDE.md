@@ -4,7 +4,7 @@
 
 MTG deck trading marketplace. Canada-first, in-person trades.
 Stack: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + Supabase + Vercel.
-Repo: `github.com/decktrader/decktrader`
+Repo: `github.com/decktrader/DeckShark`
 
 ## Progress Tracking (MANDATORY)
 
@@ -29,6 +29,8 @@ Repo: `github.com/decktrader/decktrader`
 - `(auth)/` — login, register (unauthenticated only)
 - `(public)/` — browsable without login (decks, profiles, want lists)
 - `(protected)/` — requires auth (dashboard, settings, trades)
+
+**Route conflict warning:** Never create a static sibling route next to a dynamic `[id]` segment (e.g., `/trades/preview` will be caught by `/trades/[id]` and error). Use a different path prefix instead (e.g., `/trade-preview`).
 
 ### Service Layer Pattern
 
@@ -63,6 +65,7 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 - Local Studio: http://127.0.0.1:54323
 - Local Inbucket (email testing): http://127.0.0.1:54324
 - `supabase db reset` wipes all local data — re-sync cards afterward
+- If page changes aren't reflecting after edits, restart the dev server (`pnpm dev`). Turbopack HMR can get stuck, especially after adding/removing route files or `export const dynamic`.
 
 ### New developer setup
 
@@ -131,10 +134,20 @@ Users just describe what they want done.
 - ESLint with Next.js config for catching bugs
 - Husky + lint-staged runs Prettier and ESLint on every commit automatically
 - Do not argue about formatting — Prettier decides
+- ESLint enforces `react-hooks/set-state-in-effect` — avoid calling setState directly in useEffect bodies. For async data fetching on mount, use `// eslint-disable-next-line react-hooks/set-state-in-effect` with a comment explaining the pattern.
+
+## Permissions Hygiene
+
+Before ending a work session, review `.claude/settings.local.json`:
+
+- If you used a new command prefix repeatedly, add a wildcard `allow` rule (e.g., `Bash(newcmd:*)`)
+- If you notice a command that could be destructive, add it to `deny`
+- Keep `allow` rules as broad wildcards — no one-off command strings
+- Never store secrets or API keys in settings files
 
 ## Supabase
 
 - RLS on every table — no exceptions
 - Migrations in `supabase/migrations/`, numbered sequentially
-- Use Supabase Auth (email for now — Google OAuth deferred to M9)
+- Use Supabase Auth (email + Google OAuth)
 - Storage for deck photos (`deck-photos` bucket)

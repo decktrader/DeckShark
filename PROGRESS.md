@@ -2,42 +2,47 @@
 
 ## Current Focus
 
-**Milestone:** M13 Counter-Offers — Complete
-**Status:** PR open, ready for merge
-**Next step:** Start M16 (Security Hardening) — migration to restrict user/trade UPDATE columns, add security headers
+**Milestone:** M16 Security Hardening — In Progress
+**Status:** All 7 items implemented on `m16-security-hardening` branch, not yet committed
+**Next step:** Commit, open PR, merge. Then start M17 (Rate Limiting).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
 ---
 
 ## Milestone Status
 
-| Milestone                      | Status   | Notes                                                                                                                       |
-| ------------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| M0: Project Scaffolding        | Complete |                                                                                                                             |
-| M1: Auth & User Profiles       | Complete | Google OAuth deferred to M9                                                                                                 |
-| M2: Card Data Infrastructure   | Complete |                                                                                                                             |
-| M3: Deck Management (Phase A)  | Complete | Text import only, URL importers in M4                                                                                       |
-| M4: Public Browsing            | Complete |                                                                                                                             |
-| M5: Trading (Phase B)          | Complete | Realtime updates optional polish                                                                                            |
-| M6: Reviews & Reputation       | Complete |                                                                                                                             |
-| M7: Want Lists                 | Complete |                                                                                                                             |
-| M8: Email Notifications        | Complete |                                                                                                                             |
-| M9: Onboarding & Landing Page  | Complete | Google OAuth deferred                                                                                                       |
-| M10: Polish & Mobile           | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA        |
-| M11: Browse Filters            | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand |
-| M12: Production Deploy         | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                           |
-| M13: Counter-Offers            | Complete | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                     |
-| M14: Color Identity Filter     | Planned  |                                                                                                                             |
-| M15: Disputes                  | Deferred | Build when user base warrants                                                                                               |
-| **M16: Security Hardening**    | Planned  | RLS column restrictions, security headers, CSP, account deletion confirmation, input validation. **Pre-launch blocker.**    |
-| **M17: Rate Limiting**         | Planned  | Upstash Redis rate limiting, abuse prevention on all routes, notification idempotency                                       |
-| **M18: Performance & Caching** | Planned  | DB pagination, ISR caching, browse indexes, image optimization, query optimization                                          |
-| **M19: Admin Portal**          | Planned  | Stats dashboard, user mgmt, trade oversight, moderation/reporting, feedback inbox, platform health. After M16-M18.          |
-| Branch Protection              | Planned  | Protect main branch — require PRs, no direct pushes to production                                                           |
+| Milestone                      | Status      | Notes                                                                                                                                    |
+| ------------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| M0: Project Scaffolding        | Complete    |                                                                                                                                          |
+| M1: Auth & User Profiles       | Complete    | Google OAuth deferred to M9                                                                                                              |
+| M2: Card Data Infrastructure   | Complete    |                                                                                                                                          |
+| M3: Deck Management (Phase A)  | Complete    | Text import only, URL importers in M4                                                                                                    |
+| M4: Public Browsing            | Complete    |                                                                                                                                          |
+| M5: Trading (Phase B)          | Complete    | Realtime updates optional polish                                                                                                         |
+| M6: Reviews & Reputation       | Complete    |                                                                                                                                          |
+| M7: Want Lists                 | Complete    |                                                                                                                                          |
+| M8: Email Notifications        | Complete    |                                                                                                                                          |
+| M9: Onboarding & Landing Page  | Complete    | Google OAuth deferred                                                                                                                    |
+| M10: Polish & Mobile           | Complete    | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA                     |
+| M11: Browse Filters            | Complete    | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand              |
+| M12: Production Deploy         | Complete    | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                                        |
+| M13: Counter-Offers            | Complete    | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                                  |
+| M14: Color Identity Filter     | Complete    | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                                 |
+| M15: Disputes                  | Deferred    | Build when user base warrants                                                                                                            |
+| **M16: Security Hardening**    | In Progress | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. Not yet committed. |
+| **M17: Rate Limiting**         | Planned     | Upstash Redis rate limiting, abuse prevention on all routes, notification idempotency                                                    |
+| **M18: Performance & Caching** | Planned     | DB pagination, ISR caching, browse indexes, image optimization, query optimization                                                       |
+| **M19: Admin Portal**          | Planned     | Stats dashboard, user mgmt, trade oversight, moderation/reporting, feedback inbox, platform health. After M16-M18.                       |
+| Branch Protection              | Planned     | Protect main branch — require PRs, no direct pushes to production                                                                        |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-03 — M16 Security Hardening (in progress)
+
+**Done:** All 7 M16 items implemented on `m16-security-hardening` branch. Migration 020: RLS column restrictions on users (blocks trade_rating, completed_trades, reputation_score) and trades (blocks proposer_id, receiver_id changes), storage path validation for deck-photos. Security headers in next.config.ts (X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy). CRON_SECRET added to .env.example. Resend demo key removed from .env.development. UUID validation helper + checks on all 5 [id] page routes. Account deletion requires password for email users, "type DELETE" for OAuth users. Auth error messages generified with server-side logging. M14 marked complete (already done in M11).
+**Next:** Commit changes, open PR, merge. Then M17 (Rate Limiting).
 
 ### 2026-04-03 — M13 Counter-Offers complete
 

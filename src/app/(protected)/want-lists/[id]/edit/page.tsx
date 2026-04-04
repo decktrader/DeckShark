@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { isValidUUID } from '@/lib/utils'
 import { getWantList } from '@/lib/services/wantlists.server'
 import { WantListForm } from '@/components/want-lists/want-list-form'
 
@@ -9,6 +10,7 @@ export default async function EditWantListPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  if (!isValidUUID(id)) notFound()
 
   const supabase = await createClient()
   const {
