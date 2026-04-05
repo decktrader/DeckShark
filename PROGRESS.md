@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M16 Security Hardening — In Progress
-**Status:** All 7 items implemented on `m16-security-hardening` branch, not yet committed
-**Next step:** Commit, open PR, merge. Then start M17 (Rate Limiting).
+**Milestone:** M17 Rate Limiting — Up Next
+**Status:** Browse page redesigned with frosted glass sidebar layout. Ready to start M17.
+**Next step:** Begin M17 (Rate Limiting & Abuse Prevention) — Upstash Redis rate limiting, unprotected route limits, notification idempotency.
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
 ---
@@ -29,7 +29,7 @@
 | M13: Counter-Offers            | Complete    | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                                  |
 | M14: Color Identity Filter     | Complete    | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                                 |
 | M15: Disputes                  | Deferred    | Build when user base warrants                                                                                                            |
-| **M16: Security Hardening**    | In Progress | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. Not yet committed. |
+| **M16: Security Hardening**    | Complete    | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged.     |
 | **M17: Rate Limiting**         | Planned     | Upstash Redis rate limiting, abuse prevention on all routes, notification idempotency                                                    |
 | **M18: Performance & Caching** | Planned     | DB pagination, ISR caching, browse indexes, image optimization, query optimization                                                       |
 | **M19: Admin Portal**          | Planned     | Stats dashboard, user mgmt, trade oversight, moderation/reporting, feedback inbox, platform health. After M16-M18.                       |
@@ -39,7 +39,17 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
-### 2026-04-03 — M16 Security Hardening (in progress)
+### 2026-04-04 — Browse page redesign (frosted glass sidebar)
+
+**Done:** Redesigned browse page (`/decks`). Explored 12 design variants via `/preview` pages, selected "Frosted Glass Sidebar + Info Bar Cards" (V1B2). New layout: sticky glass sidebar with all filters (quick chips, price range, province, city, format, commander, power level, color identity, archetype, sort), portrait 5:4 commander art cards with name overlaid and info bar below (avatar, username, location, price, format). New `BrowseSidebar` client component replaces old `BrowseFilters`. All filters fully functional and wired to URL params. Preview pages cleaned up.
+**Next:** Start M17 (Rate Limiting & Abuse Prevention).
+
+### 2026-04-04 — Hero page redesign (PR #14 merged)
+
+**Done:** Redesigned landing page hero. Explored 8 design variants via `/preview` pages, selected "Layered Depth" style. Cinematic single commander art background with subtle blur, animated purple/blue gradient overlay, frosted glass CTA panel, three value prop cards with SVG icons (Track collection, Find local traders, Trade with confidence), 4-step "how it works" flow. Copy rewritten to focus on player value and local community. Preview pages cleaned up after finalizing.
+**Next:** Start M17 (Rate Limiting & Abuse Prevention).
+
+### 2026-04-03 — M16 Security Hardening (PR #13 merged)
 
 **Done:** All 7 M16 items implemented on `m16-security-hardening` branch. Migration 020: RLS column restrictions on users (blocks trade_rating, completed_trades, reputation_score) and trades (blocks proposer_id, receiver_id changes), storage path validation for deck-photos. Security headers in next.config.ts (X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy). CRON_SECRET added to .env.example. Resend demo key removed from .env.development. UUID validation helper + checks on all 5 [id] page routes. Account deletion requires password for email users, "type DELETE" for OAuth users. Auth error messages generified with server-side logging. M14 marked complete (already done in M11).
 **Next:** Commit changes, open PR, merge. Then M17 (Rate Limiting).
