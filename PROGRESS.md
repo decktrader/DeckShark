@@ -3,8 +3,8 @@
 ## Current Focus
 
 **Milestone:** M17 Rate Limiting — Up Next
-**Status:** Want lists page redesigned with format-tinted cards, gradient accent bars, and color pips. Ready to start M17.
-**Next step:** Begin M17 (Rate Limiting & Abuse Prevention) — Upstash Redis rate limiting, unprotected route limits, notification idempotency.
+**Status:** Full UI redesign pass complete — want lists, settings, dashboard, and profile pages all redesigned. Avatar upload added. Ready to start M17.
+**Next step:** Run migration 021 (avatars bucket) on production Supabase. Then begin M17 (Rate Limiting & Abuse Prevention).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
 ---
@@ -39,7 +39,17 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
-### 2026-04-05 — Want lists page redesign
+### 2026-04-05 — Full UI redesign pass (want lists, settings, dashboard, profile)
+
+**Done:** Redesigned 4 major pages through iterative preview workflow:
+- **Want lists** — format gradient accent bars, full-bleed tinted backgrounds, inline mana color pips, bigger prices, colored format/archetype tags
+- **Settings** — two-column layout with sticky sidebar (avatar + stats), avatar upload with Supabase storage (migration 021), notification cards with colored icons. Removed data export feature (not needed yet)
+- **Dashboard** — frosted gradient section cards, art deck cards with inline trade toggle, colored stat boxes (violet/sky/emerald/amber accent bars) for decks/trades/completed/want lists
+- **Profile** — split sidebar (avatar card + stats card + propose trade button), 3-col art deck grid, updated to DeckShark branding
+- Added 6 seed want lists for testing. Created `DeckCardNew` client component for reusable art-style deck cards with trade toggle.
+**Next:** Run migration 021 on production Supabase. Start M17 (Rate Limiting & Abuse Prevention).
+
+### 2026-04-05 — Want lists page redesign (superseded by full redesign above)
 
 **Done:** Redesigned want lists page (`/want-lists`). Explored 16+ design variants across multiple rounds of previews (4 top-level layouts, then sub-variants of favorites). Final design: format-colored gradient accent bar at top of each card, full-bleed format-tinted background, inline mana color pips next to title, larger `text-xl` prices, colored format/archetype tag pills, user avatar with location. Added 6 seed want lists across all 3 test users for testing. Preview pages cleaned up after finalizing. Pushed directly to main.
 **Next:** Start M17 (Rate Limiting & Abuse Prevention).
