@@ -33,7 +33,7 @@ export interface PublicDeckFilters {
 }
 
 export interface PublicDeck extends Deck {
-  owner: Pick<User, 'id' | 'username' | 'city' | 'province' | 'avatar_url'>
+  owner: Pick<User, 'id' | 'username' | 'city' | 'province' | 'avatar_url' | 'trade_rating' | 'completed_trades'>
 }
 
 export async function getPublicDecks(
@@ -45,7 +45,7 @@ export async function getPublicDecks(
   const sortBy = filters.sortBy ?? 'recent'
   let query = supabase
     .from('decks')
-    .select('*, owner:users!user_id(id, username, city, province, avatar_url)')
+    .select('*, owner:users!user_id(id, username, city, province, avatar_url, trade_rating, completed_trades)')
     .eq('available_for_trade', true)
     .eq('status', 'active')
     .limit(filters.limit ?? 1000)
@@ -135,7 +135,7 @@ export async function getPublicDeck(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('decks')
-    .select('*, owner:users!user_id(id, username, city, province, avatar_url)')
+    .select('*, owner:users!user_id(id, username, city, province, avatar_url, trade_rating, completed_trades)')
     .eq('id', id)
     .eq('available_for_trade', true)
     .single()

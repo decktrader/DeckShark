@@ -10,8 +10,17 @@ import {
   getDeckPhotos,
 } from '@/lib/services/decks.server'
 import { DeckCardList } from '@/components/deck/deck-card-list'
-import { DeckStats } from '@/components/deck/deck-stats'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+
+const FORMAT_COLORS: Record<string, string> = {
+  commander: 'border-violet-500/40 text-violet-300',
+  modern: 'border-sky-500/40 text-sky-300',
+  standard: 'border-amber-500/40 text-amber-300',
+  legacy: 'border-rose-500/40 text-rose-300',
+  pauper: 'border-emerald-500/40 text-emerald-300',
+  pioneer: 'border-orange-500/40 text-orange-300',
+}
 
 export async function generateMetadata({
   params,
@@ -22,8 +31,8 @@ export async function generateMetadata({
   const { data: deck } = await getPublicDeck(id)
   if (!deck) return {}
   const title = deck.commander_name
-    ? `${deck.name} — ${deck.commander_name} | DeckTrader`
-    : `${deck.name} | DeckTrader`
+    ? `${deck.name} — ${deck.commander_name} | DeckShark`
+    : `${deck.name} | DeckShark`
   const description = `${deck.format} deck listed for trade by ${deck.owner.username}${deck.owner.city ? ` in ${deck.owner.city}` : ''}.`
   return {
     title,
@@ -35,6 +44,10 @@ export async function generateMetadata({
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
   return `$${(cents / 100).toFixed(2)}`
+}
+
+function scryfallArtUrl(scryfallId: string): string {
+  return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
 }
 
 export default async function PublicDeckPage({
@@ -63,6 +76,44 @@ export default async function PublicDeckPage({
   const canPropose = !!authUser && !isOwner
 
   const primaryPhoto = photos?.find((p) => p.is_primary) ?? photos?.[0]
+  const photoUrl = primaryPhoto
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/deck-photos/${primaryPhoto.storage_path}`
+    : null
+
+  const initials = deck.owner.username.slice(0, 2).toUpperCase()
+  const totalCards = (cards ?? []).reduce((sum, c) => sum + c.quantity, 0)
+
+  const accentGradient = (() => {
+    switch (deck.format) {
+      case 'commander':
+        return 'from-violet-500/80'
+      case 'modern':
+        return 'from-sky-500/80'
+      case 'standard':
+        return 'from-amber-500/80'
+      case 'legacy':
+        return 'from-rose-500/80'
+      case 'pauper':
+        return 'from-emerald-500/80'
+      default:
+        return 'from-white/30'
+    }
+  })()
+
+  const statItems = [
+    {
+      label: 'Value',
+      value: formatPrice(deck.estimated_value_cents),
+      highlight: true,
+    },
+    { label: 'Cards', value: `${totalCards}` },
+    ...(deck.archetype
+      ? [{ label: 'Archetype', value: deck.archetype }]
+      : []),
+    ...(deck.power_level
+      ? [{ label: 'Power', value: deck.power_level }]
+      : []),
+  ]
 
   return (
     <main className="container mx-auto max-w-4xl px-4 py-8">
@@ -75,20 +126,104 @@ export default async function PublicDeckPage({
         </Link>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Main content */}
-        <div className="space-y-6 lg:col-span-2">
-          <div>
-            <h1 className="text-3xl font-bold">{deck.name}</h1>
-            {deck.description && (
-              <p className="text-muted-foreground mt-2">{deck.description}</p>
+      {/* Hero + info bar */}
+      <div className="mb-6 overflow-hidden rounded-2xl border border-white/5">
+        {deck.commander_scryfall_id && (
+          <div className="relative">
+            <div
+              className="h-48 w-full bg-cover bg-center sm:h-64"
+              style={{
+                backgroundImage: `url(${scryfallArtUrl(deck.commander_scryfall_id)})`,
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-6">
+              <h1 className="text-3xl font-black text-white drop-shadow-lg">
+                {deck.name}
+              </h1>
+              {deck.commander_name && (
+                <p className="mt-1 text-sm text-white/60">
+                  {deck.commander_name}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+        {!deck.commander_scryfall_id && (
+          <div className="p-6">
+            <h1 className="text-3xl font-black tracking-tight">{deck.name}</h1>
+          </div>
+        )}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 bg-white/[3%] px-6 py-3">
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/profile/${deck.owner.username}`}
+              className="flex items-center gap-2 hover:underline"
+            >
+              <Avatar className="h-7 w-7">
+                <AvatarImage
+                  src={deck.owner.avatar_url ?? undefined}
+                  alt={deck.owner.username}
+                />
+                <AvatarFallback className="text-[10px]">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium">
+                {deck.owner.username}
+              </span>
+            </Link>
+            {deck.owner.completed_trades > 0 && (
+              <span className="text-xs text-yellow-400">
+                {Number(deck.owner.trade_rating).toFixed(1)} ★
+              </span>
+            )}
+            {deck.owner.city && (
+              <span className="text-muted-foreground text-xs">
+                {deck.owner.city}, {deck.owner.province}
+              </span>
             )}
           </div>
+          <div className="flex items-center gap-2">
+            <span
+              className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium capitalize ${FORMAT_COLORS[deck.format] ?? 'border-white/20 text-white/60'}`}
+            >
+              {deck.format}
+            </span>
+          </div>
+        </div>
+      </div>
 
-          <DeckStats deck={deck} cards={cards ?? []} />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          {deck.description && (
+            <p className="text-muted-foreground">{deck.description}</p>
+          )}
+
+          {/* Stat pills with accent bars */}
+          <div className="flex flex-wrap gap-3">
+            {statItems.map((s) => (
+              <div
+                key={s.label}
+                className="overflow-hidden rounded-lg border border-white/5"
+              >
+                <div
+                  className={`h-0.5 w-full bg-gradient-to-r ${accentGradient} to-transparent`}
+                />
+                <div className="px-5 py-3 text-center">
+                  <p
+                    className={`text-lg font-bold capitalize ${s.highlight ? 'text-primary' : ''}`}
+                  >
+                    {s.value}
+                  </p>
+                  <p className="text-muted-foreground text-xs">{s.label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {deck.condition_notes && (
-            <div>
+            <div className="rounded-lg border border-white/5 p-4">
               <h2 className="mb-1 text-sm font-semibold">Condition notes</h2>
               <p className="text-muted-foreground text-sm">
                 {deck.condition_notes}
@@ -96,10 +231,10 @@ export default async function PublicDeckPage({
             </div>
           )}
 
-          {primaryPhoto && (
-            <div className="relative h-64 w-full overflow-hidden rounded-lg">
+          {photoUrl && (
+            <div className="relative h-64 w-full overflow-hidden rounded-xl">
               <Image
-                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/deck-photos/${primaryPhoto.storage_path}`}
+                src={photoUrl}
                 alt={deck.name}
                 fill
                 className="object-cover"
@@ -107,79 +242,54 @@ export default async function PublicDeckPage({
             </div>
           )}
 
-          <div>
-            <h2 className="mb-3 text-lg font-semibold">Decklist</h2>
-            <DeckCardList cards={cards ?? []} />
+          <div className="overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-white/[2%] to-transparent">
+            <div className="px-6 py-4">
+              <h2 className="text-lg font-bold">Decklist</h2>
+            </div>
+            <div className="px-6 pb-6">
+              <DeckCardList cards={cards ?? []} />
+            </div>
           </div>
         </div>
 
-        {/* Sidebar — owner info */}
-        <div className="space-y-4">
-          <div className="bg-card rounded-lg border p-4">
-            <h2 className="mb-3 font-semibold">Listed by</h2>
-            <Link
-              href={`/profile/${deck.owner.username}`}
-              className="font-medium hover:underline"
-            >
-              {deck.owner.username}
-            </Link>
-            {(deck.owner.city || deck.owner.province) && (
-              <p className="text-muted-foreground mt-1 text-sm">
-                {[deck.owner.city, deck.owner.province]
-                  .filter(Boolean)
-                  .join(', ')}
-              </p>
+        {/* Sidebar */}
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="space-y-3">
+            {(deck.includes_sleeves || deck.includes_deckbox) && (
+              <div className="rounded-xl border border-white/5 p-4">
+                <div className="flex gap-1.5">
+                  {deck.includes_sleeves && (
+                    <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
+                      Sleeves
+                    </span>
+                  )}
+                  {deck.includes_deckbox && (
+                    <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
+                      Deckbox
+                    </span>
+                  )}
+                </div>
+              </div>
             )}
-            <div className="text-muted-foreground mt-3 space-y-1 text-sm">
-              <p>
-                Format:{' '}
-                <span className="text-foreground capitalize">
-                  {deck.format}
-                </span>
-              </p>
-              {deck.archetype && (
-                <p>
-                  Archetype:{' '}
-                  <span className="text-foreground">{deck.archetype}</span>
-                </p>
-              )}
-              <p>
-                Estimated value:{' '}
-                <span className="text-foreground font-medium">
-                  {formatPrice(deck.estimated_value_cents)}
-                </span>
-              </p>
-              {(deck.includes_sleeves || deck.includes_deckbox) && (
-                <p>
-                  Includes:{' '}
-                  <span className="text-foreground">
-                    {[
-                      deck.includes_sleeves ? 'Sleeves' : null,
-                      deck.includes_deckbox ? 'Deckbox' : null,
-                    ]
-                      .filter(Boolean)
-                      .join(', ')}
-                  </span>
-                </p>
-              )}
-            </div>
-            <Button className="mt-4 w-full" asChild>
-              <Link href={`/profile/${deck.owner.username}`}>View profile</Link>
-            </Button>
             {canPropose && (
-              <Button className="mt-2 w-full" variant="default" asChild>
+              <Button className="w-full" asChild>
                 <Link href={`/trades/new?deckId=${deck.id}`}>
                   Propose trade
                 </Link>
               </Button>
             )}
             {!authUser && (
-              <Button className="mt-2 w-full" variant="outline" asChild>
+              <Button className="w-full" variant="outline" asChild>
                 <Link href={`/login?next=/decks/${deck.id}`}>
                   Sign in to propose trade
                 </Link>
               </Button>
             )}
+            <Button className="w-full" variant="outline" asChild>
+              <Link href={`/profile/${deck.owner.username}`}>
+                View {deck.owner.username}&apos;s profile
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
