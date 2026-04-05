@@ -63,11 +63,6 @@ export default async function DashboardPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {deckList.length} deck{deckList.length !== 1 ? 's' : ''} ·{' '}
-            {activeTrades} active trade{activeTrades !== 1 ? 's' : ''} ·{' '}
-            {profile.completed_trades} completed
-          </p>
         </div>
         <div className="flex gap-2">
           <Button asChild>
@@ -76,6 +71,40 @@ export default async function DashboardPage() {
           <Button asChild variant="outline">
             <Link href="/want-lists/new">New want list</Link>
           </Button>
+        </div>
+      </div>
+
+      {/* Stat boxes */}
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="overflow-hidden rounded-xl border border-white/5">
+          <div className="h-1 w-full bg-gradient-to-r from-violet-500/80 via-violet-500/30 to-transparent" />
+          <div className="p-4 text-center">
+            <p className="text-3xl font-black">{deckList.length}</p>
+            <p className="text-muted-foreground text-xs">Decks</p>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-white/5">
+          <div className="h-1 w-full bg-gradient-to-r from-sky-500/80 via-sky-500/30 to-transparent" />
+          <div className="p-4 text-center">
+            <p className="text-3xl font-black">{activeTrades}</p>
+            <p className="text-muted-foreground text-xs">Active trades</p>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-white/5">
+          <div className="h-1 w-full bg-gradient-to-r from-emerald-500/80 via-emerald-500/30 to-transparent" />
+          <div className="p-4 text-center">
+            <p className="text-3xl font-black">{profile.completed_trades}</p>
+            <p className="text-muted-foreground text-xs">Completed</p>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-white/5">
+          <div className="h-1 w-full bg-gradient-to-r from-amber-500/80 via-amber-500/30 to-transparent" />
+          <div className="p-4 text-center">
+            <p className="text-3xl font-black">
+              {wlList.filter((w) => w.status === 'active').length}
+            </p>
+            <p className="text-muted-foreground text-xs">Want lists</p>
+          </div>
         </div>
       </div>
 
