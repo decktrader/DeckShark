@@ -8,6 +8,7 @@ export interface WantListWithOwner extends WantList {
     username: string
     city: string | null
     province: string | null
+    avatar_url: string | null
   }
 }
 
@@ -31,7 +32,7 @@ export async function getWantList(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('want_lists')
-    .select('*, owner:users!user_id(id, username, city, province)')
+    .select('*, owner:users!user_id(id, username, city, province, avatar_url)')
     .eq('id', id)
     .single()
 
@@ -45,7 +46,7 @@ export async function getPublicWantLists(): Promise<
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('want_lists')
-    .select('*, owner:users!user_id(id, username, city, province)')
+    .select('*, owner:users!user_id(id, username, city, province, avatar_url)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 

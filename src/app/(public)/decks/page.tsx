@@ -57,9 +57,13 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
         {/* Info bar below art */}
         <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
           <div className="flex items-center gap-2">
-            <div className="bg-primary/40 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white">
-              {deck.owner.username.charAt(0).toUpperCase()}
-            </div>
+            {deck.owner.avatar_url ? (
+              <img src={deck.owner.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+            ) : (
+              <div className="bg-primary/40 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white">
+                {deck.owner.username.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="min-w-0">
               <p className="truncate text-xs font-medium">
                 {deck.owner.username}
