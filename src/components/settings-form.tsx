@@ -84,12 +84,16 @@ function AvatarUpload({
     const url = `${publicUrl}?t=${Date.now()}`
     setPreview(url)
     onUpload(url)
+
+    // Save to database immediately so it persists without form submit
+    await updateUser(user.id, { avatar_url: url })
     setUploading(false)
   }
 
-  function handleRemove() {
+  async function handleRemove() {
     setPreview(null)
     onUpload(null)
+    await updateUser(user.id, { avatar_url: null })
   }
 
   return (
