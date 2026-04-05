@@ -34,6 +34,8 @@ Repo: `github.com/decktrader/DeckShark`
 
 **Design preview pages:** Use static routes with query params (`/preview/v3?v=a`) not nested dynamic segments. Always quote URLs with `?`/`&` in shell commands (zsh treats them as globs).
 
+**Client component extraction:** Components with event handlers (`onClick`, `onChange`) cannot be defined inline in server component files. Extract them to separate `'use client'` files (e.g., `deck-card-new.tsx` for deck cards with trade toggles).
+
 ### Service Layer Pattern
 
 Components NEVER import from `@/lib/supabase/*` directly.

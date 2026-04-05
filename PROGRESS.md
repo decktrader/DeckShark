@@ -3,8 +3,8 @@
 ## Current Focus
 
 **Milestone:** M17 Rate Limiting — Up Next
-**Status:** Full UI redesign pass complete — want lists, settings, dashboard, and profile pages all redesigned. Avatar upload added. Ready to start M17.
-**Next step:** Run migration 021 (avatars bucket) on production Supabase. Then begin M17 (Rate Limiting & Abuse Prevention).
+**Status:** Full UI redesign pass complete across 6 pages. Card hover preview, avatar upload, real commander decklists. Ready to start M17.
+**Next step:** Begin M17 (Rate Limiting & Abuse Prevention).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
 ---
@@ -39,15 +39,17 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
-### 2026-04-05 — Full UI redesign pass (want lists, settings, dashboard, profile)
+### 2026-04-05 — Full UI redesign + card hover preview + avatar upload
 
-**Done:** Redesigned 4 major pages through iterative preview workflow:
+**Done:** Redesigned 6 pages through iterative preview workflow:
 - **Want lists** — format gradient accent bars, full-bleed tinted backgrounds, inline mana color pips, bigger prices, colored format/archetype tags
 - **Settings** — two-column layout with sticky sidebar (avatar + stats), avatar upload with Supabase storage (migration 021), notification cards with colored icons. Removed data export feature (not needed yet)
 - **Dashboard** — frosted gradient section cards, art deck cards with inline trade toggle, colored stat boxes (violet/sky/emerald/amber accent bars) for decks/trades/completed/want lists
 - **Profile** — split sidebar (avatar card + stats card + propose trade button), 3-col art deck grid, updated to DeckShark branding
-- Added 6 seed want lists for testing. Created `DeckCardNew` client component for reusable art-style deck cards with trade toggle.
-**Next:** Run migration 021 on production Supabase. Start M17 (Rate Limiting & Abuse Prevention).
+- **Deck detail** — hero art banner with info bar (owner avatar + rating + format tag), colored accent stat pills, frosted decklist section
+- **Card hover preview** — sticky sidebar panel shows Scryfall card image on hover, follows scroll through long decklists, context-based provider pattern
+- Added 6 seed want lists for testing. Created `DeckCardNew` client component for reusable art-style deck cards with trade toggle. Updated all 5 test decks to real commander decklists (25-77 cards each) with scryfall_ids. Migration 021 (avatars bucket) applied to production. Removed data export feature. Owner rating + avatar now shown across all pages.
+**Next:** Start M17 (Rate Limiting & Abuse Prevention).
 
 ### 2026-04-05 — Want lists page redesign (superseded by full redesign above)
 
