@@ -78,6 +78,7 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 3. `supabase db reset`
 4. `pnpm dev`
 5. Hit `http://localhost:3000/api/cron/sync-cards` once to populate cards (~2 min)
+6. Run `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -f scripts/update-test-decks.sql` to populate scryfall_ids on test deck cards (needed for card hover previews)
 
 ### GitHub CLI
 
