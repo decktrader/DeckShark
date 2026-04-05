@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, createContext, useContext } from 'react'
 import type { DeckCard } from '@/types'
 
 function formatPrice(cents: number | null): string {
@@ -12,10 +12,35 @@ function scryfallCardUrl(scryfallId: string): string {
   return `https://cards.scryfall.io/normal/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
 }
 
+// Context so the preview panel can live anywhere in the tree
+const HoveredCardContext = createContext<{
+  hoveredCard: DeckCard | null
+  setHoveredCard: (card: DeckCard) => void
+}>({ hoveredCard: null, setHoveredCard: () => {} })
+
+export function DeckCardListProvider({
+  cards,
+  children,
+}: {
+  cards: DeckCard[]
+  children: React.ReactNode
+}) {
+  const commanders = cards.filter((c) => c.is_commander)
+  const defaultCard = commanders[0] ?? cards[0] ?? null
+  const [hoveredCard, setHoveredCard] = useState<DeckCard | null>(defaultCard)
+
+  return (
+    <HoveredCardContext.Provider value={{ hoveredCard, setHoveredCard }}>
+      {children}
+    </HoveredCardContext.Provider>
+  )
+}
+
 export function DeckCardList({ cards }: { cards: DeckCard[] }) {
   const commanders = cards.filter((c) => c.is_commander)
   const nonCommanders = cards.filter((c) => !c.is_commander)
   const totalCards = cards.reduce((sum, c) => sum + c.quantity, 0)
+  const { hoveredCard, setHoveredCard } = useContext(HoveredCardContext)
 
   return (
     <div className="space-y-4">
@@ -25,7 +50,12 @@ export function DeckCardList({ cards }: { cards: DeckCard[] }) {
           <h3 className="mb-2 text-sm font-semibold">Commander</h3>
           <ul className="space-y-1">
             {commanders.map((card) => (
-              <CardRow key={card.id} card={card} />
+              <CardRow
+                key={card.id}
+                card={card}
+                isHovered={hoveredCard?.id === card.id}
+                onHover={setHoveredCard}
+              />
             ))}
           </ul>
         </div>
@@ -36,7 +66,12 @@ export function DeckCardList({ cards }: { cards: DeckCard[] }) {
         )}
         <ul className="space-y-1">
           {nonCommanders.map((card) => (
-            <CardRow key={card.id} card={card} />
+            <CardRow
+              key={card.id}
+              card={card}
+              isHovered={hoveredCard?.id === card.id}
+              onHover={setHoveredCard}
+            />
           ))}
         </ul>
       </div>
@@ -44,32 +79,51 @@ export function DeckCardList({ cards }: { cards: DeckCard[] }) {
   )
 }
 
-function CardRow({ card }: { card: DeckCard }) {
-  const [hovered, setHovered] = useState(false)
+export function DeckCardPreview() {
+  const { hoveredCard } = useContext(HoveredCardContext)
+
+  if (!hoveredCard?.scryfall_id) {
+    return (
+      <div className="bg-muted/30 flex aspect-[2.5/3.5] w-full items-center justify-center rounded-xl border border-white/5">
+        <p className="text-muted-foreground text-xs">
+          Hover a card to preview
+        </p>
+      </div>
+    )
+  }
 
   return (
+    <img
+      src={scryfallCardUrl(hoveredCard.scryfall_id)}
+      alt={hoveredCard.card_name}
+      className="w-full rounded-xl shadow-2xl shadow-black/50 transition-all duration-200"
+    />
+  )
+}
+
+function CardRow({
+  card,
+  isHovered,
+  onHover,
+}: {
+  card: DeckCard
+  isHovered: boolean
+  onHover: (card: DeckCard) => void
+}) {
+  return (
     <li
-      className="relative flex items-center justify-between text-sm"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className={`flex cursor-default items-center justify-between rounded px-1.5 py-0.5 text-sm transition-colors ${
+        isHovered ? 'bg-white/5' : ''
+      }`}
+      onMouseEnter={() => onHover(card)}
     >
-      <span className="cursor-default">
+      <span>
         <span className="text-muted-foreground">{card.quantity}x</span>{' '}
         {card.card_name}
       </span>
       <span className="text-muted-foreground text-xs">
         {formatPrice(card.price_cents)}
       </span>
-
-      {hovered && card.scryfall_id && (
-        <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-2">
-          <img
-            src={scryfallCardUrl(card.scryfall_id)}
-            alt={card.card_name}
-            className="w-56 rounded-xl shadow-2xl shadow-black/50"
-          />
-        </div>
-      )}
     </li>
   )
 }

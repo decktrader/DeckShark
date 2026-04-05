@@ -9,7 +9,11 @@ import {
   getDeckCards,
   getDeckPhotos,
 } from '@/lib/services/decks.server'
-import { DeckCardList } from '@/components/deck/deck-card-list'
+import {
+  DeckCardList,
+  DeckCardListProvider,
+  DeckCardPreview,
+} from '@/components/deck/deck-card-list'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 
@@ -194,105 +198,112 @@ export default async function PublicDeckPage({
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          {deck.description && (
-            <p className="text-muted-foreground">{deck.description}</p>
-          )}
+      <DeckCardListProvider cards={cards ?? []}>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            {deck.description && (
+              <p className="text-muted-foreground">{deck.description}</p>
+            )}
 
-          {/* Stat pills with accent bars */}
-          <div className="flex flex-wrap gap-3">
-            {statItems.map((s) => (
-              <div
-                key={s.label}
-                className="overflow-hidden rounded-lg border border-white/5"
-              >
+            {/* Stat pills with accent bars */}
+            <div className="flex flex-wrap gap-3">
+              {statItems.map((s) => (
                 <div
-                  className={`h-0.5 w-full bg-gradient-to-r ${accentGradient} to-transparent`}
+                  key={s.label}
+                  className="overflow-hidden rounded-lg border border-white/5"
+                >
+                  <div
+                    className={`h-0.5 w-full bg-gradient-to-r ${accentGradient} to-transparent`}
+                  />
+                  <div className="px-5 py-3 text-center">
+                    <p
+                      className={`text-lg font-bold capitalize ${s.highlight ? 'text-primary' : ''}`}
+                    >
+                      {s.value}
+                    </p>
+                    <p className="text-muted-foreground text-xs">{s.label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {deck.condition_notes && (
+              <div className="rounded-lg border border-white/5 p-4">
+                <h2 className="mb-1 text-sm font-semibold">Condition notes</h2>
+                <p className="text-muted-foreground text-sm">
+                  {deck.condition_notes}
+                </p>
+              </div>
+            )}
+
+            {photoUrl && (
+              <div className="relative h-64 w-full overflow-hidden rounded-xl">
+                <Image
+                  src={photoUrl}
+                  alt={deck.name}
+                  fill
+                  className="object-cover"
                 />
-                <div className="px-5 py-3 text-center">
-                  <p
-                    className={`text-lg font-bold capitalize ${s.highlight ? 'text-primary' : ''}`}
-                  >
-                    {s.value}
-                  </p>
-                  <p className="text-muted-foreground text-xs">{s.label}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {deck.condition_notes && (
-            <div className="rounded-lg border border-white/5 p-4">
-              <h2 className="mb-1 text-sm font-semibold">Condition notes</h2>
-              <p className="text-muted-foreground text-sm">
-                {deck.condition_notes}
-              </p>
-            </div>
-          )}
-
-          {photoUrl && (
-            <div className="relative h-64 w-full overflow-hidden rounded-xl">
-              <Image
-                src={photoUrl}
-                alt={deck.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-
-          <div className="overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-white/[2%] to-transparent">
-            <div className="px-6 py-4">
-              <h2 className="text-lg font-bold">Decklist</h2>
-            </div>
-            <div className="px-6 pb-6">
-              <DeckCardList cards={cards ?? []} />
-            </div>
-          </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <div className="space-y-3">
-            {(deck.includes_sleeves || deck.includes_deckbox) && (
-              <div className="rounded-xl border border-white/5 p-4">
-                <div className="flex gap-1.5">
-                  {deck.includes_sleeves && (
-                    <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
-                      Sleeves
-                    </span>
-                  )}
-                  {deck.includes_deckbox && (
-                    <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
-                      Deckbox
-                    </span>
-                  )}
-                </div>
               </div>
             )}
-            {canPropose && (
-              <Button className="w-full" asChild>
-                <Link href={`/trades/new?deckId=${deck.id}`}>
-                  Propose trade
-                </Link>
-              </Button>
-            )}
-            {!authUser && (
+
+            <div className="overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-white/[2%] to-transparent">
+              <div className="px-6 py-4">
+                <h2 className="text-lg font-bold">Decklist</h2>
+              </div>
+              <div className="px-6 pb-6">
+                <DeckCardList cards={cards ?? []} />
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div>
+            <div className="lg:sticky lg:top-24 space-y-3">
+              {/* Card preview — sticky, follows scroll */}
+              <div className="hidden lg:block">
+                <DeckCardPreview />
+              </div>
+
+              {(deck.includes_sleeves || deck.includes_deckbox) && (
+                <div className="rounded-xl border border-white/5 p-4">
+                  <div className="flex gap-1.5">
+                    {deck.includes_sleeves && (
+                      <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
+                        Sleeves
+                      </span>
+                    )}
+                    {deck.includes_deckbox && (
+                      <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
+                        Deckbox
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+              {canPropose && (
+                <Button className="w-full" asChild>
+                  <Link href={`/trades/new?deckId=${deck.id}`}>
+                    Propose trade
+                  </Link>
+                </Button>
+              )}
+              {!authUser && (
+                <Button className="w-full" variant="outline" asChild>
+                  <Link href={`/login?next=/decks/${deck.id}`}>
+                    Sign in to propose trade
+                  </Link>
+                </Button>
+              )}
               <Button className="w-full" variant="outline" asChild>
-                <Link href={`/login?next=/decks/${deck.id}`}>
-                  Sign in to propose trade
+                <Link href={`/profile/${deck.owner.username}`}>
+                  View {deck.owner.username}&apos;s profile
                 </Link>
               </Button>
-            )}
-            <Button className="w-full" variant="outline" asChild>
-              <Link href={`/profile/${deck.owner.username}`}>
-                View {deck.owner.username}&apos;s profile
-              </Link>
-            </Button>
+            </div>
           </div>
         </div>
-      </div>
+      </DeckCardListProvider>
     </main>
   )
 }
