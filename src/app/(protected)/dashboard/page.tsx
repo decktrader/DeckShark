@@ -4,13 +4,31 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserById } from '@/lib/services/users.server'
 import { getUserDecks } from '@/lib/services/decks.server'
 import { getUserWantLists } from '@/lib/services/wantlists.server'
+import { getUserTrades } from '@/lib/services/trades.server'
 import { isOnboardingComplete } from '@/lib/services/users'
-import { DeckGrid } from '@/components/deck/deck-grid'
+import { DeckCardNew } from '@/components/deck/deck-card-new'
 import { Button } from '@/components/ui/button'
+import type { WantList } from '@/types'
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(2)}`
+  return `$${(cents / 100).toFixed(0)}`
+}
+
+function priceRange(wl: WantList): string {
+  if (!wl.min_value_cents && !wl.max_value_cents) return ''
+  if (!wl.min_value_cents) return `Up to ${formatPrice(wl.max_value_cents)}`
+  if (!wl.max_value_cents) return `${formatPrice(wl.min_value_cents)}+`
+  return `${formatPrice(wl.min_value_cents)} – ${formatPrice(wl.max_value_cents)}`
+}
+
+const FORMAT_COLORS: Record<string, string> = {
+  commander: 'border-violet-500/40 text-violet-300',
+  modern: 'border-sky-500/40 text-sky-300',
+  standard: 'border-amber-500/40 text-amber-300',
+  legacy: 'border-rose-500/40 text-rose-300',
+  pauper: 'border-emerald-500/40 text-emerald-300',
+  pioneer: 'border-orange-500/40 text-orange-300',
 }
 
 export default async function DashboardPage() {
@@ -27,70 +45,126 @@ export default async function DashboardPage() {
     redirect('/onboarding')
   }
 
-  const [{ data: decks }, { data: wantLists }] = await Promise.all([
-    getUserDecks(authUser.id),
-    getUserWantLists(authUser.id),
-  ])
+  const [{ data: decks }, { data: wantLists }, { data: trades }] =
+    await Promise.all([
+      getUserDecks(authUser.id),
+      getUserWantLists(authUser.id),
+      getUserTrades(authUser.id),
+    ])
+
+  const deckList = decks ?? []
+  const wlList = wantLists ?? []
+  const activeTrades = (trades ?? []).filter((t) =>
+    ['proposed', 'countered', 'accepted'].includes(t.status),
+  ).length
 
   return (
-    <main className="container mx-auto max-w-4xl space-y-12 px-4 py-8">
-      {/* Decks */}
-      <section>
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Your decks</h1>
+    <main className="container mx-auto max-w-5xl px-4 py-8">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {deckList.length} deck{deckList.length !== 1 ? 's' : ''} ·{' '}
+            {activeTrades} active trade{activeTrades !== 1 ? 's' : ''} ·{' '}
+            {profile.completed_trades} completed
+          </p>
+        </div>
+        <div className="flex gap-2">
           <Button asChild>
             <Link href="/decks/new">New deck</Link>
           </Button>
-        </div>
-        <DeckGrid decks={decks ?? []} showTradeToggle />
-      </section>
-
-      {/* Want lists */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Want lists</h2>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline">
             <Link href="/want-lists/new">New want list</Link>
           </Button>
         </div>
+      </div>
 
-        {!wantLists || wantLists.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
-            No want lists yet.{' '}
-            <Link href="/want-lists/new" className="underline">
-              Create one
-            </Link>{' '}
-            to let others know what you&apos;re looking for.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {wantLists.map((wl) => (
-              <Link key={wl.id} href={`/want-lists/${wl.id}`}>
-                <div className="bg-card hover:border-primary/50 rounded-lg border p-4 transition-colors">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-medium">{wl.title}</p>
-                      <p className="text-muted-foreground text-sm">
-                        {wl.format && (
-                          <span className="capitalize">{wl.format}</span>
-                        )}
-                        {wl.format && wl.commander_name && ' · '}
-                        {wl.commander_name && wl.commander_name}
-                        {(wl.min_value_cents || wl.max_value_cents) &&
-                          ` · ${formatPrice(wl.min_value_cents)} – ${wl.max_value_cents ? formatPrice(wl.max_value_cents) : 'any'}`}
-                      </p>
-                    </div>
-                    <span
-                      className={`text-xs font-semibold ${wl.status === 'active' ? 'text-green-400' : 'text-muted-foreground'}`}
-                    >
-                      {wl.status === 'active' ? 'Active' : 'Fulfilled'}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+      {/* Decks section */}
+      <section className="overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-white/[2%] to-transparent">
+        <div className="flex items-center justify-between px-6 py-5">
+          <div>
+            <h2 className="text-lg font-bold">Your decks</h2>
+            <p className="text-muted-foreground text-xs">
+              {deckList.filter((d) => d.available_for_trade).length} of{' '}
+              {deckList.length} available for trade
+            </p>
           </div>
-        )}
+        </div>
+        <div className="px-6 pb-6">
+          {deckList.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              No decks yet.{' '}
+              <Link href="/decks/new" className="text-primary underline">
+                Create one
+              </Link>
+            </p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {deckList.map((d) => (
+                <DeckCardNew key={d.id} deck={d} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Want lists section */}
+      <section className="mt-6 overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-white/[2%] to-transparent">
+        <div className="flex items-center justify-between px-6 py-5">
+          <div>
+            <h2 className="text-lg font-bold">Want lists</h2>
+            <p className="text-muted-foreground text-xs">
+              {wlList.filter((w) => w.status === 'active').length} active ·{' '}
+              {wlList.filter((w) => w.status === 'fulfilled').length} fulfilled
+            </p>
+          </div>
+        </div>
+        <div className="px-6 pb-6">
+          {wlList.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              No want lists yet.{' '}
+              <Link
+                href="/want-lists/new"
+                className="text-primary underline"
+              >
+                Create one
+              </Link>{' '}
+              to let others know what you&apos;re looking for.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {wlList.map((wl) => (
+                <Link key={wl.id} href={`/want-lists/${wl.id}`}>
+                  <div className="rounded-lg border border-white/5 p-4 transition-colors hover:border-white/15">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{wl.title}</p>
+                        <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
+                          {wl.format && (
+                            <span
+                              className={`rounded-full border px-2 py-0.5 text-[10px] font-medium capitalize ${FORMAT_COLORS[wl.format] ?? 'border-white/20 text-white/60'}`}
+                            >
+                              {wl.format}
+                            </span>
+                          )}
+                          {wl.commander_name && (
+                            <span>{wl.commander_name}</span>
+                          )}
+                          {priceRange(wl) && <span>{priceRange(wl)}</span>}
+                        </div>
+                      </div>
+                      <span
+                        className={`shrink-0 text-xs font-semibold ${wl.status === 'active' ? 'text-green-400' : 'text-muted-foreground'}`}
+                      >
+                        {wl.status === 'active' ? 'Active' : 'Fulfilled'}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </main>
   )

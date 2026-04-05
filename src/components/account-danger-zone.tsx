@@ -68,11 +68,6 @@ export function AccountDangerZone() {
         These actions are permanent and cannot be undone.
       </p>
       <div className="flex flex-wrap gap-3">
-        <Button variant="outline" size="sm" asChild>
-          <a href="/api/account/export" download>
-            Export my data
-          </a>
-        </Button>
         {!showConfirm ? (
           <Button
             variant="destructive"

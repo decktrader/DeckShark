@@ -32,6 +32,8 @@ Repo: `github.com/decktrader/DeckShark`
 
 **Route conflict warning:** Never create a static sibling route next to a dynamic `[id]` segment (e.g., `/trades/preview` will be caught by `/trades/[id]` and error). Use a different path prefix instead (e.g., `/trade-preview`).
 
+**Design preview pages:** Use static routes with query params (`/preview/v3?v=a`) not nested dynamic segments. Always quote URLs with `?`/`&` in shell commands (zsh treats them as globs).
+
 ### Service Layer Pattern
 
 Components NEVER import from `@/lib/supabase/*` directly.

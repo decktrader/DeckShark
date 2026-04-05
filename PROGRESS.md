@@ -3,7 +3,7 @@
 ## Current Focus
 
 **Milestone:** M17 Rate Limiting — Up Next
-**Status:** Browse page redesigned with frosted glass sidebar layout. Ready to start M17.
+**Status:** Want lists page redesigned with format-tinted cards, gradient accent bars, and color pips. Ready to start M17.
 **Next step:** Begin M17 (Rate Limiting & Abuse Prevention) — Upstash Redis rate limiting, unprotected route limits, notification idempotency.
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
@@ -38,6 +38,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-05 — Want lists page redesign
+
+**Done:** Redesigned want lists page (`/want-lists`). Explored 16+ design variants across multiple rounds of previews (4 top-level layouts, then sub-variants of favorites). Final design: format-colored gradient accent bar at top of each card, full-bleed format-tinted background, inline mana color pips next to title, larger `text-xl` prices, colored format/archetype tag pills, user avatar with location. Added 6 seed want lists across all 3 test users for testing. Preview pages cleaned up after finalizing. Pushed directly to main.
+**Next:** Start M17 (Rate Limiting & Abuse Prevention).
 
 ### 2026-04-04 — Browse page redesign (frosted glass sidebar)
 
