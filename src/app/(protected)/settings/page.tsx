@@ -17,9 +17,12 @@ export default async function SettingsPage() {
   if (!profile) redirect('/login')
 
   return (
-    <main className="container mx-auto max-w-2xl space-y-8 px-4 py-8">
+    <main className="container mx-auto max-w-4xl px-4 py-8">
+      <h1 className="mb-6 text-3xl font-black tracking-tight">Settings</h1>
       <SettingsForm user={profile} />
-      <AccountDangerZone />
+      <div className="mt-6 sm:ml-[calc(14rem+1.5rem)]">
+        <AccountDangerZone />
+      </div>
     </main>
   )
 }
