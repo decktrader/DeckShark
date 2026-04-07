@@ -12,7 +12,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-export function UserMenu({ username }: { username: string }) {
+export function UserMenu({
+  username,
+  avatarUrl,
+}: {
+  username: string
+  avatarUrl?: string | null
+}) {
   const router = useRouter()
 
   async function handleSignOut() {
@@ -24,9 +30,19 @@ export function UserMenu({ username }: { username: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm">
-          {username}
-        </Button>
+        <button className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-white/5">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt=""
+              className="h-9 w-9 rounded-full object-cover"
+            />
+          ) : (
+            <div className="bg-primary/20 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white">
+              {username.charAt(0).toUpperCase()}
+            </div>
+          )}
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>

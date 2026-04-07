@@ -21,46 +21,106 @@ export async function Header() {
   }
 
   return (
-    <header className="relative z-50 border-b">
-      <div className="container mx-auto flex h-14 items-center justify-between px-4">
+    <header className="relative z-50 border-b border-white/5 bg-white/[2%] backdrop-blur-md">
+      <div className="container mx-auto flex h-[72px] items-center gap-8 px-4">
         <Link
           href="/"
-          className="flex shrink-0 items-center text-2xl font-bold"
+          className="flex shrink-0 items-center gap-2.5 text-2xl font-bold"
         >
           <Image
             src="/logo.png"
             alt="DeckShark logo"
-            width={35}
-            height={35}
-            className="mr-2 h-[35px] w-auto"
+            width={36}
+            height={36}
+            className="h-9 w-auto"
             priority
           />
           DeckShark<span className="text-primary">.gg</span>
         </Link>
+
+        {/* Desktop search */}
         <HeaderSearch />
+
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-4 sm:flex">
+        <nav className="hidden items-center gap-1 sm:flex">
           <Link
             href="/decks"
-            className="text-muted-foreground hover:text-foreground text-sm"
+            className="bg-primary/10 text-primary flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m16 6 4 14" />
+              <path d="M12 6v14" />
+              <path d="M8 8v12" />
+              <path d="M4 4v16" />
+            </svg>
             Browse
           </Link>
           <Link
             href="/want-lists"
-            className="text-muted-foreground hover:text-foreground text-sm"
+            className="text-muted-foreground hover:bg-accent flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            </svg>
             Want Lists
           </Link>
           {profile && <TradeBadge />}
+        </nav>
+
+        {/* Desktop actions */}
+        <div className="hidden items-center gap-2.5 sm:flex">
           {profile ? (
-            <UserMenu username={profile.username} />
+            <>
+              <Button asChild size="sm" className="gap-1.5 rounded-full">
+                <Link href="/decks/new">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                  </svg>
+                  New deck
+                </Link>
+              </Button>
+              <UserMenu
+                username={profile.username}
+                avatarUrl={profile.avatar_url}
+              />
+            </>
           ) : (
-            <Button asChild variant="default" size="sm">
+            <Button asChild size="sm" className="rounded-full">
               <Link href="/login">Sign in</Link>
             </Button>
           )}
-        </nav>
+        </div>
 
         {/* Mobile nav */}
         <div className="sm:hidden">

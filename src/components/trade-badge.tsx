@@ -43,11 +43,11 @@ export function TradeBadge() {
   return (
     <Link
       href="/trades"
-      className="text-muted-foreground hover:text-foreground relative text-sm"
+      className="text-muted-foreground hover:bg-accent relative flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium"
     >
       Trades
       {count > 0 && (
-        <span className="bg-primary absolute -top-1.5 -right-2.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white">
+        <span className="bg-primary flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white">
           {count > 9 ? '9+' : count}
         </span>
       )}

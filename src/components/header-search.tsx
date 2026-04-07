@@ -85,22 +85,19 @@ export function HeaderSearch() {
   }, [])
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="hidden flex-1 justify-center sm:flex"
-    >
-      <div ref={containerRef} className="relative w-72">
-        <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2" />
+    <form onSubmit={handleSubmit} className="hidden flex-1 sm:flex">
+      <div ref={containerRef} className="relative w-full max-w-lg">
+        <Search className="text-muted-foreground absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2" />
         <input
           type="text"
           value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Search commanders…"
+          placeholder="Search decks, commanders, players…"
           autoComplete="off"
           aria-autocomplete="list"
           aria-expanded={open}
-          className="border-input bg-background placeholder:text-muted-foreground focus:ring-ring w-full rounded-md border py-1.5 pr-3 pl-8 text-sm focus:ring-1 focus:outline-none"
+          className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pr-4 pl-11 text-sm placeholder:text-white/40 focus:border-purple-500/50 focus:outline-none"
         />
         {open && suggestions.length > 0 && (
           <ul

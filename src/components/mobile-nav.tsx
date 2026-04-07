@@ -93,7 +93,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
           {/* Backdrop */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           {/* Menu panel — fixed below header */}
-          <div className="bg-background border-border fixed top-14 right-0 left-0 z-50 border-b shadow-lg">
+          <div className="bg-background border-border fixed top-[72px] right-0 left-0 z-50 border-b shadow-lg">
             <nav className="container mx-auto flex flex-col px-4 py-2">
               <Link
                 href="/decks"
