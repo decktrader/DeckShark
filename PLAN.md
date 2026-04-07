@@ -436,6 +436,42 @@ End-to-end smoke test for full MVP:
 
 ---
 
+## Milestone 20: UX Overhaul — Browse-First Funnel (pre-growth blocker)
+
+**Goal:** Minimize time-to-value. Visitors see live decks immediately, signup is triggered by engagement, not forced upfront. Reduce bounce rate in first 30 seconds.
+
+**Build:**
+
+- **Landing page → browse-first** — replace the hero-heavy landing page with a layout that leads with the live deck browse grid. Keep a concise value prop banner at top, but the primary content is real decks. Alternatively, redirect `/` to `/decks` with a welcome banner for unauthenticated users.
+- **Remove forced deck creation from onboarding** — after signup, onboarding collects username + city/province, then redirects to `/decks` (browse) instead of `/decks/new`. Add a persistent but dismissable "List your first deck" prompt on the dashboard instead.
+- **Engagement-triggered auth prompts** — on deck detail page: "Sign up to propose a trade" CTA (replaces hidden propose button for logged-out users). On want list detail: "Sign up to list a matching deck." On browse page: "Sign up to trade — it's free" banner (subtle, not blocking).
+- **City autocomplete on onboarding/settings** — replace plain text city input with the existing `/api/cities/search` autocomplete component. Reduces user error, improves location matching.
+- **"Sign up to trade, it's free" banner** — persistent top banner on public pages for unauthenticated users. Dismissable, not intrusive.
+
+**Depends on:** None (can start immediately — highest priority for growth)
+
+---
+
+## Milestone 21: Remote Interest Signal ("I'd trade for this")
+
+**Goal:** Capture demand signal from users who would trade if shipping were available. Data informs when to launch shipping (Phase 2). Retention hook for deck owners ("4 people across Canada want this deck").
+
+**Migration `0XX_deck_interests.sql`:**
+
+- Create `deck_interests` table: `id`, `user_id`, `deck_id`, `created_at`. Unique constraint on `(user_id, deck_id)`. RLS: authenticated users can insert/delete own, public read count.
+
+**Build:**
+
+- **"Interested" button on deck detail page** — visible when the deck is in a different city than the viewer. Shows count ("12 interested"). One click to express interest, click again to remove. Requires auth (engagement-triggered signup if logged out).
+- **Interest count on deck cards** — show "X interested" badge on browse grid cards when count > 0. Social proof + urgency signal.
+- **Owner notifications** — email deck owner when interest count crosses thresholds (1, 5, 10, 25). "5 people across Canada are interested in your [deck name]."
+- **Dashboard interest summary** — deck owners see total interest across their decks. "Your decks have 23 interested traders — shipping coming soon."
+- **Analytics query** — admin can see interest by city pair (e.g., "Toronto users interested in Vancouver decks") to inform shipping launch timing.
+
+**Depends on:** M20 (engagement-triggered auth must be in place for logged-out interest clicks)
+
+---
+
 ## Phase 3 Concept: Deck Rotation Subscription (future exploration)
 
 > **Status:** Idea stage — not planned for implementation yet. Captured here for future reference.
