@@ -8,6 +8,8 @@ export async function createWantList(
     format?: string
     archetype?: string
     commander_name?: string
+    color_identity?: string[]
+    power_level?: string
     min_value_cents?: number
     max_value_cents?: number
     description?: string
@@ -31,6 +33,8 @@ export async function updateWantList(
     format: string | null
     archetype: string | null
     commander_name: string | null
+    color_identity: string[] | null
+    power_level: string | null
     min_value_cents: number | null
     max_value_cents: number | null
     description: string | null

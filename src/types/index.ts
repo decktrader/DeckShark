@@ -141,6 +141,7 @@ export interface WantList {
   archetype: string | null
   commander_name: string | null
   color_identity: string[] | null
+  power_level: string | null
   min_value_cents: number | null
   max_value_cents: number | null
   description: string | null
