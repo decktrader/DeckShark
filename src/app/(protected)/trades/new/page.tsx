@@ -34,8 +34,10 @@ export default async function NewTradePage({
   const availableDecks = (myDecks ?? []).filter((d) => d.available_for_trade)
 
   return (
-    <main className="container mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Propose a trade</h1>
+    <main className="container mx-auto max-w-4xl px-4 py-8">
+      <h1 className="mb-6 text-3xl font-black tracking-tight">
+        Propose a trade
+      </h1>
       <ProposeTradeForm
         targetDeck={targetDeck}
         myDecks={availableDecks}
