@@ -35,6 +35,7 @@
 | **M19: Admin Portal**           | Planned  | Stats dashboard, user mgmt, trade oversight, moderation/reporting, feedback inbox, platform health. After M16-M18.                   |
 | **M20: UX Overhaul**            | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt      |
 | **M21: Remote Interest Signal** | Planned  | "I'd trade for this" button, interest counts, owner notifications, demand data for shipping launch                                   |
+| **M22: Notification System**    | Planned  | Centralized bell notifications, notifications table, dropdown inbox, replace scattered badge counts, notification preferences        |
 | Branch Protection               | Planned  | Protect main branch — require PRs, no direct pushes to production                                                                    |
 
 ## Recent Changes

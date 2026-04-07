@@ -45,7 +45,7 @@ export async function Header() {
         <nav className="hidden items-center gap-1 sm:flex">
           <Link
             href="/decks"
-            className="bg-primary/10 text-primary flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium"
+            className="text-muted-foreground hover:bg-accent flex items-center gap-1.5 rounded-full px-4 py-2 text-base font-medium"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +67,7 @@ export async function Header() {
           </Link>
           <Link
             href="/want-lists"
-            className="text-muted-foreground hover:bg-accent flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium"
+            className="text-muted-foreground hover:bg-accent flex items-center gap-1.5 rounded-full px-4 py-2 text-base font-medium"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -84,32 +84,41 @@ export async function Header() {
             </svg>
             Want Lists
           </Link>
-          {profile && <TradeBadge />}
+          {profile && (
+            <Link
+              href="/trades"
+              className="text-muted-foreground hover:bg-accent flex items-center gap-1.5 rounded-full px-4 py-2 text-base font-medium"
+            >
+              Trades
+            </Link>
+          )}
         </nav>
 
         {/* Desktop actions */}
-        <div className="hidden items-center gap-2.5 sm:flex">
+        <div className="hidden items-center gap-3 sm:flex">
           {profile ? (
             <>
-              <Button asChild size="sm" className="gap-1.5 rounded-full">
-                <Link href="/decks/new">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="M12 5v14" />
-                  </svg>
-                  New deck
-                </Link>
-              </Button>
+              <Link
+                href="/decks/new"
+                className="bg-primary hover:bg-primary/90 flex h-10 w-10 items-center justify-center rounded-full text-white shadow-sm transition-colors"
+                aria-label="New deck"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="M12 5v14" />
+                </svg>
+              </Link>
+              <TradeBadge />
               <UserMenu
                 username={profile.username}
                 avatarUrl={profile.avatar_url}

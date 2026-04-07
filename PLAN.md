@@ -472,6 +472,26 @@ End-to-end smoke test for full MVP:
 
 ---
 
+## Milestone 22: Notification System
+
+**Goal:** Centralized notification bell replacing scattered badge counts. Unified inbox for all user-facing events — trades, want-list matches, reviews, and future event types.
+
+**Migration `0XX_notifications.sql`:**
+
+- Create `notifications` table: `id`, `user_id`, `type` (enum: trade_proposed, trade_countered, trade_accepted, trade_declined, trade_completed, want_list_match, review_received), `title`, `body`, `link` (URL to navigate on click), `read` (boolean, default false), `created_at`. RLS: users can read/update own.
+
+**Build:**
+
+- **Bell icon with unread count** — header bell shows count of unread notifications. Already wired to `/trades` as interim; replace with dropdown or `/notifications` page.
+- **Notification dropdown** — click bell to see recent notifications with type icon, title, time ago, read/unread styling. Click to navigate + mark read.
+- **Create notifications on events** — trade proposals, counter-offers, acceptances, declines, completions, want-list matches, reviews. Replace direct email-only flow with notification + optional email.
+- **Mark all read** — bulk action in dropdown.
+- **Notification preferences** — settings page toggle for which types generate email vs. in-app only.
+
+**Depends on:** M20 (header redesign with bell icon already in place)
+
+---
+
 ## Phase 3 Concept: Deck Rotation Subscription (future exploration)
 
 > **Status:** Idea stage — not planned for implementation yet. Captured here for future reference.
