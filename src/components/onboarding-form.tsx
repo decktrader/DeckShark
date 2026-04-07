@@ -2,19 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 import { updateUser, isUsernameAvailable } from '@/lib/services/users'
+import { Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CityAutocomplete } from '@/components/ui/city-autocomplete'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -92,63 +87,136 @@ export function OnboardingForm({ userId }: { userId: string }) {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Complete your profile</CardTitle>
-        <CardDescription>
-          Tell us a bit about yourself so traders can find you.
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          {error && <p className="text-destructive text-sm">{error}</p>}
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              placeholder="Choose a username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              minLength={3}
-              maxLength={30}
-            />
+    <div className="flex min-h-screen w-full">
+      {/* Left branding panel */}
+      <div className="hidden flex-1 flex-col justify-center bg-gradient-to-br from-purple-900/20 via-black to-black p-12 lg:flex">
+        <Link
+          href="/"
+          className="mb-8 flex items-center gap-2 text-2xl font-bold"
+        >
+          <Image
+            src="/logo.png"
+            alt="DeckShark"
+            width={36}
+            height={36}
+            className="h-9 w-auto"
+            priority
+          />
+          DeckShark<span className="text-primary">.gg</span>
+        </Link>
+        <h2 className="text-3xl leading-tight font-black">
+          Almost there!
+          <br />
+          <span className="text-primary">Set up your profile</span>
+        </h2>
+        <p className="text-muted-foreground mt-4 max-w-sm text-sm leading-relaxed">
+          Your username and location help traders find you. After this, you can
+          browse decks, list your own, and start proposing trades.
+        </p>
+        <div className="mt-8 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full">
+              <Check className="h-4 w-4" />
+            </div>
+            <span className="text-sm text-white/80">Account created</span>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="city">City</Label>
-            <CityAutocomplete
-              id="city"
-              defaultValue={city}
-              onCommit={(v) => setCity(v)}
-              placeholder="Your city"
-            />
+          <div className="flex items-center gap-3">
+            <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold">
+              2
+            </div>
+            <span className="text-sm font-medium text-white">
+              Complete your profile
+            </span>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="province">Province / Territory</Label>
-            <Select value={province} onValueChange={setProvince} required>
-              <SelectTrigger id="province">
-                <SelectValue placeholder="Select province" />
-              </SelectTrigger>
-              <SelectContent>
-                {PROVINCES.map((p) => (
-                  <SelectItem key={p.value} value={p.value}>
-                    {p.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-3">
+            <div className="bg-muted text-muted-foreground flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold">
+              3
+            </div>
+            <span className="text-muted-foreground text-sm">Start trading</span>
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading || !province}
-          >
-            {loading ? 'Saving...' : 'Continue'}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+        </div>
+      </div>
+
+      {/* Right form */}
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="w-full max-w-sm">
+          <div className="mb-6 lg:hidden">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-2xl font-bold"
+            >
+              <Image
+                src="/logo.png"
+                alt="DeckShark"
+                width={32}
+                height={32}
+                className="h-8 w-auto"
+                priority
+              />
+              DeckShark<span className="text-primary">.gg</span>
+            </Link>
+          </div>
+
+          <h1 className="text-2xl font-bold">Complete your profile</h1>
+          <p className="text-muted-foreground mb-6 text-sm">
+            Tell us a bit about yourself so traders can find you.
+          </p>
+
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              {error && <p className="text-destructive text-sm">{error}</p>}
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  placeholder="Choose a username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  minLength={3}
+                  maxLength={30}
+                  className="h-11"
+                />
+                <p className="text-muted-foreground text-xs">
+                  3-30 characters. Letters, numbers, hyphens, underscores.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <CityAutocomplete
+                  id="city"
+                  defaultValue={city}
+                  onCommit={(v) => setCity(v)}
+                  placeholder="Your city"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="province">Province / Territory</Label>
+                <Select value={province} onValueChange={setProvince} required>
+                  <SelectTrigger id="province" className="h-11">
+                    <SelectValue placeholder="Select province" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROVINCES.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={loading || !province}
+              >
+                {loading ? 'Saving...' : 'Continue'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -19,9 +19,5 @@ export default async function OnboardingPage() {
     redirect('/dashboard')
   }
 
-  return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <OnboardingForm userId={authUser.id} />
-    </main>
-  )
+  return <OnboardingForm userId={authUser.id} />
 }
