@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M20 UX Overhaul — Complete
-**Status:** M20 fully shipped to production. Landing page redesigned through iterative preview workflow (v4c4 selected). All changes live on deckshark.gg.
-**Next step:** M17 (Rate Limiting) or M21 (Remote Interest Signal).
+**Milestone:** Full UI redesign pass — Complete
+**Status:** Every page redesigned through iterative preview workflow. Partner commander support, bracket system, header redesign, notification bell all shipped.
+**Next step:** M17 (Rate Limiting), M21 (Remote Interest Signal), or M22 (Notification System).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
 ---
@@ -41,6 +41,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-07 — Full UI Redesign Pass + Partner Commanders + Bracket System
+
+**Done:** Comprehensive UI redesign of every page through iterative preview workflow (4 versions per page, drill into favorites). Power levels switched to official Commander Bracket system (bracket1-5) with migration + check constraint fix. Partner/second commander support: migration, vertical split DeckArt component, CommanderAutocomplete with Scryfall typeahead + auto color identity detection, form updates for create/edit. Fixed counter-offer RLS bug (subquery returning multiple rows). Header redesigned: taller V2C with icon+label pill nav, prominent search, bell notification icon (trade count moved from nav), avatar with chevron dropdown, "New deck" circle button. Pages redesigned: deck create (V3B accordion), deck edit (V3B icon sections + drag-drop photos), want list create/edit (V2B 4-section accordion with power level + color identity), want list detail (V2B avatar header + criteria pills), trade detail (V3D two-column + sticky floating actions), propose trade (V2 two-column + auto cash calculation), onboarding (V4 two-column branding). Browse/landing grids changed to 4-col. Added M22 Notification System milestone. 6 migrations applied to production (022-025 + RLS fix).
+**Next:** M17 (Rate Limiting), M21 (Remote Interest Signal), or M22 (Notification System).
 
 ### 2026-04-06 — M20 UX Overhaul: Browse-First Funnel + Landing Page Redesign
 
