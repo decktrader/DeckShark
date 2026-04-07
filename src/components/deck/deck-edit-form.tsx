@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Info } from 'lucide-react'
 import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
+import { CommanderAutocomplete } from '@/components/deck/commander-autocomplete'
 import type { Deck, DeckCard, DeckPhoto } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -82,6 +83,10 @@ export function DeckEditForm({
   const [conditionNotes, setConditionNotes] = useState(
     deck.condition_notes ?? '',
   )
+  const [commanderName, setCommanderName] = useState(deck.commander_name ?? '')
+  const [partnerCommanderName, setPartnerCommanderName] = useState(
+    deck.partner_commander_name ?? '',
+  )
   const [includesSleeves, setIncludesSleeves] = useState(deck.includes_sleeves)
   const [includesDeckbox, setIncludesDeckbox] = useState(deck.includes_deckbox)
   const [importText, setImportText] = useState('')
@@ -98,6 +103,26 @@ export function DeckEditForm({
     setSaving(true)
     setError(null)
 
+    // Resolve commander scryfall IDs if names changed
+    let commanderScryfallId = deck.commander_scryfall_id
+    if (commanderName.trim() && commanderName !== deck.commander_name) {
+      const scryfallCard = await getCardByName(commanderName.trim())
+      commanderScryfallId = scryfallCard?.id ?? null
+    } else if (!commanderName.trim()) {
+      commanderScryfallId = null
+    }
+
+    let partnerScryfallId = deck.partner_commander_scryfall_id
+    if (
+      partnerCommanderName.trim() &&
+      partnerCommanderName !== deck.partner_commander_name
+    ) {
+      const scryfallCard = await getCardByName(partnerCommanderName.trim())
+      partnerScryfallId = scryfallCard?.id ?? null
+    } else if (!partnerCommanderName.trim()) {
+      partnerScryfallId = null
+    }
+
     const { data, error: err } = await updateDeck(deck.id, {
       name,
       format,
@@ -106,6 +131,10 @@ export function DeckEditForm({
       color_identity: colorIdentity,
       description: description || null,
       condition_notes: conditionNotes || null,
+      commander_name: commanderName.trim() || null,
+      commander_scryfall_id: commanderScryfallId,
+      partner_commander_name: partnerCommanderName.trim() || null,
+      partner_commander_scryfall_id: partnerScryfallId,
       includes_sleeves: includesSleeves,
       includes_deckbox: includesDeckbox,
     })
@@ -422,6 +451,42 @@ export function DeckEditForm({
                 required
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-commander">Commander</Label>
+              <CommanderAutocomplete
+                id="edit-commander"
+                value={commanderName}
+                onChange={setCommanderName}
+                onColorIdentity={(colors) => {
+                  const partner = deck.partner_commander_name
+                    ? colorIdentity.filter(
+                        (c) => !colors.includes(c) || colorIdentity.includes(c),
+                      )
+                    : []
+                  setColorIdentity([...new Set([...colors, ...partner])])
+                }}
+                placeholder="e.g. Atraxa, Praetors' Voice"
+              />
+            </div>
+            {format === 'commander' && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-partner">Second commander</Label>
+                <CommanderAutocomplete
+                  id="edit-partner"
+                  value={partnerCommanderName}
+                  onChange={setPartnerCommanderName}
+                  onColorIdentity={(colors) => {
+                    setColorIdentity((prev) => [
+                      ...new Set([...prev, ...colors]),
+                    ])
+                  }}
+                  placeholder="e.g. Tymna the Weaver"
+                />
+                <p className="text-muted-foreground text-xs">
+                  Partner, Background, Friends Forever, etc.
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="format">Format</Label>
               <Select value={format} onValueChange={setFormat}>
