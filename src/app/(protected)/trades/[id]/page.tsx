@@ -7,6 +7,7 @@ import { getUserDecks } from '@/lib/services/decks.server'
 import { getTradeReview } from '@/lib/services/reviews.server'
 import { TradeActions } from '@/components/trades/trade-actions'
 import { ReviewForm } from '@/components/reviews/review-form'
+import { Card, CardContent } from '@/components/ui/card'
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
@@ -84,171 +85,245 @@ export default async function TradeDetailPage({
     color: '',
   }
 
-  return (
-    <main className="container mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-6">
-        <Link
-          href="/trades"
-          className="text-muted-foreground hover:text-foreground text-sm"
-        >
-          ← All trades
-        </Link>
-      </div>
+  const cashLabel =
+    trade.cash_difference_cents !== 0
+      ? trade.cash_difference_cents > 0
+        ? `${isProposer ? 'You pay' : 'They pay'} ${formatPrice(trade.cash_difference_cents)}`
+        : `${isProposer ? 'They pay' : 'You pay'} ${formatPrice(Math.abs(trade.cash_difference_cents))}`
+      : null
 
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-bold">
-            Trade with{' '}
-            <Link
-              href={`/profile/${them.username}`}
-              className="hover:underline"
-            >
-              {them.username}
-            </Link>
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {them.city && `${them.city}, ${them.province}`}
-          </p>
+  return (
+    <main className="container mx-auto max-w-2xl px-4 py-8 pb-28">
+      <Link
+        href="/trades"
+        className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1 text-sm"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        All trades
+      </Link>
+
+      {/* Compact header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/20 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white">
+            {them.username.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h1 className="text-lg font-bold">
+              Trade with{' '}
+              <Link
+                href={`/profile/${them.username}`}
+                className="hover:underline"
+              >
+                {them.username}
+              </Link>
+            </h1>
+            <p className="text-muted-foreground text-xs">
+              {them.city && `${them.city}, ${them.province}`}
+            </p>
+          </div>
         </div>
-        <span className={`text-sm font-semibold ${status.color}`}>
+        <span
+          className={`rounded-full bg-white/5 px-3 py-1 text-xs font-semibold ${status.color}`}
+        >
           {status.label}
         </span>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Your side */}
-        <div>
-          <h2 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            You&apos;re offering
-          </h2>
-          <div className="space-y-3">
-            {myDecks.map((td) => (
-              <div
-                key={td.id}
-                className="bg-card flex items-center gap-3 rounded-lg border p-3"
-              >
-                {td.deck?.commander_scryfall_id && (
-                  <img
-                    src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                    alt={td.deck.commander_name ?? ''}
-                    className="h-12 w-16 rounded object-cover"
-                  />
-                )}
-                <div>
-                  <p className="text-sm font-medium">
-                    {td.deck?.name ?? 'Unknown deck'}
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                  </p>
-                </div>
+      {/* Two-column deck comparison */}
+      <Card className="mb-4">
+        <CardContent className="p-0">
+          <div className="grid grid-cols-2 divide-x divide-white/5">
+            {/* Your side */}
+            <div className="p-5">
+              <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-widest uppercase">
+                You offer
+              </p>
+              <div className="space-y-4">
+                {myDecks.map((td) => (
+                  <div key={td.id}>
+                    {td.deck?.commander_scryfall_id ? (
+                      <img
+                        src={scryfallArtUrl(td.deck.commander_scryfall_id)}
+                        alt={td.deck.commander_name ?? ''}
+                        className="mb-2 aspect-[5/3] w-full rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="bg-muted mb-2 aspect-[5/3] w-full rounded-lg" />
+                    )}
+                    <p className="text-sm font-semibold">
+                      {td.deck?.name ?? 'Unknown deck'}
+                    </p>
+                    {td.deck?.commander_name && (
+                      <p className="text-muted-foreground text-xs">
+                        {td.deck.commander_name}
+                      </p>
+                    )}
+                    <p className="text-primary mt-1 font-bold">
+                      {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Their side */}
-        <div>
-          <h2 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            You&apos;d receive
-          </h2>
-          <div className="space-y-3">
-            {theirDecks.map((td) => (
-              <div
-                key={td.id}
-                className="bg-card flex items-center gap-3 rounded-lg border p-3"
-              >
-                {td.deck?.commander_scryfall_id && (
-                  <img
-                    src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                    alt={td.deck.commander_name ?? ''}
-                    className="h-12 w-16 rounded object-cover"
-                  />
-                )}
+            {/* Their side */}
+            <div className="p-5">
+              <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-widest uppercase">
+                You receive
+              </p>
+              <div className="space-y-4">
+                {theirDecks.map((td) => (
+                  <div key={td.id}>
+                    {td.deck?.commander_scryfall_id ? (
+                      <img
+                        src={scryfallArtUrl(td.deck.commander_scryfall_id)}
+                        alt={td.deck.commander_name ?? ''}
+                        className="mb-2 aspect-[5/3] w-full rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="bg-muted mb-2 aspect-[5/3] w-full rounded-lg" />
+                    )}
+                    <p className="text-sm font-semibold">
+                      {td.deck?.name ?? 'Unknown deck'}
+                    </p>
+                    {td.deck?.commander_name && (
+                      <p className="text-muted-foreground text-xs">
+                        {td.deck.commander_name}
+                      </p>
+                    )}
+                    <p className="text-primary mt-1 font-bold">
+                      {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Cash + messages */}
+      <div className="mb-4 space-y-3">
+        {cashLabel && (
+          <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[2%] px-4 py-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-muted-foreground"
+            >
+              <line x1="12" x2="12" y1="2" y2="22" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            <p className="text-sm">{cashLabel}</p>
+          </div>
+        )}
+
+        {trade.message && (
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                <div className="bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
+                  {trade.proposer.username.charAt(0).toUpperCase()}
+                </div>
                 <div>
-                  <p className="text-sm font-medium">
-                    {td.deck?.name ?? 'Unknown deck'}
+                  <p className="text-xs font-semibold">
+                    {trade.proposer.username}
                   </p>
-                  <p className="text-muted-foreground text-xs">
-                    {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                  <p className="text-muted-foreground mt-0.5 text-sm">
+                    {trade.message}
                   </p>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {trade.receiver_message && (
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                <div className="bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
+                  {trade.receiver.username.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-xs font-semibold">
+                    {trade.receiver.username}
+                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-sm">
+                    {trade.receiver_message}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {/* Cash difference */}
-      {trade.cash_difference_cents !== 0 && (
-        <p className="text-muted-foreground mt-4 text-sm">
-          {trade.cash_difference_cents > 0
-            ? `${isProposer ? 'You pay' : 'They pay'} ${formatPrice(trade.cash_difference_cents)} to sweeten the deal`
-            : `${isProposer ? 'They pay' : 'You pay'} ${formatPrice(Math.abs(trade.cash_difference_cents))} to sweeten the deal`}
-        </p>
-      )}
-
-      {/* Messages */}
-      {(trade.message || trade.receiver_message) && (
-        <div className="mt-6 space-y-3">
-          {trade.message && (
-            <div className="bg-card rounded-lg border p-4">
-              <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
-                Message from {trade.proposer.username}
-              </p>
-              <p className="text-sm">{trade.message}</p>
-            </div>
-          )}
-          {trade.receiver_message && (
-            <div className="bg-card rounded-lg border p-4">
-              <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
-                Message from {trade.receiver.username}
-              </p>
-              <p className="text-sm">{trade.receiver_message}</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Actions */}
-      {['proposed', 'countered', 'accepted'].includes(trade.status) && (
-        <div className="mt-8">
-          <TradeActions
-            trade={trade}
-            userId={authUser.id}
-            myAvailableDecks={myAvailableDecks}
-            theirAvailableDecks={theirAvailableDecks}
-            currentMyDeckIds={myDecks.map((td) => td.deck_id)}
-            currentTheirDeckIds={theirDecks.map((td) => td.deck_id)}
-          />
-        </div>
-      )}
 
       {/* Review */}
       {trade.status === 'completed' && !myReview && (
-        <div className="bg-card mt-8 rounded-lg border p-4">
-          <ReviewForm
-            tradeId={trade.id}
-            reviewerId={authUser.id}
-            revieweeId={them.id}
-            revieweeUsername={them.username}
-          />
-        </div>
+        <Card className="mb-4">
+          <CardContent className="pt-4">
+            <ReviewForm
+              tradeId={trade.id}
+              reviewerId={authUser.id}
+              revieweeId={them.id}
+              revieweeUsername={them.username}
+            />
+          </CardContent>
+        </Card>
       )}
       {trade.status === 'completed' && myReview && (
-        <div className="bg-card mt-8 rounded-lg border p-4">
-          <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
-            Your review
-          </p>
-          <p className="text-yellow-400">
-            {'★'.repeat(myReview.rating)}
-            {'☆'.repeat(5 - myReview.rating)}
-          </p>
-          {myReview.comment && (
-            <p className="text-muted-foreground mt-1 text-sm">
-              {myReview.comment}
+        <Card className="mb-4">
+          <CardContent className="pt-4">
+            <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
+              Your review
             </p>
-          )}
+            <p className="text-yellow-400">
+              {'★'.repeat(myReview.rating)}
+              {'☆'.repeat(5 - myReview.rating)}
+            </p>
+            {myReview.comment && (
+              <p className="text-muted-foreground mt-1 text-sm">
+                {myReview.comment}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Sticky floating action bar */}
+      {['proposed', 'countered', 'accepted'].includes(trade.status) && (
+        <div className="fixed inset-x-0 bottom-4 z-40 mx-auto max-w-2xl px-4">
+          <div className="rounded-2xl border border-white/10 bg-black/80 p-4 backdrop-blur-xl">
+            <TradeActions
+              trade={trade}
+              userId={authUser.id}
+              myAvailableDecks={myAvailableDecks}
+              theirAvailableDecks={theirAvailableDecks}
+              currentMyDeckIds={myDecks.map((td) => td.deck_id)}
+              currentTheirDeckIds={theirDecks.map((td) => td.deck_id)}
+            />
+          </div>
         </div>
       )}
     </main>
