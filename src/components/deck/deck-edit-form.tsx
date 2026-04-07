@@ -30,9 +30,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Info } from 'lucide-react'
+import {
+  Info,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Layers,
+  Camera,
+  FileText,
+  Trash2,
+  AlertTriangle,
+  Upload,
+} from 'lucide-react'
 import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
 import { CommanderAutocomplete } from '@/components/deck/commander-autocomplete'
+import { DeckArt } from '@/components/deck/deck-art'
 import type { Deck, DeckCard, DeckPhoto } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -395,282 +407,344 @@ export function DeckEditForm({
     router.refresh()
   }
 
-  function scryfallNormalUrl(id: string) {
-    return `https://cards.scryfall.io/normal/front/${id[0]}/${id[1]}/${id}.jpg`
+  const [openSections, setOpenSections] = useState<Set<string>>(
+    new Set(['details', 'cards']),
+  )
+
+  function toggleSection(id: string) {
+    setOpenSections((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
 
-  const commanderImageUrl = deck.commander_scryfall_id
-    ? scryfallNormalUrl(deck.commander_scryfall_id)
-    : null
-  const partnerImageUrl = deck.partner_commander_scryfall_id
-    ? scryfallNormalUrl(deck.partner_commander_scryfall_id)
-    : null
+  const commanderLabel = [deck.commander_name, deck.partner_commander_name]
+    .filter(Boolean)
+    .join(' / ')
+
+  const totalValue = cards.reduce((sum, c) => sum + (c.price_cents ?? 0), 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {error && <p className="text-destructive text-sm">{error}</p>}
 
-      {/* Commander card(s) + stats */}
-      <div className="flex gap-6">
-        {commanderImageUrl && (
-          <div className="flex shrink-0 gap-3">
-            <img
-              src={commanderImageUrl}
-              alt={deck.commander_name ?? 'Commander'}
-              className="w-56 rounded-xl shadow-lg shadow-black/40"
-            />
-            {partnerImageUrl && (
-              <img
-                src={partnerImageUrl}
-                alt={deck.partner_commander_name ?? 'Partner'}
-                className="w-56 rounded-xl shadow-lg shadow-black/40"
-              />
-            )}
+      {/* Hero with overlaid stats */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/5">
+        <DeckArt
+          commanderScryfallId={deck.commander_scryfall_id}
+          partnerScryfallId={deck.partner_commander_scryfall_id}
+          aspect="h-48 sm:h-60"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-6">
+          <div className="flex items-end justify-between">
+            <div>
+              <h1 className="text-2xl font-black text-white drop-shadow-lg">
+                {deck.name}
+              </h1>
+              <p className="mt-0.5 text-sm text-white/60">
+                {commanderLabel || 'No commander set'}
+                {' · '}
+                <span className="capitalize">{deck.format}</span>
+              </p>
+            </div>
+            <div className="flex gap-5 text-right">
+              <div>
+                <p className="text-xl font-bold text-white">{cards.length}</p>
+                <p className="text-[10px] text-white/50 uppercase">Cards</p>
+              </div>
+              <div>
+                <p className="text-primary text-xl font-bold">
+                  ${(totalValue / 100).toFixed(0)}
+                </p>
+                <p className="text-[10px] text-white/50 uppercase">Value</p>
+              </div>
+              {deck.power_level && (
+                <div>
+                  <p className="text-xl font-bold text-white">
+                    B{deck.power_level.replace('bracket', '')}
+                  </p>
+                  <p className="text-[10px] text-white/50 uppercase">Bracket</p>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-        <div className="flex items-start pt-1">
-          <DeckStats deck={deck} cards={cards} />
         </div>
       </div>
 
-      <Separator />
-
-      {/* Deck details */}
+      {/* ── Section: Deck Details ── */}
       <Card>
-        <CardHeader>
-          <CardTitle>Deck details</CardTitle>
-        </CardHeader>
-        <form onSubmit={handleSaveDetails}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+        <button
+          onClick={() => toggleSection('details')}
+          className="flex w-full items-center justify-between p-5 text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-lg">
+              <Settings className="h-4 w-4" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-commander">Commander</Label>
-              <CommanderAutocomplete
-                id="edit-commander"
-                value={commanderName}
-                onChange={setCommanderName}
-                onColorIdentity={(colors) => {
-                  const partner = deck.partner_commander_name
-                    ? colorIdentity.filter(
-                        (c) => !colors.includes(c) || colorIdentity.includes(c),
-                      )
-                    : []
-                  setColorIdentity([...new Set([...colors, ...partner])])
-                }}
-                placeholder="e.g. Atraxa, Praetors' Voice"
-              />
-            </div>
-            {format === 'commander' && (
-              <div className="space-y-2">
-                <Label htmlFor="edit-partner">Second commander</Label>
-                <CommanderAutocomplete
-                  id="edit-partner"
-                  value={partnerCommanderName}
-                  onChange={setPartnerCommanderName}
-                  onColorIdentity={(colors) => {
-                    setColorIdentity((prev) => [
-                      ...new Set([...prev, ...colors]),
-                    ])
-                  }}
-                  placeholder="e.g. Tymna the Weaver"
-                />
-                <p className="text-muted-foreground text-xs">
-                  Partner, Background, Friends Forever, etc.
-                </p>
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="format">Format</Label>
-              <Select value={format} onValueChange={setFormat}>
-                <SelectTrigger id="format">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {FORMATS.map((f) => (
-                    <SelectItem key={f.value} value={f.value}>
-                      {f.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="archetype">Archetype</Label>
-              <Select
-                value={archetype || 'none'}
-                onValueChange={(v) => setArchetype(v === 'none' ? '' : v)}
-              >
-                <SelectTrigger id="archetype">
-                  <SelectValue placeholder="None" />
-                </SelectTrigger>
-                <SelectContent className="max-h-72">
-                  <SelectItem value="none">None</SelectItem>
-                  {ARCHETYPES.map((a) => (
-                    <SelectItem key={a} value={a}>
-                      {a}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5">
-                <Label htmlFor="power-level">Power level</Label>
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="text-muted-foreground h-3.5 w-3.5 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-xs text-xs">
-                      <p className="font-semibold">Commander Brackets</p>
-                      <ul className="mt-1 space-y-0.5">
-                        <li>
-                          <strong>1 — Exhibition:</strong> Ultra-casual, no
-                          combos
-                        </li>
-                        <li>
-                          <strong>2 — Core:</strong> Average precon level
-                        </li>
-                        <li>
-                          <strong>3 — Upgraded:</strong> Beyond precon strength
-                        </li>
-                        <li>
-                          <strong>4 — Optimized:</strong> High power, no
-                          restrictions
-                        </li>
-                        <li>
-                          <strong>5 — cEDH:</strong> Competitive,
-                          metagame-focused
-                        </li>
-                      </ul>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Select
-                value={powerLevel || 'none'}
-                onValueChange={(v) => setPowerLevel(v === 'none' ? '' : v)}
-              >
-                <SelectTrigger id="power-level">
-                  <SelectValue placeholder="Not specified" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Not specified</SelectItem>
-                  {POWER_LEVELS.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Color identity</Label>
-              <ColorIdentitySelector
-                value={colorIdentity}
-                onChange={setColorIdentity}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="condition">Condition notes</Label>
-              <Input
-                id="condition"
-                value={conditionNotes}
-                onChange={(e) => setConditionNotes(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Selling with</Label>
-              <div className="flex gap-6">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="sleeves"
-                    checked={includesSleeves}
-                    onCheckedChange={(v) => setIncludesSleeves(!!v)}
-                  />
-                  <Label
-                    htmlFor="sleeves"
-                    className="cursor-pointer font-normal"
-                  >
-                    Sleeves
-                  </Label>
+            <p className="font-semibold">Deck Details</p>
+          </div>
+          {openSections.has('details') ? (
+            <ChevronUp className="text-muted-foreground h-5 w-5" />
+          ) : (
+            <ChevronDown className="text-muted-foreground h-5 w-5" />
+          )}
+        </button>
+        {openSections.has('details') && (
+          <CardContent className="border-t pt-4">
+            <form onSubmit={handleSaveDetails}>
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-commander">Commander</Label>
+                    <CommanderAutocomplete
+                      id="edit-commander"
+                      value={commanderName}
+                      onChange={setCommanderName}
+                      onColorIdentity={(colors) => {
+                        const partner = deck.partner_commander_name
+                          ? colorIdentity.filter(
+                              (c) =>
+                                !colors.includes(c) ||
+                                colorIdentity.includes(c),
+                            )
+                          : []
+                        setColorIdentity([...new Set([...colors, ...partner])])
+                      }}
+                      placeholder="e.g. Atraxa, Praetors' Voice"
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="deckbox"
-                    checked={includesDeckbox}
-                    onCheckedChange={(v) => setIncludesDeckbox(!!v)}
-                  />
-                  <Label
-                    htmlFor="deckbox"
-                    className="cursor-pointer font-normal"
-                  >
-                    Deckbox
-                  </Label>
+                {format === 'commander' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-partner">Second commander</Label>
+                    <CommanderAutocomplete
+                      id="edit-partner"
+                      value={partnerCommanderName}
+                      onChange={setPartnerCommanderName}
+                      onColorIdentity={(colors) => {
+                        setColorIdentity((prev) => [
+                          ...new Set([...prev, ...colors]),
+                        ])
+                      }}
+                      placeholder="e.g. Tymna the Weaver"
+                    />
+                    <p className="text-muted-foreground text-xs">
+                      Partner, Background, Friends Forever, etc.
+                    </p>
+                  </div>
+                )}
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="format">Format</Label>
+                    <Select value={format} onValueChange={setFormat}>
+                      <SelectTrigger id="format">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FORMATS.map((f) => (
+                          <SelectItem key={f.value} value={f.value}>
+                            {f.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="archetype">Archetype</Label>
+                    <Select
+                      value={archetype || 'none'}
+                      onValueChange={(v) => setArchetype(v === 'none' ? '' : v)}
+                    >
+                      <SelectTrigger id="archetype">
+                        <SelectValue placeholder="None" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        <SelectItem value="none">None</SelectItem>
+                        {ARCHETYPES.map((a) => (
+                          <SelectItem key={a} value={a}>
+                            {a}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5">
+                      <Label htmlFor="power-level">Power level</Label>
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="text-muted-foreground h-3.5 w-3.5 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="right"
+                            className="max-w-xs text-xs"
+                          >
+                            <p className="font-semibold">Commander Brackets</p>
+                            <ul className="mt-1 space-y-0.5">
+                              <li>
+                                <strong>1 — Exhibition:</strong> Ultra-casual
+                              </li>
+                              <li>
+                                <strong>2 — Core:</strong> Precon level
+                              </li>
+                              <li>
+                                <strong>3 — Upgraded:</strong> Beyond precon
+                              </li>
+                              <li>
+                                <strong>4 — Optimized:</strong> High power
+                              </li>
+                              <li>
+                                <strong>5 — cEDH:</strong> Competitive
+                              </li>
+                            </ul>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <Select
+                      value={powerLevel || 'none'}
+                      onValueChange={(v) =>
+                        setPowerLevel(v === 'none' ? '' : v)
+                      }
+                    >
+                      <SelectTrigger id="power-level">
+                        <SelectValue placeholder="Not specified" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Not specified</SelectItem>
+                        {POWER_LEVELS.map((p) => (
+                          <SelectItem key={p.value} value={p.value}>
+                            {p.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+                <div className="space-y-2">
+                  <Label>Color identity</Label>
+                  <ColorIdentitySelector
+                    value={colorIdentity}
+                    onChange={setColorIdentity}
+                  />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Input
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="condition">Condition notes</Label>
+                    <Input
+                      id="condition"
+                      value={conditionNotes}
+                      onChange={(e) => setConditionNotes(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-6">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="sleeves"
+                      checked={includesSleeves}
+                      onCheckedChange={(v) => setIncludesSleeves(!!v)}
+                    />
+                    <Label
+                      htmlFor="sleeves"
+                      className="cursor-pointer font-normal"
+                    >
+                      Sleeves
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="deckbox"
+                      checked={includesDeckbox}
+                      onCheckedChange={(v) => setIncludesDeckbox(!!v)}
+                    />
+                    <Label
+                      htmlFor="deckbox"
+                      className="cursor-pointer font-normal"
+                    >
+                      Deckbox
+                    </Label>
+                  </div>
+                </div>
+                <Button type="submit" disabled={saving}>
+                  {saving ? 'Saving...' : 'Save details'}
+                </Button>
               </div>
-            </div>
-            <Button type="submit" disabled={saving}>
-              {saving ? 'Saving...' : 'Save details'}
-            </Button>
+            </form>
           </CardContent>
-        </form>
+        )}
       </Card>
 
-      {/* Cards */}
+      {/* ── Section: Cards ── */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Cards</CardTitle>
-            {cards.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setBulkMode((prev) => !prev)
-                  setSelected(new Set())
-                }}
-              >
-                {bulkMode ? 'Cancel' : 'Bulk edit'}
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {!bulkMode && (
-            <div className="space-y-2">
-              <Label>Add a card</Label>
-              <CardAutocomplete onSelect={handleAddCard} />
+        <button
+          onClick={() => toggleSection('cards')}
+          className="flex w-full items-center justify-between p-5 text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-lg">
+              <Layers className="h-4 w-4" />
             </div>
+            <p className="font-semibold">Cards ({cards.length})</p>
+          </div>
+          {openSections.has('cards') ? (
+            <ChevronUp className="text-muted-foreground h-5 w-5" />
+          ) : (
+            <ChevronDown className="text-muted-foreground h-5 w-5" />
           )}
-          <Separator />
-          {cards.length > 0 && (
-            <div className="space-y-1">
-              {bulkMode && (
-                <div className="flex items-center justify-between pb-1">
-                  <button
-                    className="text-muted-foreground flex items-center gap-2 text-xs"
-                    onClick={toggleSelectAll}
+        </button>
+        {openSections.has('cards') && (
+          <CardContent className="space-y-4 border-t pt-4">
+            {!bulkMode && (
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <CardAutocomplete onSelect={handleAddCard} />
+                </div>
+                {cards.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setBulkMode((prev) => !prev)
+                      setSelected(new Set())
+                    }}
                   >
-                    <Checkbox checked={selected.size === cards.length} />
-                    Select all
-                  </button>
+                    Bulk edit
+                  </Button>
+                )}
+              </div>
+            )}
+            {bulkMode && (
+              <div className="flex items-center justify-between">
+                <button
+                  className="text-muted-foreground flex items-center gap-2 text-xs"
+                  onClick={toggleSelectAll}
+                >
+                  <Checkbox checked={selected.size === cards.length} />
+                  Select all
+                </button>
+                <div className="flex gap-2">
                   <Button
                     variant="destructive"
                     size="sm"
@@ -679,78 +753,114 @@ export function DeckEditForm({
                   >
                     Delete {selected.size > 0 ? `(${selected.size})` : ''}
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setBulkMode(false)
+                      setSelected(new Set())
+                    }}
+                  >
+                    Cancel
+                  </Button>
                 </div>
-              )}
-              {cards.map((card) => (
-                <div
-                  key={card.id}
-                  className="flex items-center justify-between gap-2 text-sm"
-                >
-                  {bulkMode && (
-                    <Checkbox
-                      checked={selected.has(card.id)}
-                      onCheckedChange={() => toggleSelected(card.id)}
-                      className="shrink-0"
-                    />
-                  )}
-                  <span className="flex flex-1 items-center gap-2 truncate">
-                    {card.quantity}x {card.card_name}
-                    {card.is_commander && (
-                      <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-xs font-medium">
-                        Commander
+              </div>
+            )}
+            <Separator />
+            {cards.length > 0 && (
+              <div className="space-y-1">
+                {cards.map((card) => (
+                  <div
+                    key={card.id}
+                    className="flex items-center justify-between gap-2 text-sm"
+                  >
+                    {bulkMode && (
+                      <Checkbox
+                        checked={selected.has(card.id)}
+                        onCheckedChange={() => toggleSelected(card.id)}
+                        className="shrink-0"
+                      />
+                    )}
+                    <span className="flex flex-1 items-center gap-2 truncate">
+                      {card.quantity}x {card.card_name}
+                      {card.is_commander && (
+                        <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-xs font-medium">
+                          Commander
+                        </span>
+                      )}
+                    </span>
+                    {!bulkMode && card.price_cents != null && (
+                      <span className="text-muted-foreground shrink-0 text-xs">
+                        ${(card.price_cents / 100).toFixed(2)}
                       </span>
                     )}
-                  </span>
-                  {!bulkMode && card.price_cents != null && (
-                    <span className="text-muted-foreground shrink-0 text-xs">
-                      ${(card.price_cents / 100).toFixed(2)}
-                    </span>
-                  )}
-                  {!bulkMode && card.scryfall_id && (
-                    <PrintingSelector
-                      card={card}
-                      onSelect={(printing) =>
-                        handleChangePrinting(card, printing)
-                      }
-                    />
-                  )}
-                  {!bulkMode && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-muted-foreground h-7 w-7 shrink-0 p-0"
-                          aria-label="Card options"
-                        >
-                          ···
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {!card.is_commander && (
-                          <DropdownMenuItem
-                            onClick={() => handleSetCommander(card)}
+                    {!bulkMode && card.scryfall_id && (
+                      <PrintingSelector
+                        card={card}
+                        onSelect={(printing) =>
+                          handleChangePrinting(card, printing)
+                        }
+                      />
+                    )}
+                    {!bulkMode && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-muted-foreground h-7 w-7 shrink-0 p-0"
+                            aria-label="Card options"
                           >
-                            Set as commander
+                            ···
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {!card.is_commander && (
+                            <DropdownMenuItem
+                              onClick={() => handleSetCommander(card)}
+                            >
+                              Set as commander
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => handleRemoveCard(card.id)}
+                          >
+                            Remove
                           </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => handleRemoveCard(card.id)}
-                        >
-                          Remove
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-              ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        )}
+      </Card>
+
+      {/* ── Section: Import / Replace ── */}
+      <Card>
+        <button
+          onClick={() => toggleSection('import')}
+          className="flex w-full items-center justify-between p-5 text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-lg">
+              <FileText className="h-4 w-4" />
             </div>
+            <p className="font-semibold">Import / Replace</p>
+          </div>
+          {openSections.has('import') ? (
+            <ChevronUp className="text-muted-foreground h-5 w-5" />
+          ) : (
+            <ChevronDown className="text-muted-foreground h-5 w-5" />
           )}
-          {!bulkMode && <Separator />}
-          {!bulkMode && (
+        </button>
+        {openSections.has('import') && (
+          <CardContent className="space-y-4 border-t pt-4">
             <div className="space-y-2">
-              <Label>Replace from Moxfield or Archidekt URL</Label>
+              <Label>Import from Moxfield or Archidekt</Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="https://www.moxfield.com/decks/..."
@@ -767,12 +877,16 @@ export function DeckEditForm({
                 </Button>
               </div>
             </div>
-          )}
-          {!bulkMode && (
+            <div className="relative flex items-center">
+              <Separator className="flex-1" />
+              <span className="text-muted-foreground bg-card px-3 text-xs">
+                or paste below
+              </span>
+              <Separator className="flex-1" />
+            </div>
             <div className="space-y-2">
-              <Label>Replace decklist (paste text)</Label>
               <textarea
-                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[120px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[120px] w-full rounded-md border px-3 py-2 font-mono text-sm focus-visible:ring-2 focus-visible:outline-none"
                 placeholder="Paste a full decklist to replace all cards..."
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
@@ -782,59 +896,133 @@ export function DeckEditForm({
                 onClick={handleImport}
                 disabled={!importText.trim()}
               >
-                Import & replace
+                Import &amp; replace
               </Button>
             </div>
-          )}
-        </CardContent>
+          </CardContent>
+        )}
       </Card>
 
-      {/* Photos */}
+      {/* ── Section: Photos ── */}
       <Card>
-        <CardHeader>
-          <CardTitle>Photos</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="photo">Upload a photo</Label>
-            <Input
-              id="photo"
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoUpload}
-              disabled={uploading}
-            />
-          </div>
-          {photos.length > 0 && (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {photos.map((photo) => (
-                <div key={photo.id} className="relative">
-                  <img
-                    src={getDeckPhotoUrl(photo.storage_path)}
-                    alt="Deck photo"
-                    className="h-32 w-full rounded object-cover"
-                  />
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-1 right-1 h-6 px-2 text-xs"
-                    aria-label="Delete photo"
-                    onClick={() => handleDeletePhoto(photo)}
-                  >
-                    ✕
-                  </Button>
-                </div>
-              ))}
+        <button
+          onClick={() => toggleSection('photos')}
+          className="flex w-full items-center justify-between p-5 text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-lg">
+              <Camera className="h-4 w-4" />
             </div>
+            <p className="font-semibold">
+              Photos{photos.length > 0 ? ` (${photos.length})` : ''}
+            </p>
+          </div>
+          {openSections.has('photos') ? (
+            <ChevronUp className="text-muted-foreground h-5 w-5" />
+          ) : (
+            <ChevronDown className="text-muted-foreground h-5 w-5" />
           )}
-        </CardContent>
+        </button>
+        {openSections.has('photos') && (
+          <CardContent className="space-y-4 border-t pt-4">
+            <div
+              className="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/10 py-10 transition-colors hover:border-white/20"
+              onDragOver={(e) => {
+                e.preventDefault()
+                e.currentTarget.classList.add(
+                  'border-primary/50',
+                  'bg-primary/5',
+                )
+              }}
+              onDragLeave={(e) => {
+                e.currentTarget.classList.remove(
+                  'border-primary/50',
+                  'bg-primary/5',
+                )
+              }}
+              onDrop={(e) => {
+                e.preventDefault()
+                e.currentTarget.classList.remove(
+                  'border-primary/50',
+                  'bg-primary/5',
+                )
+                const file = e.dataTransfer.files[0]
+                if (file && file.type.startsWith('image/')) {
+                  const input = document.getElementById(
+                    'photo',
+                  ) as HTMLInputElement
+                  const dt = new DataTransfer()
+                  dt.items.add(file)
+                  input.files = dt.files
+                  input.dispatchEvent(new Event('change', { bubbles: true }))
+                }
+              }}
+            >
+              <Upload className="text-muted-foreground mb-3 h-8 w-8" />
+              <p className="text-muted-foreground mb-3 text-sm">
+                Drag and drop a photo here, or
+              </p>
+              <Button
+                type="button"
+                disabled={uploading}
+                onClick={() => document.getElementById('photo')?.click()}
+              >
+                {uploading ? 'Uploading...' : 'Upload photo'}
+              </Button>
+              <input
+                id="photo"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+                disabled={uploading}
+              />
+            </div>
+            {photos.length > 0 && (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {photos.map((photo) => (
+                  <div key={photo.id} className="relative">
+                    <img
+                      src={getDeckPhotoUrl(photo.storage_path)}
+                      alt="Deck photo"
+                      className="h-32 w-full rounded object-cover"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-1 right-1 h-6 px-2 text-xs"
+                      aria-label="Delete photo"
+                      onClick={() => handleDeletePhoto(photo)}
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        )}
       </Card>
 
-      {/* Danger zone */}
+      {/* ── Danger zone ── */}
       <Card className="border-destructive/50">
-        <CardContent className="pt-6">
-          <Button variant="destructive" onClick={handleDeleteDeck}>
-            Delete deck
+        <CardContent className="flex items-center justify-between pt-6">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-red-400" />
+            <div>
+              <p className="text-sm font-medium">Danger zone</p>
+              <p className="text-muted-foreground text-xs">
+                This action cannot be undone.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="destructive"
+            size="sm"
+            className="gap-2"
+            onClick={handleDeleteDeck}
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Delete deck
           </Button>
         </CardContent>
       </Card>

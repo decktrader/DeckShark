@@ -35,7 +35,7 @@ export default async function EditDeckPage({
   if (deckResult.data.user_id !== authUser.id) notFound()
 
   return (
-    <main className="container mx-auto max-w-2xl px-4 py-8">
+    <main className="container mx-auto max-w-3xl px-4 py-8">
       <DeckEditForm
         deck={deckResult.data}
         cards={cardsResult.data ?? []}
