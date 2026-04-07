@@ -210,7 +210,7 @@ INSERT INTO public.decks (
   'Atraxa, Praetors'' Voice',
   'commander',
   'Planeswalker-heavy build leveraging Atraxa''s proliferate to ultimate walkers quickly. Packed with loyalty doublers and proliferate synergies.',
-  45000, true, 'high', '{W,U,B,G}', 'Superfriends'
+  45000, true, 'bracket4', '{W,U,B,G}', 'Superfriends'
 ) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUES
@@ -254,7 +254,7 @@ INSERT INTO public.decks (
   'Krenko, Mob Boss',
   'commander',
   'Explosive goblin tribal that doubles tokens with Krenko and converts them into damage via Impact Tremors and Purphoros.',
-  8500, true, 'mid', '{R}', 'Tribal'
+  8500, true, 'bracket3', '{R}', 'Tribal'
 ) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUES
@@ -299,7 +299,7 @@ INSERT INTO public.decks (
   'Korvold, Fae-Cursed King',
   'commander',
   'Jund aristocrats shell that sacrifices tokens and permanents to fuel Korvold''s draw engine while draining opponents with Blood Artist effects.',
-  32000, true, 'high', '{B,R,G}', 'Aristocrats'
+  32000, true, 'bracket4', '{B,R,G}', 'Aristocrats'
 ) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUES
@@ -343,7 +343,7 @@ INSERT INTO public.decks (
   'Niv-Mizzet, Parun',
   'commander',
   'Izzet spellslinger that chains cantrips and burn spells, turning every instant and sorcery into card draw and damage through Niv-Mizzet''s triggers.',
-  55000, true, 'high', '{U,R}', 'Spellslinger'
+  55000, true, 'bracket4', '{U,R}', 'Spellslinger'
 ) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUES
@@ -386,7 +386,7 @@ INSERT INTO public.decks (
   'Talrand, Sky Summoner',
   'commander',
   'Mono-blue control that turns every counterspell and cantrip into a 2/2 Drake. Protect Talrand, counter everything, and fly over for the win.',
-  1500, true, 'mid', '{U}', 'Spellslinger'
+  1500, true, 'bracket2', '{U}', 'Spellslinger'
 ) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.deck_cards (deck_id, card_name, quantity, is_commander) VALUES

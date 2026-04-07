@@ -152,11 +152,10 @@ export function BrowseSidebar({
     if (
       !searchParams.has('city') &&
       !searchParams.has('province') &&
-      (defaultCity || defaultProvince)
+      defaultProvince
     ) {
       updateFilter({
-        city: defaultCity ?? null,
-        province: defaultProvince ?? null,
+        province: defaultProvince,
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -179,8 +178,8 @@ export function BrowseSidebar({
     }
   }
 
-  const isCedh = searchParams.get('powerLevel') === 'cedh'
-  const isHighPower = searchParams.get('powerLevel') === 'high'
+  const isCedh = searchParams.get('powerLevel') === 'bracket5'
+  const isOptimized = searchParams.get('powerLevel') === 'bracket4'
   const isUnder200 = searchParams.get('maxValue') === '20000'
 
   return (
@@ -202,12 +201,12 @@ export function BrowseSidebar({
           <QuickChip
             label="cEDH"
             active={isCedh}
-            onClick={() => toggleQuick({ powerLevel: 'cedh' })}
+            onClick={() => toggleQuick({ powerLevel: 'bracket5' })}
           />
           <QuickChip
-            label="High-power"
-            active={isHighPower}
-            onClick={() => toggleQuick({ powerLevel: 'high' })}
+            label="Optimized"
+            active={isOptimized}
+            onClick={() => toggleQuick({ powerLevel: 'bracket4' })}
           />
           <QuickChip
             label="Under $200"

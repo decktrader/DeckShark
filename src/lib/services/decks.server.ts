@@ -9,11 +9,11 @@ export type SortOption =
   | 'power_desc'
 
 const POWER_LEVEL_ORDER: Record<string, number> = {
-  casual: 1,
-  precon: 2,
-  mid: 3,
-  high: 4,
-  cedh: 5,
+  bracket1: 1,
+  bracket2: 2,
+  bracket3: 3,
+  bracket4: 4,
+  bracket5: 5,
 }
 
 export interface PublicDeckFilters {

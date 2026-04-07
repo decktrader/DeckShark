@@ -148,11 +148,10 @@ export function BrowseFilters({
     if (
       !searchParams.has('city') &&
       !searchParams.has('province') &&
-      (defaultCity || defaultProvince)
+      defaultProvince
     ) {
       updateFilter({
-        city: defaultCity ?? null,
-        province: defaultProvince ?? null,
+        province: defaultProvince,
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -175,9 +174,9 @@ export function BrowseFilters({
     }
   }
 
-  const isCedh = searchParams.get('powerLevel') === 'cedh'
+  const isCedh = searchParams.get('powerLevel') === 'bracket5'
   const isUnder200 = searchParams.get('maxValue') === '20000'
-  const isHighPower = searchParams.get('powerLevel') === 'high'
+  const isOptimized = searchParams.get('powerLevel') === 'bracket4'
 
   return (
     <div className="bg-card space-y-4 rounded-lg border p-4">
@@ -189,12 +188,12 @@ export function BrowseFilters({
         <QuickChip
           label="cEDH"
           active={isCedh}
-          onClick={() => toggleQuick({ powerLevel: 'cedh' })}
+          onClick={() => toggleQuick({ powerLevel: 'bracket5' })}
         />
         <QuickChip
-          label="High-power"
-          active={isHighPower}
-          onClick={() => toggleQuick({ powerLevel: 'high' })}
+          label="Optimized"
+          active={isOptimized}
+          onClick={() => toggleQuick({ powerLevel: 'bracket4' })}
         />
         <QuickChip
           label="Under $200"

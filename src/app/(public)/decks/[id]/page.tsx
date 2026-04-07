@@ -9,6 +9,7 @@ import {
   getDeckCards,
   getDeckPhotos,
 } from '@/lib/services/decks.server'
+import { getPowerLevelLabel } from '@/lib/constants'
 import {
   DeckCardList,
   DeckCardListProvider,
@@ -112,7 +113,9 @@ export default async function PublicDeckPage({
     },
     { label: 'Cards', value: `${totalCards}` },
     ...(deck.archetype ? [{ label: 'Archetype', value: deck.archetype }] : []),
-    ...(deck.power_level ? [{ label: 'Power', value: deck.power_level }] : []),
+    ...(deck.power_level
+      ? [{ label: 'Bracket', value: getPowerLevelLabel(deck.power_level)! }]
+      : []),
   ]
 
   return (

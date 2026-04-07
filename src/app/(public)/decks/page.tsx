@@ -5,6 +5,7 @@ import type { PublicDeck } from '@/lib/services/decks.server'
 import { getUserById } from '@/lib/services/users.server'
 import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
+import { getPowerLevelLabel } from '@/lib/constants'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 
 export const metadata = {
@@ -90,8 +91,8 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
               {deck.power_level && (
                 <>
                   <span className="text-muted-foreground text-[10px]">·</span>
-                  <span className="text-muted-foreground text-[10px] capitalize">
-                    {deck.power_level}
+                  <span className="text-muted-foreground text-[10px]">
+                    {getPowerLevelLabel(deck.power_level)}
                   </span>
                 </>
               )}

@@ -62,12 +62,17 @@ export const ARCHETYPES = [
 ] as const
 
 export const POWER_LEVELS = [
-  { value: 'casual', label: 'Casual' },
-  { value: 'precon', label: 'Precon' },
-  { value: 'mid', label: 'Mid-power' },
-  { value: 'high', label: 'High-power' },
-  { value: 'cedh', label: 'cEDH' },
+  { value: 'bracket1', label: 'Bracket 1 — Exhibition' },
+  { value: 'bracket2', label: 'Bracket 2 — Core' },
+  { value: 'bracket3', label: 'Bracket 3 — Upgraded' },
+  { value: 'bracket4', label: 'Bracket 4 — Optimized' },
+  { value: 'bracket5', label: 'Bracket 5 — cEDH' },
 ] as const
+
+export function getPowerLevelLabel(value: string | null): string | null {
+  if (!value) return null
+  return POWER_LEVELS.find((pl) => pl.value === value)?.label ?? value
+}
 
 export const MTG_COLORS = [
   { value: 'W', label: 'White' },

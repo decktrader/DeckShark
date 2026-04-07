@@ -11,6 +11,13 @@ import { resolveCardPrinting } from '@/lib/services/cards'
 import { parseDecklist } from '@/lib/importers/text'
 import { getCardByName } from '@/lib/scryfall/api'
 import { FORMATS, ARCHETYPES, POWER_LEVELS } from '@/lib/constants'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Info } from 'lucide-react'
 import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -252,7 +259,37 @@ export function DeckForm({ userId }: { userId: string }) {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="power-level">Power level (optional)</Label>
+            <div className="flex items-center gap-1.5">
+              <Label htmlFor="power-level">Power level (optional)</Label>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="text-muted-foreground h-3.5 w-3.5 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-xs text-xs">
+                    <p className="font-semibold">Commander Brackets</p>
+                    <ul className="mt-1 space-y-0.5">
+                      <li>
+                        <strong>1 — Exhibition:</strong> Ultra-casual, no combos
+                      </li>
+                      <li>
+                        <strong>2 — Core:</strong> Average precon level
+                      </li>
+                      <li>
+                        <strong>3 — Upgraded:</strong> Beyond precon strength
+                      </li>
+                      <li>
+                        <strong>4 — Optimized:</strong> High power, no
+                        restrictions
+                      </li>
+                      <li>
+                        <strong>5 — cEDH:</strong> Competitive, metagame-focused
+                      </li>
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Select
               value={powerLevel || 'none'}
               onValueChange={(v) => setPowerLevel(v === 'none' ? '' : v)}
