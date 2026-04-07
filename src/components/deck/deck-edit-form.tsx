@@ -310,13 +310,16 @@ export function DeckEditForm({
     const { data: newCards } = await addDeckCards(deck.id, resolved)
     if (newCards) setCards(newCards)
 
-    // Update commander
-    const commander = resolved.find((c) => c.is_commander)
-    if (commander) {
-      await updateDeck(deck.id, {
-        commander_name: commander.card_name,
-        commander_scryfall_id: commander.scryfall_id ?? null,
-      })
+    // Update commanders (support partner pairs)
+    const commanders = resolved.filter((c) => c.is_commander)
+    if (commanders.length > 0) {
+      const updates: Record<string, string | null> = {
+        commander_name: commanders[0].card_name,
+        commander_scryfall_id: commanders[0].scryfall_id ?? null,
+        partner_commander_name: commanders[1]?.card_name ?? null,
+        partner_commander_scryfall_id: commanders[1]?.scryfall_id ?? null,
+      }
+      await updateDeck(deck.id, updates)
     }
 
     await calculateDeckValue(deck.id)
@@ -363,23 +366,37 @@ export function DeckEditForm({
     router.refresh()
   }
 
+  function scryfallNormalUrl(id: string) {
+    return `https://cards.scryfall.io/normal/front/${id[0]}/${id[1]}/${id}.jpg`
+  }
+
   const commanderImageUrl = deck.commander_scryfall_id
-    ? `https://cards.scryfall.io/normal/front/${deck.commander_scryfall_id[0]}/${deck.commander_scryfall_id[1]}/${deck.commander_scryfall_id}.jpg`
+    ? scryfallNormalUrl(deck.commander_scryfall_id)
+    : null
+  const partnerImageUrl = deck.partner_commander_scryfall_id
+    ? scryfallNormalUrl(deck.partner_commander_scryfall_id)
     : null
 
   return (
     <div className="space-y-6">
       {error && <p className="text-destructive text-sm">{error}</p>}
 
-      {/* Commander card + stats */}
+      {/* Commander card(s) + stats */}
       <div className="flex gap-6">
         {commanderImageUrl && (
-          <div className="shrink-0">
+          <div className="flex shrink-0 gap-3">
             <img
               src={commanderImageUrl}
               alt={deck.commander_name ?? 'Commander'}
               className="w-56 rounded-xl shadow-lg shadow-black/40"
             />
+            {partnerImageUrl && (
+              <img
+                src={partnerImageUrl}
+                alt={deck.partner_commander_name ?? 'Partner'}
+                className="w-56 rounded-xl shadow-lg shadow-black/40"
+              />
+            )}
           </div>
         )}
         <div className="flex items-start pt-1">

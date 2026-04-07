@@ -82,11 +82,13 @@ export async function getPublicDecks(
     query = query.eq('format', filters.format)
   }
   if (filters.commander) {
-    query = query.ilike('commander_name', `%${filters.commander}%`)
+    query = query.or(
+      `commander_name.ilike.%${filters.commander}%,partner_commander_name.ilike.%${filters.commander}%`,
+    )
   }
   if (filters.q) {
     query = query.or(
-      `name.ilike.%${filters.q}%,commander_name.ilike.%${filters.q}%`,
+      `name.ilike.%${filters.q}%,commander_name.ilike.%${filters.q}%,partner_commander_name.ilike.%${filters.q}%`,
     )
   }
   if (filters.powerLevel) {

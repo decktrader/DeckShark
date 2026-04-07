@@ -6,7 +6,9 @@ export async function GET(req: NextRequest) {
   if (q.length < 2) return NextResponse.json([])
 
   const supabase = await createClient()
-  const { data } = await supabase
+
+  // Search both commander and partner commander names
+  const { data: primary } = await supabase
     .from('decks')
     .select('commander_name')
     .not('commander_name', 'is', null)
@@ -15,10 +17,22 @@ export async function GET(req: NextRequest) {
     .eq('status', 'active')
     .limit(20)
 
+  const { data: partners } = await supabase
+    .from('decks')
+    .select('partner_commander_name')
+    .not('partner_commander_name', 'is', null)
+    .ilike('partner_commander_name', `%${q}%`)
+    .eq('available_for_trade', true)
+    .eq('status', 'active')
+    .limit(20)
+
   const names = [
-    ...new Set(
-      (data ?? []).map((d) => d.commander_name as string).filter(Boolean),
-    ),
+    ...new Set([
+      ...(primary ?? []).map((d) => d.commander_name as string).filter(Boolean),
+      ...(partners ?? [])
+        .map((d) => d.partner_commander_name as string)
+        .filter(Boolean),
+    ]),
   ].slice(0, 10)
 
   return NextResponse.json(names)

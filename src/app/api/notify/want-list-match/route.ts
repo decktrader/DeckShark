@@ -72,15 +72,12 @@ export async function POST(request: Request) {
   const matched = wantLists.filter((wl) => {
     if (wl.format && wl.format !== deck.format) return false
     if (wl.archetype && wl.archetype !== deck.archetype) return false
-    if (wl.commander_name && deck.commander_name) {
-      if (
-        !deck.commander_name
-          .toLowerCase()
-          .includes(wl.commander_name.toLowerCase())
-      )
-        return false
-    } else if (wl.commander_name && !deck.commander_name) {
-      return false
+    if (wl.commander_name) {
+      const wantedCmd = wl.commander_name.toLowerCase()
+      const deckCmds = [deck.commander_name, deck.partner_commander_name]
+        .filter(Boolean)
+        .map((n: string) => n.toLowerCase())
+      if (!deckCmds.some((c) => c.includes(wantedCmd))) return false
     }
     if (
       wl.min_value_cents &&

@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Info, ChevronDown, ChevronUp } from 'lucide-react'
 import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
+import { CommanderAutocomplete } from '@/components/deck/commander-autocomplete'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -43,10 +44,13 @@ export function DeckForm({ userId }: { userId: string }) {
   const router = useRouter()
   const [name, setName] = useState('')
   const [commanderName, setCommanderName] = useState('')
+  const [partnerCommanderName, setPartnerCommanderName] = useState('')
   const [format, setFormat] = useState('commander')
   const [archetype, setArchetype] = useState('')
   const [powerLevel, setPowerLevel] = useState('')
   const [colorIdentity, setColorIdentity] = useState<string[]>([])
+  const [cmdrColors, setCmdrColors] = useState<string[]>([])
+  const [partnerColors, setPartnerColors] = useState<string[]>([])
   const [description, setDescription] = useState('')
   const [conditionNotes, setConditionNotes] = useState('')
   const [decklistText, setDecklistText] = useState('')
@@ -121,10 +125,12 @@ export function DeckForm({ userId }: { userId: string }) {
       setParseErrors(errors)
     }
 
-    // Find the commander — explicit field takes priority, then decklist COMMANDER: line
-    const commanderFromList = parsedCards.find((c) => c.isCommander)
+    // Find commanders — explicit fields take priority, then decklist COMMANDER: lines
+    const commandersFromList = parsedCards.filter((c) => c.isCommander)
     const resolvedCommanderName =
-      commanderName.trim() || commanderFromList?.name
+      commanderName.trim() || commandersFromList[0]?.name
+    const resolvedPartnerName =
+      partnerCommanderName.trim() || commandersFromList[1]?.name || undefined
 
     // Create the deck
     const { data: deck, error: deckError } = await createDeck(userId, {
@@ -136,6 +142,7 @@ export function DeckForm({ userId }: { userId: string }) {
       description: description || undefined,
       condition_notes: conditionNotes || undefined,
       commander_name: resolvedCommanderName,
+      partner_commander_name: resolvedPartnerName,
       includes_sleeves: includesSleeves,
       includes_deckbox: includesDeckbox,
     })
@@ -164,20 +171,37 @@ export function DeckForm({ userId }: { userId: string }) {
       }),
     )
 
-    // Set commander_scryfall_id — try cache first, fall back to Scryfall directly
+    // Set commander scryfall IDs — try cache first, fall back to Scryfall directly
+    const commanderUpdates: Record<string, string> = {}
     if (resolvedCommanderName) {
-      const commanderCard = resolvedCards.find((c) => c.is_commander)
+      const commanderCard = resolvedCards.find(
+        (c) => c.is_commander && c.card_name === resolvedCommanderName,
+      )
       let commanderScryfallId = commanderCard?.scryfall_id
       if (!commanderScryfallId) {
         const scryfallCard = await getCardByName(resolvedCommanderName)
         if (scryfallCard) commanderScryfallId = scryfallCard.id
       }
       if (commanderScryfallId) {
-        const { updateDeck } = await import('@/lib/services/decks')
-        await updateDeck(deck.id, {
-          commander_scryfall_id: commanderScryfallId,
-        })
+        commanderUpdates.commander_scryfall_id = commanderScryfallId
       }
+    }
+    if (resolvedPartnerName) {
+      const partnerCard = resolvedCards.find(
+        (c) => c.is_commander && c.card_name === resolvedPartnerName,
+      )
+      let partnerScryfallId = partnerCard?.scryfall_id
+      if (!partnerScryfallId) {
+        const scryfallCard = await getCardByName(resolvedPartnerName)
+        if (scryfallCard) partnerScryfallId = scryfallCard.id
+      }
+      if (partnerScryfallId) {
+        commanderUpdates.partner_commander_scryfall_id = partnerScryfallId
+      }
+    }
+    if (Object.keys(commanderUpdates).length > 0) {
+      const { updateDeck } = await import('@/lib/services/decks')
+      await updateDeck(deck.id, commanderUpdates)
     }
 
     // Add cards to deck
@@ -230,17 +254,42 @@ export function DeckForm({ userId }: { userId: string }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="commander">Commander</Label>
-              <Input
+              <CommanderAutocomplete
                 id="commander"
-                placeholder="e.g. Atraxa, Praetors' Voice"
                 value={commanderName}
-                onChange={(e) => setCommanderName(e.target.value)}
+                onChange={setCommanderName}
+                onColorIdentity={(colors) => {
+                  setCmdrColors(colors)
+                  setColorIdentity([...new Set([...colors, ...partnerColors])])
+                }}
+                placeholder="e.g. Atraxa, Praetors' Voice"
               />
               <p className="text-muted-foreground text-xs">
                 Also detected from COMMANDER: lines in your decklist
               </p>
             </div>
           </div>
+          {format === 'commander' && (
+            <div className="space-y-2">
+              <Label htmlFor="partner-commander">
+                Second commander (optional)
+              </Label>
+              <CommanderAutocomplete
+                id="partner-commander"
+                value={partnerCommanderName}
+                onChange={setPartnerCommanderName}
+                onColorIdentity={(colors) => {
+                  setPartnerColors(colors)
+                  setColorIdentity([...new Set([...cmdrColors, ...colors])])
+                }}
+                placeholder="e.g. Tymna the Weaver, Faceless One"
+              />
+              <p className="text-muted-foreground text-xs">
+                Partner, Friends Forever, Background, Doctor&apos;s Companion,
+                etc. Also detected from a second COMMANDER: line.
+              </p>
+            </div>
+          )}
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="format">Format</Label>

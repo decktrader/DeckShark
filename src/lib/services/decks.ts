@@ -12,6 +12,8 @@ export async function createDeck(
     description?: string
     commander_name?: string
     commander_scryfall_id?: string
+    partner_commander_name?: string
+    partner_commander_scryfall_id?: string
     condition_notes?: string
     includes_sleeves?: boolean
     includes_deckbox?: boolean
@@ -67,6 +69,8 @@ export async function updateDeck(
       | 'description'
       | 'commander_name'
       | 'commander_scryfall_id'
+      | 'partner_commander_name'
+      | 'partner_commander_scryfall_id'
       | 'condition_notes'
       | 'status'
       | 'available_for_trade'

@@ -1,15 +1,12 @@
 import Link from 'next/link'
 import type { Deck } from '@/types'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { DeckArt } from '@/components/deck/deck-art'
 import { TradeToggle } from '@/components/deck/trade-toggle'
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
   return `$${(cents / 100).toFixed(2)}`
-}
-
-function scryfallArtUrl(scryfallId: string): string {
-  return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
 }
 
 export function DeckGrid({
@@ -34,11 +31,10 @@ export function DeckGrid({
           <Card className="hover:border-primary/50 overflow-hidden transition-colors">
             {/* Commander art banner */}
             {deck.commander_scryfall_id && (
-              <div
-                className="h-28 w-full bg-cover bg-center"
-                style={{
-                  backgroundImage: `linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.7) 100%), url(${scryfallArtUrl(deck.commander_scryfall_id)})`,
-                }}
+              <DeckArt
+                commanderScryfallId={deck.commander_scryfall_id}
+                partnerScryfallId={deck.partner_commander_scryfall_id}
+                aspect="h-28"
               />
             )}
             <CardContent
@@ -61,7 +57,9 @@ export function DeckGrid({
               </div>
               {deck.commander_name && (
                 <p className="text-muted-foreground mt-1 text-xs">
-                  {deck.commander_name}
+                  {[deck.commander_name, deck.partner_commander_name]
+                    .filter(Boolean)
+                    .join(' / ')}
                 </p>
               )}
               {deck.description && (

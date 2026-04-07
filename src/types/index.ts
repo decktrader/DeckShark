@@ -46,6 +46,8 @@ export interface Deck {
   name: string
   commander_name: string | null
   commander_scryfall_id: string | null
+  partner_commander_name: string | null
+  partner_commander_scryfall_id: string | null
   format: string
   archetype: string | null
   description: string | null

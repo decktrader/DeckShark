@@ -16,6 +16,7 @@ import {
   DeckCardPreview,
 } from '@/components/deck/deck-card-list'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { DeckArt } from '@/components/deck/deck-art'
 import { Button } from '@/components/ui/button'
 
 const FORMAT_COLORS: Record<string, string> = {
@@ -49,10 +50,6 @@ export async function generateMetadata({
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
   return `$${(cents / 100).toFixed(2)}`
-}
-
-function scryfallArtUrl(scryfallId: string): string {
-  return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
 }
 
 export default async function PublicDeckPage({
@@ -131,28 +128,28 @@ export default async function PublicDeckPage({
 
       {/* Hero + info bar */}
       <div className="mb-6 overflow-hidden rounded-2xl border border-white/5">
-        {deck.commander_scryfall_id && (
+        {deck.commander_scryfall_id ? (
           <div className="relative">
-            <div
-              className="h-48 w-full bg-cover bg-center sm:h-64"
-              style={{
-                backgroundImage: `url(${scryfallArtUrl(deck.commander_scryfall_id)})`,
-              }}
+            <DeckArt
+              commanderScryfallId={deck.commander_scryfall_id}
+              partnerScryfallId={deck.partner_commander_scryfall_id}
+              aspect="h-48 sm:h-64"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6">
               <h1 className="text-3xl font-black text-white drop-shadow-lg">
                 {deck.name}
               </h1>
               {deck.commander_name && (
                 <p className="mt-1 text-sm text-white/60">
-                  {deck.commander_name}
+                  {[deck.commander_name, deck.partner_commander_name]
+                    .filter(Boolean)
+                    .join(' / ')}
                 </p>
               )}
             </div>
           </div>
-        )}
-        {!deck.commander_scryfall_id && (
+        ) : (
           <div className="p-6">
             <h1 className="text-3xl font-black tracking-tight">{deck.name}</h1>
           </div>

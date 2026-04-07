@@ -5,6 +5,7 @@ import type { PublicDeck } from '@/lib/services/decks.server'
 import { getUserById } from '@/lib/services/users.server'
 import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
+import { DeckArt } from '@/components/deck/deck-art'
 import { getPowerLevelLabel } from '@/lib/constants'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 
@@ -20,52 +21,45 @@ function formatPrice(cents: number | null): string {
   return `$${(cents / 100).toFixed(2)}`
 }
 
-function scryfallArtUrl(scryfallId: string): string {
-  return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
-}
-
 function DeckCard({ deck }: { deck: PublicDeck }) {
+  const commanderLabel = [deck.commander_name, deck.partner_commander_name]
+    .filter(Boolean)
+    .join(' / ')
+
   return (
     <Link href={`/decks/${deck.id}`} className="group block">
       <div className="overflow-hidden rounded-2xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
         {/* Art section — name overlaid */}
         <div className="relative">
-          {deck.commander_scryfall_id ? (
-            <div
-              className="aspect-[5/4] w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-              style={{
-                backgroundImage: `url(${scryfallArtUrl(deck.commander_scryfall_id)})`,
-              }}
-            />
-          ) : (
-            <div className="bg-muted aspect-[5/4] w-full" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          <DeckArt
+            commanderScryfallId={deck.commander_scryfall_id}
+            partnerScryfallId={deck.partner_commander_scryfall_id}
+            className="transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
           {/* Name + commander on art */}
           <div className="absolute inset-x-0 bottom-0 p-4">
             <p className="truncate text-sm font-bold text-white drop-shadow-lg">
               {deck.name}
             </p>
-            {deck.commander_name && (
-              <p className="truncate text-xs text-white/50">
-                {deck.commander_name}
-              </p>
+            {commanderLabel && (
+              <p className="truncate text-xs text-white/50">{commanderLabel}</p>
             )}
           </div>
         </div>
 
         {/* Info bar below art */}
         <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             {deck.owner.avatar_url ? (
               <img
                 src={deck.owner.avatar_url}
                 alt=""
-                className="h-6 w-6 rounded-full object-cover"
+                className="h-6 w-6 shrink-0 rounded-full object-cover"
               />
             ) : (
-              <div className="bg-primary/40 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white">
+              <div className="bg-primary/40 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white">
                 {deck.owner.username.charAt(0).toUpperCase()}
               </div>
             )}
@@ -80,23 +74,13 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
               </p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="shrink-0 text-right">
             <p className="text-primary text-sm font-bold">
               {formatPrice(deck.estimated_value_cents)}
             </p>
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground text-[10px] capitalize">
-                {deck.format}
-              </span>
-              {deck.power_level && (
-                <>
-                  <span className="text-muted-foreground text-[10px]">·</span>
-                  <span className="text-muted-foreground text-[10px]">
-                    {getPowerLevelLabel(deck.power_level)}
-                  </span>
-                </>
-              )}
-            </div>
+            <p className="text-muted-foreground text-[10px] capitalize">
+              {deck.format}
+            </p>
           </div>
         </div>
       </div>

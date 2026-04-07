@@ -6,6 +6,7 @@ import type { PublicDeck } from '@/lib/services/decks.server'
 import { getUserById } from '@/lib/services/users.server'
 import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
+import { DeckArt } from '@/components/deck/deck-art'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 import { Button } from '@/components/ui/button'
 
@@ -33,29 +34,26 @@ function scryfallArtUrl(scryfallId: string): string {
 }
 
 function DeckCard({ deck }: { deck: PublicDeck }) {
+  const commanderLabel = [deck.commander_name, deck.partner_commander_name]
+    .filter(Boolean)
+    .join(' / ')
+
   return (
     <Link href={`/decks/${deck.id}`} className="group block">
       <div className="overflow-hidden rounded-2xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
         <div className="relative">
-          {deck.commander_scryfall_id ? (
-            <div
-              className="aspect-[5/4] w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-              style={{
-                backgroundImage: `url(${scryfallArtUrl(deck.commander_scryfall_id)})`,
-              }}
-            />
-          ) : (
-            <div className="bg-muted aspect-[5/4] w-full" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          <DeckArt
+            commanderScryfallId={deck.commander_scryfall_id}
+            partnerScryfallId={deck.partner_commander_scryfall_id}
+            className="transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4">
             <p className="truncate text-sm font-bold text-white drop-shadow-lg">
               {deck.name}
             </p>
-            {deck.commander_name && (
-              <p className="truncate text-xs text-white/50">
-                {deck.commander_name}
-              </p>
+            {commanderLabel && (
+              <p className="truncate text-xs text-white/50">{commanderLabel}</p>
             )}
           </div>
         </div>
@@ -284,19 +282,25 @@ export default async function HomePage({
                       >
                         <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-purple-500/10 transition-all hover:border-white/20">
                           <div className="relative">
-                            <div
-                              className="aspect-[5/4] w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                              style={{
-                                backgroundImage: `url(${scryfallArtUrl(deck.commander_scryfall_id)})`,
-                              }}
+                            <DeckArt
+                              commanderScryfallId={deck.commander_scryfall_id}
+                              partnerScryfallId={
+                                deck.partner_commander_scryfall_id
+                              }
+                              className="transition-transform duration-500 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                             <div className="absolute inset-x-0 bottom-0 p-4">
                               <p className="truncate text-sm font-bold text-white drop-shadow-lg">
                                 {deck.name}
                               </p>
                               <p className="truncate text-xs text-white/60">
-                                {deck.commander_name}
+                                {[
+                                  deck.commander_name,
+                                  deck.partner_commander_name,
+                                ]
+                                  .filter(Boolean)
+                                  .join(' / ')}
                               </p>
                             </div>
                           </div>

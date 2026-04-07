@@ -6,6 +6,7 @@ import { getPublicDecks } from '@/lib/services/decks.server'
 import type { PublicDeck } from '@/lib/services/decks.server'
 import { getReviewsForUser } from '@/lib/services/reviews.server'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { DeckArt } from '@/components/deck/deck-art'
 import { Button } from '@/components/ui/button'
 
 function formatPrice(cents: number | null): string {
@@ -13,34 +14,27 @@ function formatPrice(cents: number | null): string {
   return `$${(cents / 100).toFixed(0)}`
 }
 
-function scryfallArtUrl(scryfallId: string): string {
-  return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
-}
-
 function DeckMiniCard({ deck }: { deck: PublicDeck }) {
+  const commanderLabel = [deck.commander_name, deck.partner_commander_name]
+    .filter(Boolean)
+    .join(' / ')
+
   return (
     <Link href={`/decks/${deck.id}`} className="group block">
       <div className="overflow-hidden rounded-xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
         <div className="relative">
-          {deck.commander_scryfall_id ? (
-            <div
-              className="aspect-[5/4] w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-              style={{
-                backgroundImage: `url(${scryfallArtUrl(deck.commander_scryfall_id)})`,
-              }}
-            />
-          ) : (
-            <div className="bg-muted aspect-[5/4] w-full" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          <DeckArt
+            commanderScryfallId={deck.commander_scryfall_id}
+            partnerScryfallId={deck.partner_commander_scryfall_id}
+            className="transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-3">
             <p className="truncate text-sm font-bold text-white drop-shadow-lg">
               {deck.name}
             </p>
-            {deck.commander_name && (
-              <p className="truncate text-xs text-white/50">
-                {deck.commander_name}
-              </p>
+            {commanderLabel && (
+              <p className="truncate text-xs text-white/50">{commanderLabel}</p>
             )}
           </div>
         </div>
