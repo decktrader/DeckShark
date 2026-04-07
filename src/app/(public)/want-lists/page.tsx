@@ -151,7 +151,11 @@ export default async function WantListsPage({
                         </div>
                         <div className="mt-2 flex items-center gap-2">
                           {wl.owner.avatar_url ? (
-                            <img src={wl.owner.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+                            <img
+                              src={wl.owner.avatar_url}
+                              alt=""
+                              className="h-6 w-6 rounded-full object-cover"
+                            />
                           ) : (
                             <div className="bg-primary/30 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white">
                               {wl.owner.username.charAt(0).toUpperCase()}

@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { isValidUUID } from '@/lib/utils'
@@ -7,11 +7,11 @@ import { PublicDeckCard } from '@/components/deck/public-deck-card'
 import { Button } from '@/components/ui/button'
 
 function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
+  if (cents === null || cents === 0) return '\u2014'
   return `$${(cents / 100).toFixed(2)}`
 }
 
-export default async function WantListPage({
+export default async function PublicWantListPage({
   params,
 }: {
   params: Promise<{ id: string }>
@@ -24,22 +24,20 @@ export default async function WantListPage({
     data: { user: authUser },
   } = await supabase.auth.getUser()
 
-  if (!authUser) redirect('/login')
-
   const { data: wantList } = await getWantList(id)
   if (!wantList) notFound()
 
-  const isOwner = wantList.user_id === authUser.id
+  const isOwner = authUser && wantList.user_id === authUser.id
   const { data: matches } = await getMatchingDecks(wantList)
 
   return (
     <main className="container mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6">
         <Link
-          href="/dashboard"
+          href="/want-lists"
           className="text-muted-foreground hover:text-foreground text-sm"
         >
-          ← Dashboard
+          &larr; All want lists
         </Link>
       </div>
 
@@ -49,14 +47,21 @@ export default async function WantListPage({
           <p className="text-muted-foreground text-sm">
             {wantList.owner.username}
             {wantList.owner.city &&
-              ` · ${wantList.owner.city}, ${wantList.owner.province}`}
+              ` \u00b7 ${wantList.owner.city}, ${wantList.owner.province}`}
           </p>
         </div>
         <div className="flex gap-2">
-          {!isOwner && (
+          {authUser && !isOwner && (
             <Button asChild size="sm">
               <Link href={`/profile/${wantList.owner.username}`}>
                 Propose a trade
+              </Link>
+            </Button>
+          )}
+          {!authUser && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/login?next=/want-lists/${id}`}>
+                Sign in to list a matching deck
               </Link>
             </Button>
           )}
@@ -90,7 +95,7 @@ export default async function WantListPage({
         {(wantList.min_value_cents || wantList.max_value_cents) && (
           <p>
             <span className="text-muted-foreground">Value range: </span>
-            {formatPrice(wantList.min_value_cents)} –{' '}
+            {formatPrice(wantList.min_value_cents)} &ndash;{' '}
             {wantList.max_value_cents
               ? formatPrice(wantList.max_value_cents)
               : 'any'}

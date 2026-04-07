@@ -85,9 +85,7 @@ export function DeckCardPreview() {
   if (!hoveredCard?.scryfall_id) {
     return (
       <div className="bg-muted/30 flex aspect-[2.5/3.5] w-full items-center justify-center rounded-xl border border-white/5">
-        <p className="text-muted-foreground text-xs">
-          Hover a card to preview
-        </p>
+        <p className="text-muted-foreground text-xs">Hover a card to preview</p>
       </div>
     )
   }

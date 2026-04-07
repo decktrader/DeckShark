@@ -58,7 +58,11 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
         <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
           <div className="flex items-center gap-2">
             {deck.owner.avatar_url ? (
-              <img src={deck.owner.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+              <img
+                src={deck.owner.avatar_url}
+                alt=""
+                className="h-6 w-6 rounded-full object-cover"
+              />
             ) : (
               <div className="bg-primary/40 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white">
                 {deck.owner.username.charAt(0).toUpperCase()}
@@ -71,7 +75,7 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
               <p className="text-muted-foreground truncate text-[10px]">
                 {deck.owner.city && deck.owner.province
                   ? `${deck.owner.city}, ${deck.owner.province}`
-                  : deck.owner.province ?? ''}
+                  : (deck.owner.province ?? '')}
               </p>
             </div>
           </div>
@@ -183,9 +187,7 @@ export default async function BrowseDecksPage({
         {/* Main content */}
         <div className="flex-1">
           <div className="mb-6">
-            <h1 className="text-3xl font-black tracking-tight">
-              Browse decks
-            </h1>
+            <h1 className="text-3xl font-black tracking-tight">Browse decks</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               {decks.length} deck{decks.length !== 1 ? 's' : ''} available for
               trade

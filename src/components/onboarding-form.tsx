@@ -6,6 +6,7 @@ import { updateUser, isUsernameAvailable } from '@/lib/services/users'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { CityAutocomplete } from '@/components/ui/city-autocomplete'
 import {
   Card,
   CardContent,
@@ -86,7 +87,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
       return
     }
 
-    router.push('/decks/new?onboarding=true')
+    router.push('/decks')
     router.refresh()
   }
 
@@ -115,12 +116,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="city">City</Label>
-            <Input
+            <CityAutocomplete
               id="city"
+              defaultValue={city}
+              onCommit={(v) => setCity(v)}
               placeholder="Your city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              required
             />
           </div>
           <div className="space-y-2">

@@ -111,12 +111,8 @@ export default async function PublicDeckPage({
       highlight: true,
     },
     { label: 'Cards', value: `${totalCards}` },
-    ...(deck.archetype
-      ? [{ label: 'Archetype', value: deck.archetype }]
-      : []),
-    ...(deck.power_level
-      ? [{ label: 'Power', value: deck.power_level }]
-      : []),
+    ...(deck.archetype ? [{ label: 'Archetype', value: deck.archetype }] : []),
+    ...(deck.power_level ? [{ label: 'Power', value: deck.power_level }] : []),
   ]
 
   return (
@@ -173,9 +169,7 @@ export default async function PublicDeckPage({
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium">
-                {deck.owner.username}
-              </span>
+              <span className="text-sm font-medium">{deck.owner.username}</span>
             </Link>
             {deck.owner.completed_trades > 0 && (
               <span className="text-xs text-yellow-400">
@@ -259,7 +253,7 @@ export default async function PublicDeckPage({
 
           {/* Sidebar */}
           <div>
-            <div className="lg:sticky lg:top-24 space-y-3">
+            <div className="space-y-3 lg:sticky lg:top-24">
               {/* Card preview — sticky, follows scroll */}
               <div className="hidden lg:block">
                 <DeckCardPreview />

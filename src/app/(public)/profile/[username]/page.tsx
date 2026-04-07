@@ -113,7 +113,9 @@ export default async function PublicProfilePage({
                     src={user.avatar_url ?? undefined}
                     alt={user.username}
                   />
-                  <AvatarFallback className="text-xl">{initials}</AvatarFallback>
+                  <AvatarFallback className="text-xl">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <h1 className="mt-2 text-lg font-black">{user.username}</h1>
                 {user.city && user.province && (
@@ -145,7 +147,7 @@ export default async function PublicProfilePage({
                   <p className="text-muted-foreground text-xs">Rating</p>
                 </div>
                 <div>
-                  <p className="font-bold text-xs">{joinedDate}</p>
+                  <p className="text-xs font-bold">{joinedDate}</p>
                   <p className="text-muted-foreground text-xs">Joined</p>
                 </div>
               </div>

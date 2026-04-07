@@ -65,7 +65,7 @@ function SidebarSection({
 }) {
   return (
     <div>
-      <p className="text-muted-foreground mb-2.5 text-[10px] font-bold uppercase tracking-widest">
+      <p className="text-muted-foreground mb-2.5 text-[10px] font-bold tracking-widest uppercase">
         {label}
       </p>
       {children}
@@ -103,12 +103,14 @@ interface BrowseSidebarProps {
   resultCount: number
   defaultCity?: string | null
   defaultProvince?: string | null
+  basePath?: string
 }
 
 export function BrowseSidebar({
   resultCount,
   defaultCity,
   defaultProvince,
+  basePath = '/decks',
 }: BrowseSidebarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -138,9 +140,9 @@ export function BrowseSidebar({
     (updates: Record<string, string | string[] | null>) => {
       const next = buildParams(searchParams, updates)
       const str = next.toString()
-      router.replace(str ? `/decks?${str}` : '/decks')
+      router.replace(str ? `${basePath}?${str}` : basePath)
     },
-    [router, searchParams],
+    [router, searchParams, basePath],
   )
 
   // Auto-apply user location on first mount
@@ -161,7 +163,7 @@ export function BrowseSidebar({
   }, [])
 
   function clearFilters() {
-    router.replace('/decks')
+    router.replace(basePath)
   }
 
   function toggleQuick(updates: Record<string, string | null>) {

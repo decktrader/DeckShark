@@ -152,10 +152,7 @@ export default async function DashboardPage() {
           {wlList.length === 0 ? (
             <p className="text-muted-foreground text-sm">
               No want lists yet.{' '}
-              <Link
-                href="/want-lists/new"
-                className="text-primary underline"
-              >
+              <Link href="/want-lists/new" className="text-primary underline">
                 Create one
               </Link>{' '}
               to let others know what you&apos;re looking for.

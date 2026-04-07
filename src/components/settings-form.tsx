@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { updateUser, isUsernameAvailable } from '@/lib/services/users'
 import { createClient } from '@/lib/supabase/client'
 import type { User, NotificationPreferences } from '@/types'
@@ -10,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { CityAutocomplete } from '@/components/ui/city-autocomplete'
 import {
   Card,
   CardContent,
@@ -143,7 +143,11 @@ function AvatarUpload({
           disabled={uploading}
           className="text-primary text-xs font-medium hover:underline"
         >
-          {uploading ? 'Uploading...' : preview ? 'Change photo' : 'Upload photo'}
+          {uploading
+            ? 'Uploading...'
+            : preview
+              ? 'Change photo'
+              : 'Upload photo'}
         </button>
         {preview && !uploading && (
           <button
@@ -262,7 +266,7 @@ export function SettingsForm({ user }: { user: User }) {
                 <p className="text-muted-foreground text-xs">Rating</p>
               </div>
               <div>
-                <p className="font-bold text-xs">{joinedDate}</p>
+                <p className="text-xs font-bold">{joinedDate}</p>
                 <p className="text-muted-foreground text-xs">Joined</p>
               </div>
             </div>
@@ -297,11 +301,11 @@ export function SettingsForm({ user }: { user: User }) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="city">City</Label>
-                  <Input
+                  <CityAutocomplete
                     id="city"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    required
+                    defaultValue={city}
+                    onCommit={(v) => setCity(v)}
+                    placeholder="Your city"
                   />
                 </div>
               </div>
