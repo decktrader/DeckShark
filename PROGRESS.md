@@ -3,7 +3,7 @@
 ## Current Focus
 
 **Milestone:** M20 UX Overhaul — Complete
-**Status:** M20 merged to main. Browse-first landing page, onboarding fix, city autocomplete, public want-list detail.
+**Status:** M20 fully shipped to production. Landing page redesigned through iterative preview workflow (v4c4 selected). All changes live on deckshark.gg.
 **Next step:** M17 (Rate Limiting) or M21 (Remote Interest Signal).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
@@ -41,10 +41,10 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
-### 2026-04-06 — M20 UX Overhaul: Browse-First Funnel
+### 2026-04-06 — M20 UX Overhaul: Browse-First Funnel + Landing Page Redesign
 
-**Done:** Redesigned landing page from hero-heavy to browse-first layout. Landing page now shows full deck browse grid with filter sidebar (reused BrowseSidebar with new `basePath` prop), compact hero strip at top, contextual value signals ("In-person trades only", "Free to use", "Prices from Scryfall"), and bottom CTA. Onboarding now redirects to `/decks` (browse) instead of `/decks/new?onboarding=true`. Removed onboarding-specific welcome banner from decks/new page. Replaced plain city text inputs with CityAutocomplete component in both onboarding-form and settings-form. Made want-list detail page public (moved from `(protected)` to `(public)` route group) with "Sign in to list a matching deck" prompt for unauthenticated users. Cleaned up unused `Link` import in settings-form.
-**Next:** Merge M20 PR. Continue with M17 (Rate Limiting).
+**Done:** Full M20 implementation driven by PM feedback (reduce TTV, browse-first, engagement-triggered auth). Explored 12+ landing page variants through iterative preview workflow (V1-V4, V4A-V4D, V4C1-V4C4). Selected V4C4: split hero with 3-step action flow (browse → propose → meet up) on left, two featured decks with blurred art background on right. Featured decks rotate every 12 hours. Removed "always free/always local" wording to avoid false impressions before shipping/fees launch. Onboarding redirects to `/decks` instead of forced deck creation. City autocomplete on onboarding + settings forms. Want-list detail moved to public route with auth prompt. Added M21 (Remote Interest Signal) milestone to PLAN.md. All changes shipped to production on deckshark.gg.
+**Next:** M17 (Rate Limiting) or M21 (Remote Interest Signal).
 
 ### 2026-04-05 — Full UI redesign + card hover preview + avatar upload
 
