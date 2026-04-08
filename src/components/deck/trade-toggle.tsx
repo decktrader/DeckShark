@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateDeck } from '@/lib/services/decks'
+import { Switch } from '@/components/ui/switch'
 
 export function TradeToggle({
   deckId,
@@ -32,19 +33,24 @@ export function TradeToggle({
   }
 
   return (
-    <button
+    <div
+      className="flex items-center gap-2"
       onClick={(e) => {
         e.preventDefault()
-        toggle()
+        e.stopPropagation()
       }}
-      disabled={isPending}
-      className={`rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-        available
-          ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400'
-          : 'bg-muted text-muted-foreground hover:bg-muted/80'
-      }`}
     >
-      {available ? 'For trade' : 'Not listed'}
-    </button>
+      <span
+        className={`text-xs ${available ? 'text-emerald-400' : 'text-muted-foreground'}`}
+      >
+        {available ? 'Trading' : 'Private'}
+      </span>
+      <Switch
+        checked={available}
+        onCheckedChange={() => toggle()}
+        disabled={isPending}
+        className="scale-75"
+      />
+    </div>
   )
 }

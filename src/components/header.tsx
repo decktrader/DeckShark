@@ -35,7 +35,9 @@ export async function Header() {
             className="h-9 w-auto"
             priority
           />
-          DeckShark<span className="text-primary">.gg</span>
+          <span className="whitespace-nowrap">
+            DeckShark<span className="text-primary">.gg</span>
+          </span>
         </Link>
 
         {/* Desktop search */}

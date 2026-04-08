@@ -35,14 +35,14 @@ export function DeckCardNew({ deck }: { deck: Deck }) {
           </div>
         </div>
         <div
-          className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-3 py-2"
+          className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-3 py-2.5"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-xs capitalize">
+            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/60 capitalize">
               {deck.format}
             </span>
-            <span className="text-primary text-sm font-bold">
+            <span className="text-lg font-bold text-emerald-400">
               {formatPrice(deck.estimated_value_cents)}
             </span>
           </div>

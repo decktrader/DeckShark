@@ -75,7 +75,7 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
             </div>
           </div>
           <div className="shrink-0 text-right">
-            <p className="text-primary text-sm font-bold">
+            <p className="text-lg font-bold text-emerald-400">
               {formatPrice(deck.estimated_value_cents)}
             </p>
             <p className="text-muted-foreground text-[10px] capitalize">

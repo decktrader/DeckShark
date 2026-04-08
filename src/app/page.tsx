@@ -82,7 +82,7 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-primary text-sm font-bold">
+            <p className="text-lg font-bold text-emerald-400">
               {formatPrice(deck.estimated_value_cents)}
             </p>
             <span className="text-muted-foreground text-[10px] capitalize">
@@ -326,7 +326,7 @@ export default async function HomePage({
                                 </p>
                               </div>
                             </div>
-                            <p className="text-primary text-sm font-bold">
+                            <p className="text-lg font-bold text-emerald-400">
                               {formatPrice(deck.estimated_value_cents)}
                             </p>
                           </div>
