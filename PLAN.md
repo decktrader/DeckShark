@@ -253,6 +253,42 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 
 ---
 
+## Milestone 23: Observability & Monitoring (pre-growth blocker)
+
+**Goal:** Stop flying blind. Get error tracking, performance monitoring, and deploy verification in place before real users hit the platform. Inspired by Tipped's production setup — they have Sentry + Vercel Analytics + health checks and it's caught issues that would have gone unnoticed.
+
+**Build:**
+
+- **Sentry integration** — install `@sentry/nextjs`, configure for client/server/edge errors. Add session replay (with CSP-safe `beforeSend` filter for rrweb EvalError noise, per Tipped's experience). Wire up global error boundary with Sentry reporting. Use `SENTRY_DSN` env var, add to `.env.example`.
+- **Health check endpoint** (`/api/health`) — verify Supabase connectivity (simple query), check required env vars are set, return JSON with status + timestamp. Use as post-deploy verification target.
+- **Vercel Analytics** — add `@vercel/analytics` for page views and Web Vitals. Add `@vercel/speed-insights` for performance tracking. Both are drop-in `<Analytics />` and `<SpeedInsights />` components in root layout.
+- **Post-deploy smoke test** — GitHub Action that runs after Vercel deploy, hits `/api/health` on the deployment URL, fails the check if unhealthy. Prevents silent deploy breakage.
+- **Vercel ignore build script** (`scripts/vercel-ignore-build.sh`) — skip Vercel builds for doc-only changes (PLAN.md, PROGRESS.md, DECISIONS.md, README.md). Saves build minutes as the repo grows.
+
+**Depends on:** None (should be done FIRST — highest priority infrastructure gap)
+
+---
+
+## Milestone 24: Email Polish & Re-engagement
+
+**Goal:** Professional email experience and automated re-engagement. Current state: trade/want-list notifications work via Resend, but auth emails are generic Supabase defaults, and there's no re-engagement for inactive users.
+
+**Build:**
+
+- **Branded auth emails** — replace all 5 default Supabase email templates with custom branded HTML (confirm signup, reset password, magic link, change email, invite). Use DeckShark branding, colors, and logo. Configure in Supabase dashboard (Auth → Email Templates) or via config.toml for local dev.
+- **Re-engagement cron job** — daily Vercel cron (e.g., 15:00 UTC) that emails users inactive for 14+ days. Batch limit 50 per run. Track `last_nudge_sent_at` on users table (migration required). Content: "Your decks are waiting — X traders in [city] are browsing." HMAC-signed unsubscribe link.
+- **Unsubscribe handling** — `/api/email/unsubscribe` route supporting both GET (browser click) and POST (RFC 8058 List-Unsubscribe). HMAC verification to prevent abuse. Update `email_updates_opt_in` or notification preferences.
+- **Data export** (PIPEDA compliance) — restore `/api/account/export` endpoint (was removed in April 5 session). Export user's decks, trades, reviews, want lists as JSON. Important for privacy compliance alongside existing account deletion.
+
+**Migration `0XX_nudge_tracking.sql`:**
+
+- Add `last_nudge_sent_at timestamptz` and `email_updates_opt_in boolean DEFAULT true` to `users` table.
+- Create RPC `get_inactive_users_for_nudge()` — returns users where last tip/trade/login was 14+ days ago, `email_updates_opt_in = true`, and `last_nudge_sent_at` is null or 7+ days ago.
+
+**Depends on:** None (can run in parallel with M17/M18)
+
+---
+
 ## Milestone 17: Rate Limiting & Abuse Prevention
 
 **Goal:** Every public and mutation API route has real, production-safe rate limiting.
@@ -299,6 +335,7 @@ CREATE INDEX idx_decks_browse ON decks(user_id, available_for_trade, status);
 - **Fix profile page waterfall** — fetch user, decks, and reviews in parallel with `Promise.all()`.
 - **Use `next/image`** everywhere — replace raw `<img>` tags in trade detail and landing page.
 - **Add fetch timeout** to Scryfall API calls (10s).
+- **Batch RPC functions** — follow Tipped's pattern of eliminating N+1 queries with Postgres functions. Candidate: `get_browse_decks()` that returns decks + owner info + interest counts in a single query instead of sequential fetches. Profile page: single RPC for user + decks + reviews + trade stats.
 
 **Depends on:** None (can run in parallel with M16/M17)
 
@@ -347,15 +384,21 @@ CREATE INDEX idx_decks_browse ON decks(user_id, available_for_trade, status);
 
 ### Phase 5: Feedback & Support
 
-- **Feedback form** — accessible from footer or help menu. Category selector (bug/feature/general) + message. Works for logged-in and anonymous users.
-- **Feedback inbox** — admin view with status filters (new/reviewed/archived). Add internal notes.
+- **Feedback form** — accessible from footer or help menu. Category selector (bug/feature/general) + message. Works for logged-in and anonymous users. Collect metadata automatically: page_url, page_route, viewport, device, referrer, client errors (per Tipped's pattern — this context is invaluable for debugging reports).
+- **Feedback inbox** — admin view with status filters (new/reviewed/archived). Triage by sentiment. Add internal notes.
 - **Email delivery stats** — surface Resend delivery/bounce rates (via Resend API) on the admin dashboard.
 
 ### Phase 6: Platform Health
 
 - **Rate limit dashboard** — show top rate-limited IPs/users, hit counts by endpoint (requires logging rate limit events to a table or reading from Upstash).
-- **Error summary** — aggregate recent server errors by route/type (lightweight — can start with a simple error logging table).
+- **Sentry integration in admin** — embed Sentry error feed or build lightweight error summary by route/type (M23 must be in place first).
 - **Storage usage** — deck-photos bucket size and growth (Supabase Storage API).
+
+### Phase 7: Anti-Gaming & Trade Quality
+
+- **Outlier detection trigger** on `trades` INSERT/UPDATE — flag trades where value difference is suspiciously lopsided (e.g., $500 deck offered for $20 deck with no cash). Only activates when baseline trade data exists. Flagged trades excluded from public stats, queued for admin review.
+- **Review spam detection** — flag reviews from accounts with no completed trades, or duplicate review text across users.
+- **Audit log** — track all admin actions (suspend, flag, edit, delete) with admin_user_id, timestamp, target_type, target_id, details JSONB. Required for accountability as platform grows.
 
 **Build:**
 

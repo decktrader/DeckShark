@@ -4,7 +4,7 @@
 
 **Milestone:** Full UI redesign pass — Complete
 **Status:** Every page redesigned through iterative preview workflow. Partner commander support, bracket system, header redesign, notification bell all shipped.
-**Next step:** M17 (Rate Limiting), M21 (Remote Interest Signal), or M22 (Notification System).
+**Next step:** M23 (Observability — Sentry, health check, analytics) → M17 (Rate Limiting) → M24 (Email Polish) → M18/M19 → M21/M22.
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 
 ---
@@ -36,6 +36,8 @@
 | **M20: UX Overhaul**            | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt      |
 | **M21: Remote Interest Signal** | Planned  | "I'd trade for this" button, interest counts, owner notifications, demand data for shipping launch                                   |
 | **M22: Notification System**    | Planned  | Centralized bell notifications, notifications table, dropdown inbox, replace scattered badge counts, notification preferences        |
+| **M23: Observability**          | Planned  | Sentry error tracking, health check endpoint, Vercel Analytics, post-deploy smoke tests, build skip script. **Do first.**            |
+| **M24: Email Polish**           | Planned  | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                      |
 | Branch Protection               | Planned  | Protect main branch — require PRs, no direct pushes to production                                                                    |
 
 ## Recent Changes
