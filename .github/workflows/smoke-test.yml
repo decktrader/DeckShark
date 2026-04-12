@@ -1,0 +1,41 @@
+name: Post-Deploy Smoke Test
+
+on:
+  deployment_status:
+
+jobs:
+  smoke-test:
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Get deployment URL
+        id: url
+        run: |
+          URL="${{ github.event.deployment_status.target_url }}"
+          echo "deploy_url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Testing: $URL"
+
+      - name: Wait for deployment to stabilize
+        run: sleep 10
+
+      - name: Health check
+        run: |
+          RESPONSE=$(curl -sf --max-time 30 "${{ steps.url.outputs.deploy_url }}/api/health")
+          STATUS=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['status'])")
+          echo "Health status: $STATUS"
+          echo "$RESPONSE" | python3 -m json.tool
+          if [ "$STATUS" != "healthy" ]; then
+            echo "::error::Deployment is unhealthy!"
+            exit 1
+          fi
+
+      - name: Homepage loads
+        run: |
+          HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" --max-time 30 "${{ steps.url.outputs.deploy_url }}")
+          echo "Homepage HTTP status: $HTTP_CODE"
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Homepage returned $HTTP_CODE"
+            exit 1
+          fi
