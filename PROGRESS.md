@@ -2,8 +2,8 @@
 
 ## Current Focus
 
-**Milestone:** M17 Rate Limiting — Complete
-**Status:** Upstash Redis rate limiting on all API routes. Four tiers: search (30/min), mutation (10/min), notify (20/min), auth (5/min). Graceful fallback when Redis not configured.
+**Milestone:** M23 + M17 both complete and live in production
+**Status:** All observability and rate limiting active: Sentry error tracking, Vercel Analytics + Speed Insights, /api/health, post-deploy smoke test, Upstash Redis rate limiting on all routes.
 **Next step:** M24 (Email Polish) → M18/M19 → M21/M22.
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes.
