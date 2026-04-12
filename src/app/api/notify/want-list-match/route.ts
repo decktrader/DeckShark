@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { sendWantListMatchEmail } from '@/lib/services/email'
-import { rateLimit, rateLimitKey } from '@/lib/rate-limit'
+import { checkRateLimit, getIp, notifyLimiter } from '@/lib/rate-limit'
 
 function adminClient() {
   return createAdminClient(
@@ -19,10 +19,7 @@ async function getUserEmail(userId: string): Promise<string | null> {
 }
 
 export async function POST(request: Request) {
-  const { success } = rateLimit(rateLimitKey(request, 'want-list-match'), {
-    limit: 20,
-    windowMs: 60_000,
-  })
+  const { success } = await checkRateLimit(notifyLimiter, getIp(request))
   if (!success) {
     return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
   }

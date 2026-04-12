@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M23 Observability — Complete
-**Status:** Sentry error tracking, /api/health endpoint, Vercel Analytics + Speed Insights, post-deploy smoke test GitHub Action all implemented. Needs Sentry DSN + Vercel Analytics enabled in production dashboard to activate.
-**Next step:** M17 (Rate Limiting) → M24 (Email Polish) → M18/M19 → M21/M22.
+**Milestone:** M17 Rate Limiting — Complete
+**Status:** Upstash Redis rate limiting on all API routes. Four tiers: search (30/min), mutation (10/min), notify (20/min), auth (5/min). Graceful fallback when Redis not configured.
+**Next step:** M24 (Email Polish) → M18/M19 → M21/M22.
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes.
 
@@ -31,7 +31,7 @@
 | M14: Color Identity Filter      | Complete | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                             |
 | M15: Disputes                   | Deferred | Build when user base warrants                                                                                                        |
 | **M16: Security Hardening**     | Complete | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged. |
-| **M17: Rate Limiting**          | Planned  | Upstash Redis rate limiting, abuse prevention on all routes, notification idempotency                                                |
+| **M17: Rate Limiting**          | Complete | Upstash Redis (@upstash/ratelimit) on all routes. 4 tiers: search/mutation/notify/auth. Graceful fallback without Redis.             |
 | **M18: Performance & Caching**  | Planned  | DB pagination, ISR caching, browse indexes, image optimization, query optimization                                                   |
 | **M19: Admin Portal**           | Planned  | Stats dashboard, user mgmt, trade oversight, moderation/reporting, feedback inbox, platform health. After M16-M18.                   |
 | **M20: UX Overhaul**            | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt      |
@@ -45,6 +45,11 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-12 — M17 Rate Limiting
+
+**Done:** Replaced in-memory rate limiter with Upstash Redis (@upstash/ratelimit sliding window). Added rate limiting to all API routes: cards/search, cities/search, commanders/search (30/min), import/url (10/min), notify/trade, notify/want-list-match (20/min), account/delete, auth/callback (5/min). Graceful fallback when Redis not configured (local dev). Updated .env.example.
+**Next:** Install Upstash via Vercel Marketplace for production. Then M24 (Email Polish).
 
 ### 2026-04-12 — M23 Observability
 

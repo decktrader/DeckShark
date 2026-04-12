@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { checkRateLimit, getIp, authLimiter } from '@/lib/rate-limit'
 
 export async function DELETE(request: Request) {
+  const { success } = await checkRateLimit(authLimiter, getIp(request))
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait a moment.' },
+      { status: 429 },
+    )
+  }
+
   const supabase = await createClient()
   const {
     data: { user },

@@ -4,13 +4,10 @@ import {
   importFromArchidekt,
   extractArchidektId,
 } from '@/lib/importers/archidekt'
-import { rateLimit, rateLimitKey } from '@/lib/rate-limit'
+import { checkRateLimit, getIp, mutationLimiter } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
-  const { success } = rateLimit(rateLimitKey(req, 'import'), {
-    limit: 10,
-    windowMs: 60_000,
-  })
+  const { success } = await checkRateLimit(mutationLimiter, getIp(req))
   if (!success) {
     return NextResponse.json(
       { error: 'Too many requests. Please wait a moment.' },

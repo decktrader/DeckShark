@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { checkRateLimit, getIp, searchLimiter } from '@/lib/rate-limit'
 
 export async function GET(req: NextRequest) {
+  const { success } = await checkRateLimit(searchLimiter, getIp(req))
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait a moment.' },
+      { status: 429 },
+    )
+  }
+
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
   const type = req.nextUrl.searchParams.get('type') ?? ''
   const limit = Math.min(

@@ -1,44 +1,70 @@
-// Simple sliding-window rate limiter.
-// NOTE: In-memory only — effective for single warm instances and development.
-// Replace with Upstash Redis (@upstash/ratelimit) for production scale.
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
 
-interface Window {
-  count: number
-  resetAt: number
-}
+// Gracefully handle missing Upstash credentials (local dev without Redis).
+// Falls back to unlimited when env vars aren't set.
+const hasRedis =
+  !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN
 
-const store = new Map<string, Window>()
+const redis = hasRedis ? Redis.fromEnv() : undefined
 
-interface RateLimitOptions {
-  /** Max requests per window */
-  limit: number
-  /** Window duration in milliseconds */
-  windowMs: number
-}
+// --- Pre-built limiters for different route tiers ---
 
-export function rateLimit(
-  key: string,
-  { limit, windowMs }: RateLimitOptions,
-): { success: boolean; remaining: number } {
-  const now = Date.now()
-  const entry = store.get(key)
+/** Public search endpoints — generous but bounded */
+export const searchLimiter = hasRedis
+  ? new Ratelimit({
+      redis: redis!,
+      limiter: Ratelimit.slidingWindow(30, '60 s'),
+      prefix: 'rl:search',
+    })
+  : null
 
-  if (!entry || now >= entry.resetAt) {
-    store.set(key, { count: 1, resetAt: now + windowMs })
-    return { success: true, remaining: limit - 1 }
-  }
+/** Authenticated mutations — moderate */
+export const mutationLimiter = hasRedis
+  ? new Ratelimit({
+      redis: redis!,
+      limiter: Ratelimit.slidingWindow(10, '60 s'),
+      prefix: 'rl:mutation',
+    })
+  : null
 
-  if (entry.count >= limit) {
-    return { success: false, remaining: 0 }
-  }
+/** Auth-related routes — strict to prevent brute force */
+export const authLimiter = hasRedis
+  ? new Ratelimit({
+      redis: redis!,
+      limiter: Ratelimit.slidingWindow(5, '60 s'),
+      prefix: 'rl:auth',
+    })
+  : null
 
-  entry.count++
-  return { success: true, remaining: limit - entry.count }
-}
+/** Notification sending — prevent email spam */
+export const notifyLimiter = hasRedis
+  ? new Ratelimit({
+      redis: redis!,
+      limiter: Ratelimit.slidingWindow(20, '60 s'),
+      prefix: 'rl:notify',
+    })
+  : null
 
-/** Extract a rate-limit key from a Next.js Request (IP + optional suffix). */
-export function rateLimitKey(request: Request, suffix = ''): string {
-  const ip =
+// --- Helpers ---
+
+/** Extract IP from request for use as rate-limit identifier. */
+export function getIp(request: Request): string {
+  return (
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  return suffix ? `${ip}:${suffix}` : ip
+  )
+}
+
+/**
+ * Check rate limit. Returns { success, remaining }.
+ * When Upstash isn't configured (local dev), always allows.
+ */
+export async function checkRateLimit(
+  limiter: Ratelimit | null,
+  identifier: string,
+): Promise<{ success: boolean; remaining: number }> {
+  if (!limiter) return { success: true, remaining: 999 }
+
+  const result = await limiter.limit(identifier)
+  return { success: result.success, remaining: result.remaining }
 }

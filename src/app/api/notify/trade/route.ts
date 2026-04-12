@@ -8,6 +8,7 @@ import {
   sendTradeCounteredEmail,
   sendTradeCompletedEmail,
 } from '@/lib/services/email'
+import { checkRateLimit, getIp, notifyLimiter } from '@/lib/rate-limit'
 
 type TradeEvent =
   | 'proposed'
@@ -36,6 +37,14 @@ async function getUserEmail(userId: string): Promise<string | null> {
 }
 
 export async function POST(request: Request) {
+  const { success } = await checkRateLimit(notifyLimiter, getIp(request))
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait a moment.' },
+      { status: 429 },
+    )
+  }
+
   const supabase = await createClient()
   const {
     data: { user: authUser },
