@@ -56,6 +56,8 @@ export default async function AdminUsersPage({
             <tr className="border-b border-white/5 bg-white/[2%]">
               <th className="px-4 py-3 text-left font-medium">Username</th>
               <th className="px-4 py-3 text-left font-medium">Location</th>
+              <th className="px-4 py-3 text-right font-medium">Decks</th>
+              <th className="px-4 py-3 text-right font-medium">Listed</th>
               <th className="px-4 py-3 text-right font-medium">Trades</th>
               <th className="px-4 py-3 text-right font-medium">Rating</th>
               <th className="px-4 py-3 text-right font-medium">Joined</th>
@@ -82,6 +84,8 @@ export default async function AdminUsersPage({
                     ? `${user.city}, ${user.province}`
                     : (user.province ?? '—')}
                 </td>
+                <td className="px-4 py-3 text-right">{user.deck_count}</td>
+                <td className="px-4 py-3 text-right">{user.listed_count}</td>
                 <td className="px-4 py-3 text-right">
                   {user.completed_trades}
                 </td>

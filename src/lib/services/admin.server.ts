@@ -83,7 +83,8 @@ export async function getGeographicDistribution(): Promise<
 
 export interface AdminUser extends User {
   email?: string
-  deck_count?: number
+  deck_count: number
+  listed_count: number
 }
 
 export async function getAdminUsers(options: {
@@ -99,7 +100,7 @@ export async function getAdminUsers(options: {
 
   let query = supabase
     .from('users')
-    .select('*', { count: 'exact' })
+    .select('*, decks(id, available_for_trade)', { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(from, to)
 
@@ -111,8 +112,24 @@ export async function getAdminUsers(options: {
 
   const { data, error, count } = await query
   if (error) return { data: null, error: error.message }
+
+  const users: AdminUser[] = (data ?? []).map(
+    (row: Record<string, unknown>) => {
+      const decks = (row.decks ?? []) as {
+        id: string
+        available_for_trade: boolean
+      }[]
+      const { decks: _, ...user } = row
+      return {
+        ...user,
+        deck_count: decks.length,
+        listed_count: decks.filter((d) => d.available_for_trade).length,
+      } as AdminUser
+    },
+  )
+
   return {
-    data: { users: (data ?? []) as AdminUser[], total: count ?? 0 },
+    data: { users, total: count ?? 0 },
     error: null,
   }
 }
