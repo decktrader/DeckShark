@@ -8,6 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -61,6 +62,10 @@ export function UserMenu({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuLabel className="font-normal">
+          <span className="text-sm font-medium">{username}</span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/dashboard">Dashboard</Link>
         </DropdownMenuItem>
