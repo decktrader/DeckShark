@@ -55,65 +55,63 @@ function BarChart({
 
   const values = data.map((d) => d[metric])
   const max = Math.max(...values, 1)
-  const chartHeight = 200
-  const barGap = data.length > 60 ? 1 : 2
-  const barWidth = Math.max(
-    2,
-    Math.floor((100 - barGap * data.length) / data.length),
-  )
+  const chartHeight = 220
 
   // Show ~6 date labels evenly spaced
   const labelInterval = Math.max(1, Math.floor(data.length / 6))
 
   return (
     <div>
-      <div className="relative" style={{ height: chartHeight }}>
-        <div className="flex h-full items-end gap-px">
-          {data.map((point) => {
-            const height = max > 0 ? (point[metric] / max) * 100 : 0
-            return (
+      <div className="flex items-end gap-[2px]" style={{ height: chartHeight }}>
+        {data.map((point) => {
+          const value = point[metric]
+          const pct = max > 0 ? (value / max) * 100 : 0
+          // Use pixel height directly for reliability
+          const barHeight = Math.round((pct / 100) * chartHeight)
+          return (
+            <div
+              key={point.date}
+              className="group relative flex-1"
+              style={{ height: chartHeight }}
+            >
               <div
-                key={point.date}
-                className="group relative flex-1"
-                style={{ minWidth: barWidth }}
-              >
-                <div
-                  className="absolute inset-x-0 bottom-0 rounded-t-sm transition-opacity hover:opacity-80"
-                  style={{
-                    height: `${height}%`,
-                    backgroundColor: color,
-                    minHeight: point[metric] > 0 ? 2 : 0,
-                  }}
-                />
-                {/* Tooltip */}
-                <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 rounded-md bg-zinc-800 px-2 py-1 text-xs whitespace-nowrap group-hover:block">
-                  <p className="font-medium">{point[metric]}</p>
-                  <p className="text-muted-foreground">
-                    {formatDate(point.date, data.length > 60)}
-                  </p>
-                </div>
+                className="absolute inset-x-0 bottom-0 rounded-t-sm"
+                style={{
+                  height: value > 0 ? Math.max(barHeight, 4) : 0,
+                  backgroundColor: color,
+                }}
+              />
+              {/* Tooltip */}
+              <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 rounded-md bg-zinc-800 px-2.5 py-1.5 text-xs whitespace-nowrap shadow-lg group-hover:block">
+                <p className="font-bold">{value}</p>
+                <p className="text-muted-foreground">
+                  {formatDate(point.date, data.length > 60)}
+                </p>
               </div>
+            </div>
+          )
+        })}
+      </div>
+      {/* Axis labels */}
+      <div className="mt-2 flex items-center justify-between">
+        <div className="flex flex-1 justify-between">
+          {data
+            .filter(
+              (_, idx) => idx % labelInterval === 0 || idx === data.length - 1,
             )
-          })}
-        </div>
-        {/* Y axis labels */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex flex-col justify-between">
-          <span className="text-muted-foreground text-[10px]">{max}</span>
-          <span className="text-muted-foreground text-[10px]">0</span>
+            .map((point) => (
+              <span
+                key={point.date}
+                className="text-muted-foreground text-[10px]"
+              >
+                {formatDate(point.date, data.length > 60)}
+              </span>
+            ))}
         </div>
       </div>
-      {/* X axis labels */}
-      <div className="mt-1 flex justify-between">
-        {data
-          .filter((_, i) => i % labelInterval === 0 || i === data.length - 1)
-          .map((point) => (
-            <span
-              key={point.date}
-              className="text-muted-foreground text-[10px]"
-            >
-              {formatDate(point.date, data.length > 60)}
-            </span>
-          ))}
+      <div className="text-muted-foreground mt-1 flex justify-between text-[10px]">
+        <span>0</span>
+        <span>{max}</span>
       </div>
     </div>
   )
