@@ -1,8 +1,12 @@
+import Link from 'next/link'
 import {
   getAdminStats,
   getGrowthData,
   getGeographicDistribution,
+  getCardCacheStats,
+  getRecentActivity,
 } from '@/lib/services/admin.server'
+import type { ActivityItem } from '@/lib/services/admin.server'
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
@@ -37,12 +41,16 @@ export default async function AdminDashboardPage() {
     { data: deckGrowth },
     { data: tradeGrowth },
     { data: geo },
+    { data: cardCache },
+    { data: activity },
   ] = await Promise.all([
     getAdminStats(),
     getGrowthData('users', 30),
     getGrowthData('decks', 30),
     getGrowthData('trades', 30),
     getGeographicDistribution(),
+    getCardCacheStats(),
+    getRecentActivity(20),
   ])
 
   const s = stats ?? {
@@ -109,6 +117,69 @@ export default async function AdminDashboardPage() {
         />
       </div>
 
+      {/* Card cache + Activity feed */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Card cache stats */}
+        <div>
+          <h2 className="mb-3 text-lg font-bold">Card cache</h2>
+          <div className="rounded-xl border border-white/5 p-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-2xl font-black">
+                  {cardCache ? cardCache.total_cards.toLocaleString() : '—'}
+                </p>
+                <p className="text-muted-foreground text-xs">Cards cached</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">
+                  {cardCache?.last_synced
+                    ? new Date(cardCache.last_synced).toLocaleDateString(
+                        'en-CA',
+                        {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        },
+                      )
+                    : 'Never'}
+                </p>
+                <p className="text-muted-foreground text-xs">Last synced</p>
+              </div>
+            </div>
+            <p className="text-muted-foreground mt-3 text-xs">
+              Syncs daily at 6:00 AM UTC via Vercel cron. Manual sync:{' '}
+              <Link
+                href="/api/cron/sync-cards"
+                className="text-primary underline"
+                target="_blank"
+              >
+                /api/cron/sync-cards
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Recent activity feed */}
+        <div>
+          <h2 className="mb-3 text-lg font-bold">Recent activity</h2>
+          <div className="rounded-xl border border-white/5">
+            <div className="max-h-72 overflow-y-auto">
+              <div className="divide-y divide-white/5">
+                {(activity ?? []).map((item, i) => (
+                  <ActivityRow key={i} item={item} />
+                ))}
+                {(!activity || activity.length === 0) && (
+                  <p className="text-muted-foreground p-4 text-sm">
+                    No activity yet.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Growth tables */}
       <div className="grid gap-6 lg:grid-cols-3">
         <GrowthTable title="New users (30d)" rows={userGrowth ?? []} />
@@ -137,6 +208,46 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+const ACTIVITY_COLORS: Record<string, string> = {
+  signup: 'bg-violet-500',
+  deck: 'bg-sky-500',
+  trade: 'bg-emerald-500',
+  report: 'bg-red-500',
+  feedback: 'bg-amber-500',
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
+
+function ActivityRow({ item }: { item: ActivityItem }) {
+  return (
+    <div className="flex items-start gap-3 px-4 py-2.5">
+      <div
+        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${ACTIVITY_COLORS[item.type] ?? 'bg-white/20'}`}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm">{item.label}</p>
+        {item.detail && (
+          <p className="text-muted-foreground truncate text-xs">
+            {item.detail}
+          </p>
+        )}
+      </div>
+      <span className="text-muted-foreground shrink-0 text-xs">
+        {timeAgo(item.created_at)}
+      </span>
     </div>
   )
 }

@@ -19,6 +19,134 @@ export async function getAdminStats(): Promise<ServiceResponse<AdminStats>> {
   return { data: data as AdminStats, error: null }
 }
 
+export interface CardCacheStats {
+  total_cards: number
+  last_synced: string | null
+}
+
+export async function getCardCacheStats(): Promise<
+  ServiceResponse<CardCacheStats>
+> {
+  const supabase = await createClient()
+
+  const [countResult, lastSyncResult] = await Promise.all([
+    supabase.from('card_cache').select('*', { count: 'exact', head: true }),
+    supabase
+      .from('card_cache')
+      .select('updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(1),
+  ])
+
+  if (countResult.error) return { data: null, error: countResult.error.message }
+
+  return {
+    data: {
+      total_cards: countResult.count ?? 0,
+      last_synced: lastSyncResult.data?.[0]?.updated_at ?? null,
+    },
+    error: null,
+  }
+}
+
+export interface ActivityItem {
+  type: 'signup' | 'deck' | 'trade' | 'report' | 'feedback'
+  label: string
+  detail: string | null
+  created_at: string
+}
+
+export async function getRecentActivity(
+  limit = 20,
+): Promise<ServiceResponse<ActivityItem[]>> {
+  const supabase = await createClient()
+
+  const [users, decks, trades, reports, feedback] = await Promise.all([
+    supabase
+      .from('users')
+      .select('username, created_at')
+      .order('created_at', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('decks')
+      .select('name, format, created_at')
+      .order('created_at', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('trades')
+      .select(
+        'status, created_at, updated_at, proposer:users!proposer_id(username), receiver:users!receiver_id(username)',
+      )
+      .order('updated_at', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('reports')
+      .select(
+        'target_type, reason, created_at, reporter:users!reporter_id(username)',
+      )
+      .order('created_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('feedback')
+      .select('category, message, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5),
+  ])
+
+  const items: ActivityItem[] = []
+
+  for (const u of users.data ?? []) {
+    items.push({
+      type: 'signup',
+      label: `${u.username} signed up`,
+      detail: null,
+      created_at: u.created_at,
+    })
+  }
+  for (const d of decks.data ?? []) {
+    items.push({
+      type: 'deck',
+      label: `New deck: ${d.name}`,
+      detail: d.format,
+      created_at: d.created_at,
+    })
+  }
+  for (const t of trades.data ?? []) {
+    const proposer = t.proposer as unknown as { username: string }
+    const receiver = t.receiver as unknown as { username: string }
+    items.push({
+      type: 'trade',
+      label: `Trade ${t.status}`,
+      detail: `${proposer.username} → ${receiver.username}`,
+      created_at: t.updated_at,
+    })
+  }
+  for (const r of reports.data ?? []) {
+    const reporter = r.reporter as unknown as { username: string }
+    items.push({
+      type: 'report',
+      label: `Report: ${r.reason}`,
+      detail: `${r.target_type} by ${reporter.username}`,
+      created_at: r.created_at,
+    })
+  }
+  for (const f of feedback.data ?? []) {
+    items.push({
+      type: 'feedback',
+      label: `Feedback (${f.category})`,
+      detail: f.message.slice(0, 80),
+      created_at: f.created_at,
+    })
+  }
+
+  items.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  )
+
+  return { data: items.slice(0, limit), error: null }
+}
+
 export interface GrowthRow {
   date: string
   count: number
