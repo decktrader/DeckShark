@@ -36,6 +36,8 @@ export interface User {
   completed_trades: number
   trade_rating: number
   notification_preferences: NotificationPreferences
+  email_updates_opt_in: boolean
+  last_nudge_sent_at: string | null
   created_at: string
   updated_at: string
 }

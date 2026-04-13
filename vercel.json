@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/sync-cards",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/nudge-inactive",
+      "schedule": "0 15 * * *"
     }
   ],
   "functions": {

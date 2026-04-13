@@ -14,6 +14,8 @@ function makeUser(overrides: Partial<User> = {}): User {
     completed_trades: 0,
     trade_rating: 0,
     notification_preferences: { trade_updates: true, want_list_matches: true },
+    email_updates_opt_in: true,
+    last_nudge_sent_at: null,
     created_at: '2026-01-01T00:00:00Z',
     updated_at: '2026-01-01T00:00:00Z',
     ...overrides,

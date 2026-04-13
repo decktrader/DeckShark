@@ -388,11 +388,12 @@ CREATE INDEX idx_decks_browse ON decks(user_id, available_for_trade, status);
 - **Feedback inbox** — admin view with status filters (new/reviewed/archived). Triage by sentiment. Add internal notes.
 - **Email delivery stats** — surface Resend delivery/bounce rates (via Resend API) on the admin dashboard.
 
-### Phase 6: Platform Health
+### Phase 6: Platform Health & Marketing
 
 - **Rate limit dashboard** — show top rate-limited IPs/users, hit counts by endpoint (requires logging rate limit events to a table or reading from Upstash).
 - **Sentry integration in admin** — embed Sentry error feed or build lightweight error summary by route/type (M23 must be in place first).
 - **Storage usage** — deck-photos bucket size and growth (Supabase Storage API).
+- **Marketing strategy view** — render MARKETING-STRATEGY.md in the admin panel (markdown → HTML). Includes phase timeline, weekly targets, checklist progress, budget tracking. Editable checklist state persisted to a `admin_settings` JSONB table or Edge Config. Gives both devs visibility into marketing progress alongside platform metrics.
 
 ### Phase 7: Anti-Gaming & Trade Quality
 
@@ -532,6 +533,56 @@ End-to-end smoke test for full MVP:
 - **Notification preferences** — settings page toggle for which types generate email vs. in-app only.
 
 **Depends on:** M20 (header redesign with bell icon already in place)
+
+---
+
+## Milestone 25: Mobile Polish & QA (pre-launch blocker)
+
+**Goal:** Every page works flawlessly on mobile after the full UI redesign pass. The redesign introduced two-column layouts, new header with bell/avatar, and accordion forms — all need mobile verification and fixes.
+
+**Build:**
+
+- **Fix iOS hamburger menu bug** — non-responsive tap on iPhone Chrome (right side of header). Use `chrome://inspect` remote DevTools to identify what element is intercepting taps. Suspect: Radix DropdownMenu invisible overlay from UserMenu. Test with UserMenu temporarily removed to confirm.
+- **Mobile QA pass on all redesigned pages:**
+  - Dashboard (frosted gradient cards, deck grid, stat boxes)
+  - Browse (frosted glass sidebar → must collapse to sheet/drawer on mobile)
+  - Deck detail (hero art banner, card hover preview → tap-to-show on mobile)
+  - Deck create/edit (V3B accordion sections, drag-drop photos)
+  - Trade detail (V3D two-column → must stack on mobile, sticky floating actions)
+  - Propose trade (two-column + auto cash calculation)
+  - Want list create/edit (V2B accordion with power level + color identity)
+  - Want list detail (V2B avatar header + criteria pills)
+  - Settings (two-column sticky sidebar → must stack on mobile)
+  - Profile (split sidebar → must stack on mobile)
+  - Onboarding (two-column branding → must stack on mobile)
+  - Landing page (split hero → must stack on mobile)
+- **Touch target sizing** — audit all interactive elements for 48px minimum (buttons, links, toggles, dropdown triggers, accordion headers).
+- **Responsive breakpoint testing** — verify all two-column layouts collapse cleanly at `md` breakpoint. Test at 375px (iPhone SE), 390px (iPhone 14), 412px (Pixel), and 768px (iPad).
+- **Mobile navigation flow** — sheet menu open/close, back navigation, form submission UX, keyboard handling on input fields.
+- **Cross-browser testing** — Safari iOS, Chrome iOS, Chrome Android, Firefox Android.
+
+**Depends on:** None (can start immediately — blocks launch)
+
+---
+
+## Milestone 26: Settings Overhaul
+
+**Goal:** Proper, in-depth settings page with organized sections — currently a single flat page. Should feel like a real account management experience, not a quick form.
+
+**Build:**
+
+- **Tabbed or sidebar navigation** within settings — sections for:
+  - **Profile** — username, avatar, city/province, bio
+  - **Account** — email, password change, linked accounts (Google OAuth)
+  - **Notifications** — granular toggles per notification type (trade proposed, trade accepted, want list match, reviews, marketing/re-engagement emails)
+  - **Privacy & Data** — data export (buried here as a small text link, not prominent), account deletion, visibility preferences
+  - **Appearance** — dark/light mode toggle (if added), display preferences
+- **Data export** — "Download a copy of your data" text link in Privacy & Data section, small and understated. Instant JSON download, one-line description.
+- **Notification preferences granularity** — replace the current single opt-in with per-type toggles that map to a `notification_preferences` JSONB column
+- **Password change flow** — for email auth users (currently missing)
+- **Linked accounts section** — show connected Google account, option to link/unlink
+
+**Depends on:** M24 (email polish sets up the unsubscribe/opt-in infrastructure that notification preferences build on)
 
 ---
 
