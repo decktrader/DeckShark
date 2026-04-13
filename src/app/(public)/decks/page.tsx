@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getPublicDecks } from '@/lib/services/decks.server'
 import type { PublicDeck } from '@/lib/services/decks.server'
 import { getUserById } from '@/lib/services/users.server'
@@ -53,9 +54,11 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
         <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
           <div className="flex min-w-0 items-center gap-2">
             {deck.owner.avatar_url ? (
-              <img
+              <Image
                 src={deck.owner.avatar_url}
                 alt=""
+                width={24}
+                height={24}
                 className="h-6 w-6 shrink-0 rounded-full object-cover"
               />
             ) : (
@@ -117,7 +120,7 @@ export default async function BrowseDecksPage({
     ? params.colorIdentity.split(',').filter(Boolean)
     : undefined
 
-  const { data: allDecks } = await getPublicDecks({
+  const { data: result } = await getPublicDecks({
     format: params.format,
     province: params.province,
     city: params.city,
@@ -131,15 +134,14 @@ export default async function BrowseDecksPage({
     sortBy: params.sortBy as
       | import('@/lib/services/decks.server').SortOption
       | undefined,
+    page,
+    pageSize: PAGE_SIZE,
   })
 
-  const decks = allDecks ?? []
-  const totalPages = Math.max(1, Math.ceil(decks.length / PAGE_SIZE))
+  const pageDecks = result?.decks ?? []
+  const totalDecks = result?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalDecks / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
-  const pageDecks = decks.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  )
 
   function buildUrl(p: number) {
     const qs = new URLSearchParams()
@@ -163,7 +165,7 @@ export default async function BrowseDecksPage({
       <div className="flex gap-6">
         <Suspense>
           <BrowseSidebar
-            resultCount={decks.length}
+            resultCount={totalDecks}
             defaultCity={defaultCity}
             defaultProvince={defaultProvince}
           />
@@ -174,8 +176,7 @@ export default async function BrowseDecksPage({
           <div className="mb-6">
             <h1 className="text-3xl font-black tracking-tight">Browse decks</h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              {decks.length} deck{decks.length !== 1 ? 's' : ''} available for
-              trade
+              {totalDecks} deck{totalDecks !== 1 ? 's' : ''} available for trade
             </p>
           </div>
 

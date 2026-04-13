@@ -60,14 +60,24 @@ interface ScryfallAutocomplete {
   data: string[]
 }
 
+const FETCH_TIMEOUT_MS = 10_000
+
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function fetchWithTimeout(url: string, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController()
+  const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+  return fetch(url, { ...init, signal: controller.signal }).finally(() =>
+    clearTimeout(id),
+  )
 }
 
 export async function autocompleteCards(query: string): Promise<string[]> {
   if (query.length < 2) return []
 
-  const res = await fetch(
+  const res = await fetchWithTimeout(
     `${SCRYFALL_API}/cards/autocomplete?q=${encodeURIComponent(query)}`,
   )
   if (!res.ok) return []
@@ -77,7 +87,7 @@ export async function autocompleteCards(query: string): Promise<string[]> {
 }
 
 export async function searchCards(query: string): Promise<ScryfallCard[]> {
-  const res = await fetch(
+  const res = await fetchWithTimeout(
     `${SCRYFALL_API}/cards/search?q=${encodeURIComponent(query)}&unique=cards&order=name`,
   )
   if (!res.ok) return []
@@ -91,7 +101,7 @@ export async function getCardByName(
   fuzzy = false,
 ): Promise<ScryfallCard | null> {
   const param = fuzzy ? 'fuzzy' : 'exact'
-  const res = await fetch(
+  const res = await fetchWithTimeout(
     `${SCRYFALL_API}/cards/named?${param}=${encodeURIComponent(name)}`,
   )
   if (!res.ok) return null
@@ -106,7 +116,7 @@ export async function getCardsByIds(ids: string[]): Promise<ScryfallCard[]> {
   const results: ScryfallCard[] = []
   for (let i = 0; i < ids.length; i += 75) {
     const batch = ids.slice(i, i + 75)
-    const res = await fetch(`${SCRYFALL_API}/cards/collection`, {
+    const res = await fetchWithTimeout(`${SCRYFALL_API}/cards/collection`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -126,7 +136,7 @@ export async function getCardsByIds(ids: string[]): Promise<ScryfallCard[]> {
 }
 
 export async function getBulkDataUrl(): Promise<string | null> {
-  const res = await fetch(`${SCRYFALL_API}/bulk-data`)
+  const res = await fetchWithTimeout(`${SCRYFALL_API}/bulk-data`)
   if (!res.ok) return null
 
   const data: ScryfallBulkDataResponse = await res.json()

@@ -17,7 +17,7 @@ Scan the full conversation for:
 Read these files for comparison:
 
 - `/Users/jordangraham/Desktop/Projects/DeckTrader/CLAUDE.md`
-- `/Users/jordangraham/.claude/projects/-Users-jordangraham/memory/MEMORY.md` (and any referenced memory files that seem relevant)
+- `/Users/jordangraham/.claude/projects/-Users-jordangraham-Desktop-Projects-DeckTrader/memory/MEMORY.md` (and any referenced memory files that seem relevant)
 - List commands in `/Users/jordangraham/Desktop/Projects/DeckTrader/.claude/commands/`
 
 ### 3. Generate suggestions
@@ -55,9 +55,35 @@ After listing suggestions, add a **Top 3** section ranking the highest-impact ch
 - How much time would the fix save?
 - How bad is the failure mode if it's not fixed?
 
+### 5. Apply changes (MANDATORY)
+
+After generating and displaying suggestions, apply them in two categories:
+
+**Apply immediately** (quick edits that take effect now):
+- CLAUDE.md additions/updates/removals — edit the file directly
+- New memories — create memory files and update MEMORY.md index
+- Memory updates — edit or remove stale memory files, update MEMORY.md
+
+**Add to backlog** (work that needs a future session to implement):
+- New skills or commands to build
+- Larger CLAUDE.md restructuring
+- Anything requiring new code, tests, or multi-file changes
+
+Append backlog items to `/Users/jordangraham/Desktop/Projects/DeckTrader/BACKLOG.md` (create if missing). Format:
+
+```markdown
+### YYYY-MM-DD — <short title>
+- [ ] <actionable item>
+- [ ] <actionable item>
+```
+
+Newest entries at the top. Don't duplicate items already in the backlog.
+
+After applying, list what was saved so the user can verify.
+
 ## Rules
 
 - Only suggest changes backed by specific evidence from the conversation — no speculative improvements
 - Don't suggest things that are already covered in CLAUDE.md or memories
 - Keep suggestions actionable — say exactly what to add/change/remove, not vague directions
-- Do NOT apply any changes — just output the suggestions for review
+- Always apply changes — never leave suggestions as just text output

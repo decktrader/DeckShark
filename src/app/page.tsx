@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getPublicDecks } from '@/lib/services/decks.server'
@@ -60,9 +61,11 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
         <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
           <div className="flex items-center gap-2">
             {deck.owner.avatar_url ? (
-              <img
+              <Image
                 src={deck.owner.avatar_url}
                 alt=""
+                width={24}
+                height={24}
                 className="h-6 w-6 rounded-full object-cover"
               />
             ) : (
@@ -123,7 +126,7 @@ export default async function HomePage({
     ? params.colorIdentity.split(',').filter(Boolean)
     : undefined
 
-  const { data: allDecks } = await getPublicDecks({
+  const { data: result } = await getPublicDecks({
     format: params.format,
     province: params.province,
     city: params.city,
@@ -137,15 +140,14 @@ export default async function HomePage({
     sortBy: params.sortBy as
       | import('@/lib/services/decks.server').SortOption
       | undefined,
+    page,
+    pageSize: PAGE_SIZE,
   })
 
-  const decks = allDecks ?? []
-  const totalPages = Math.max(1, Math.ceil(decks.length / PAGE_SIZE))
+  const pageDecks = result?.decks ?? []
+  const totalDecks = result?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalDecks / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
-  const pageDecks = decks.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  )
 
   const hasFilters =
     params.format ||
@@ -161,7 +163,7 @@ export default async function HomePage({
 
   // Pick 2 random featured decks (that have commander art), rotating daily
   const halfDay = Math.floor(Date.now() / (1000 * 60 * 60 * 12))
-  const withArt = decks.filter((d) => d.commander_scryfall_id)
+  const withArt = pageDecks.filter((d) => d.commander_scryfall_id)
   const featured: PublicDeck[] = []
   if (withArt.length > 0) {
     const i1 = halfDay % withArt.length
@@ -307,9 +309,11 @@ export default async function HomePage({
                           <div className="flex items-center justify-between border-t border-white/5 bg-white/[4%] px-4 py-2.5 backdrop-blur-md">
                             <div className="flex items-center gap-2">
                               {deck.owner.avatar_url ? (
-                                <img
+                                <Image
                                   src={deck.owner.avatar_url}
                                   alt=""
+                                  width={28}
+                                  height={28}
                                   className="h-7 w-7 rounded-full object-cover"
                                 />
                               ) : (
@@ -336,7 +340,7 @@ export default async function HomePage({
                 )}
               </div>
               <p className="text-muted-foreground mt-3 text-center text-xs">
-                Featured decks · {decks.length} total available
+                Featured decks · {totalDecks} total available
               </p>
             </div>
           )}
@@ -348,7 +352,7 @@ export default async function HomePage({
         <div className="flex gap-6">
           <Suspense>
             <BrowseSidebar
-              resultCount={decks.length}
+              resultCount={totalDecks}
               defaultCity={defaultCity}
               defaultProvince={defaultProvince}
               basePath="/"
@@ -361,7 +365,7 @@ export default async function HomePage({
                 {hasFilters ? 'Matching decks' : 'All decks'}
               </h2>
               <span className="text-muted-foreground text-sm">
-                {decks.length} available
+                {totalDecks} available
               </span>
             </div>
 

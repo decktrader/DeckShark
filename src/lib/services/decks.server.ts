@@ -30,6 +30,8 @@ export interface PublicDeckFilters {
   archetype?: string
   sortBy?: SortOption
   limit?: number
+  page?: number
+  pageSize?: number
 }
 
 export interface PublicDeck extends Deck {
@@ -45,21 +47,34 @@ export interface PublicDeck extends Deck {
   >
 }
 
+export interface PublicDeckResult {
+  decks: PublicDeck[]
+  total: number
+}
+
 export async function getPublicDecks(
   filters: PublicDeckFilters = {},
-): Promise<ServiceResponse<PublicDeck[]>> {
+): Promise<ServiceResponse<PublicDeckResult>> {
   const supabase = await createClient()
 
-  // Build sort — power level is client-side (custom order), others are DB-level
   const sortBy = filters.sortBy ?? 'recent'
+  const page = filters.page ?? 1
+  const pageSize = filters.pageSize ?? filters.limit ?? 1000
+
+  // When city/province filters or power-level sort are active we must fetch all
+  // rows because those operations happen client-side. Otherwise use DB pagination.
+  const needsClientFilter = !!(filters.city || filters.province)
+  const needsClientSort = sortBy === 'power_asc' || sortBy === 'power_desc'
+  const canDbPaginate = !needsClientFilter && !needsClientSort
+
   let query = supabase
     .from('decks')
     .select(
       '*, owner:users!user_id(id, username, city, province, avatar_url, trade_rating, completed_trades)',
+      { count: 'exact' },
     )
     .eq('available_for_trade', true)
     .eq('status', 'active')
-    .limit(filters.limit ?? 1000)
 
   if (sortBy === 'value_asc') {
     query = query.order('estimated_value_cents', {
@@ -95,7 +110,6 @@ export async function getPublicDecks(
     query = query.eq('power_level', filters.powerLevel)
   }
   if (filters.colorIdentity && filters.colorIdentity.length > 0) {
-    // Deck's color_identity must contain all selected colors
     query = query.contains('color_identity', filters.colorIdentity)
   }
   if (filters.archetype) {
@@ -108,7 +122,14 @@ export async function getPublicDecks(
     query = query.lte('estimated_value_cents', filters.maxValueCents)
   }
 
-  const { data, error } = await query
+  // Apply DB-level pagination when possible
+  if (canDbPaginate) {
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+    query = query.range(from, to)
+  }
+
+  const { data, error, count } = await query
 
   if (error) return { data: null, error: error.message }
 
@@ -126,20 +147,28 @@ export async function getPublicDecks(
 
   // Client-side power level sort (custom ordering, not alphabetical)
   if (sortBy === 'power_asc') {
-    decks = decks.sort(
+    decks.sort(
       (a, b) =>
         (POWER_LEVEL_ORDER[a.power_level ?? ''] ?? 0) -
         (POWER_LEVEL_ORDER[b.power_level ?? ''] ?? 0),
     )
   } else if (sortBy === 'power_desc') {
-    decks = decks.sort(
+    decks.sort(
       (a, b) =>
         (POWER_LEVEL_ORDER[b.power_level ?? ''] ?? 0) -
         (POWER_LEVEL_ORDER[a.power_level ?? ''] ?? 0),
     )
   }
 
-  return { data: decks, error: null }
+  // Client-side pagination when DB pagination wasn't possible
+  let total = count ?? decks.length
+  if (!canDbPaginate) {
+    total = decks.length
+    const from = (page - 1) * pageSize
+    decks = decks.slice(from, from + pageSize)
+  }
+
+  return { data: { decks, total }, error: null }
 }
 
 export async function getPublicDeck(

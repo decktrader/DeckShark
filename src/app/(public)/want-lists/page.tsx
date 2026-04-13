@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { getPublicWantLists } from '@/lib/services/wantlists.server'
 import type { WantListWithOwner } from '@/lib/services/wantlists.server'
 import { Button } from '@/components/ui/button'
@@ -83,6 +84,8 @@ function ColorPips({ colors }: { colors: string[] | null }) {
   )
 }
 
+export const revalidate = 300 // 5 minutes
+
 export const metadata = {
   title: 'Want Lists — DeckShark',
   description: 'See what MTG decks traders across Canada are looking for.',
@@ -98,14 +101,14 @@ export default async function WantListsPage({
   const params = await searchParams
   const page = Math.max(1, Number(params.page ?? 1))
 
-  const { data: allWantLists } = await getPublicWantLists()
-  const wantLists = allWantLists ?? []
-  const totalPages = Math.max(1, Math.ceil(wantLists.length / PAGE_SIZE))
+  const { data: result } = await getPublicWantLists({
+    page,
+    pageSize: PAGE_SIZE,
+  })
+  const pageItems = result?.wantLists ?? []
+  const totalWantLists = result?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalWantLists / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
-  const pageItems = wantLists.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  )
 
   return (
     <main className="container mx-auto max-w-4xl px-4 py-8">
@@ -121,7 +124,7 @@ export default async function WantListsPage({
         </div>
       </div>
 
-      {wantLists.length === 0 ? (
+      {totalWantLists === 0 ? (
         <p className="text-muted-foreground py-20 text-center text-lg">
           No want lists yet.
         </p>
@@ -151,9 +154,11 @@ export default async function WantListsPage({
                         </div>
                         <div className="mt-2 flex items-center gap-2">
                           {wl.owner.avatar_url ? (
-                            <img
+                            <Image
                               src={wl.owner.avatar_url}
                               alt=""
+                              width={24}
+                              height={24}
                               className="h-6 w-6 rounded-full object-cover"
                             />
                           ) : (

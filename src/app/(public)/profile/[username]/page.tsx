@@ -80,12 +80,12 @@ export default async function PublicProfilePage({
 
   if (!user) notFound()
 
-  const [{ data: userDecks }, { data: reviews }] = await Promise.all([
+  const [{ data: deckResult }, { data: reviews }] = await Promise.all([
     getPublicDecks({ userId: user.id }),
     getReviewsForUser(user.id),
   ])
 
-  const decks = userDecks ?? []
+  const decks = deckResult?.decks ?? []
   const revs = reviews ?? []
   const initials = user.username.slice(0, 2).toUpperCase()
   const joinedDate = new Date(user.created_at).toLocaleDateString('en-CA', {

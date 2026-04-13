@@ -40,18 +40,38 @@ export async function getWantList(
   return { data: data as WantListWithOwner, error: null }
 }
 
-export async function getPublicWantLists(): Promise<
-  ServiceResponse<WantListWithOwner[]>
-> {
+export interface PublicWantListResult {
+  wantLists: WantListWithOwner[]
+  total: number
+}
+
+export async function getPublicWantLists(
+  options: { page?: number; pageSize?: number } = {},
+): Promise<ServiceResponse<PublicWantListResult>> {
   const supabase = await createClient()
-  const { data, error } = await supabase
+  const page = options.page ?? 1
+  const pageSize = options.pageSize ?? 20
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
+
+  const { data, error, count } = await supabase
     .from('want_lists')
-    .select('*, owner:users!user_id(id, username, city, province, avatar_url)')
+    .select(
+      '*, owner:users!user_id(id, username, city, province, avatar_url)',
+      { count: 'exact' },
+    )
     .eq('status', 'active')
     .order('created_at', { ascending: false })
+    .range(from, to)
 
   if (error) return { data: null, error: error.message }
-  return { data: data as WantListWithOwner[], error: null }
+  return {
+    data: {
+      wantLists: data as WantListWithOwner[],
+      total: count ?? 0,
+    },
+    error: null,
+  }
 }
 
 // Return available decks that match a given want list
