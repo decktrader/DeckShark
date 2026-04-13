@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import {
   getAdminStats,
-  getGrowthData,
   getGeographicDistribution,
   getCardCacheStats,
   getRecentActivity,
 } from '@/lib/services/admin.server'
 import type { ActivityItem } from '@/lib/services/admin.server'
+import { GrowthMetrics } from '@/components/admin/growth-metrics'
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
@@ -37,17 +37,11 @@ function StatCard({
 export default async function AdminDashboardPage() {
   const [
     { data: stats },
-    { data: userGrowth },
-    { data: deckGrowth },
-    { data: tradeGrowth },
     { data: geo },
     { data: cardCache },
     { data: activity },
   ] = await Promise.all([
     getAdminStats(),
-    getGrowthData('users', 30),
-    getGrowthData('decks', 30),
-    getGrowthData('trades', 30),
     getGeographicDistribution(),
     getCardCacheStats(),
     getRecentActivity(20),
@@ -180,12 +174,8 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Growth tables */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <GrowthTable title="New users (30d)" rows={userGrowth ?? []} />
-        <GrowthTable title="New decks (30d)" rows={deckGrowth ?? []} />
-        <GrowthTable title="New trades (30d)" rows={tradeGrowth ?? []} />
-      </div>
+      {/* Growth metrics */}
+      <GrowthMetrics />
 
       {/* Geographic distribution */}
       {geo && geo.length > 0 && (
@@ -248,48 +238,6 @@ function ActivityRow({ item }: { item: ActivityItem }) {
       <span className="text-muted-foreground shrink-0 text-xs">
         {timeAgo(item.created_at)}
       </span>
-    </div>
-  )
-}
-
-function GrowthTable({
-  title,
-  rows,
-}: {
-  title: string
-  rows: { date: string; count: number }[]
-}) {
-  const total = rows.reduce((sum, r) => sum + r.count, 0)
-
-  return (
-    <div>
-      <h2 className="mb-3 text-lg font-bold">
-        {title}{' '}
-        <span className="text-muted-foreground text-sm font-normal">
-          ({total})
-        </span>
-      </h2>
-      {rows.length === 0 ? (
-        <p className="text-muted-foreground text-sm">No activity</p>
-      ) : (
-        <div className="rounded-xl border border-white/5">
-          <div className="max-h-64 overflow-y-auto">
-            <div className="divide-y divide-white/5">
-              {rows.map((row) => (
-                <div
-                  key={row.date}
-                  className="flex items-center justify-between px-4 py-2"
-                >
-                  <span className="text-muted-foreground text-xs">
-                    {row.date}
-                  </span>
-                  <span className="text-sm font-medium">{row.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

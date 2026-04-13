@@ -19,6 +19,76 @@ export async function getAdminStats(): Promise<ServiceResponse<AdminStats>> {
   return { data: data as AdminStats, error: null }
 }
 
+export type GrowthPeriod = 'day' | 'week' | 'month' | 'year'
+
+export interface GrowthMetrics {
+  new_users: number
+  new_decks: number
+  listed_for_trade: number
+  new_trades: number
+  completed_trades: number
+}
+
+export async function getGrowthMetrics(
+  period: GrowthPeriod,
+): Promise<ServiceResponse<GrowthMetrics>> {
+  const supabase = await createClient()
+
+  const now = new Date()
+  const since = new Date()
+  switch (period) {
+    case 'day':
+      since.setDate(now.getDate() - 1)
+      break
+    case 'week':
+      since.setDate(now.getDate() - 7)
+      break
+    case 'month':
+      since.setMonth(now.getMonth() - 1)
+      break
+    case 'year':
+      since.setFullYear(now.getFullYear() - 1)
+      break
+  }
+  const sinceStr = since.toISOString()
+
+  const [users, decks, listed, trades, completed] = await Promise.all([
+    supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', sinceStr),
+    supabase
+      .from('decks')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', sinceStr),
+    supabase
+      .from('decks')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', sinceStr)
+      .eq('available_for_trade', true),
+    supabase
+      .from('trades')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', sinceStr),
+    supabase
+      .from('trades')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', sinceStr)
+      .eq('status', 'completed'),
+  ])
+
+  return {
+    data: {
+      new_users: users.count ?? 0,
+      new_decks: decks.count ?? 0,
+      listed_for_trade: listed.count ?? 0,
+      new_trades: trades.count ?? 0,
+      completed_trades: completed.count ?? 0,
+    },
+    error: null,
+  }
+}
+
 export interface CardCacheStats {
   total_cards: number
   last_synced: string | null
@@ -247,6 +317,7 @@ export async function getAdminUsers(options: {
         id: string
         available_for_trade: boolean
       }[]
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { decks: _, ...user } = row
       return {
         ...user,
