@@ -250,7 +250,7 @@ export function CounterOfferForm({
             <Input
               type="number"
               min="0"
-              step="1"
+              step="0.01"
               placeholder="0.00"
               className="pl-7"
               value={cashDollars}
