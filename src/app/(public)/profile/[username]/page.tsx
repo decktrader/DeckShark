@@ -8,6 +8,7 @@ import { getReviewsForUser } from '@/lib/services/reviews.server'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DeckArt } from '@/components/deck/deck-art'
 import { Button } from '@/components/ui/button'
+import { ReportButton } from '@/components/report-button'
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
@@ -153,6 +154,9 @@ export default async function PublicProfilePage({
                 Propose a trade
               </Link>
             </Button>
+            <div className="pt-1 text-center">
+              <ReportButton targetType="user" targetId={user.id} />
+            </div>
           </div>
         </div>
 

@@ -38,6 +38,7 @@ export interface User {
   notification_preferences: NotificationPreferences
   email_updates_opt_in: boolean
   last_nudge_sent_at: string | null
+  is_admin: boolean
   created_at: string
   updated_at: string
 }
@@ -150,6 +151,60 @@ export interface WantList {
   status: WantListStatus
   created_at: string
   updated_at: string
+}
+
+export type ReportTargetType = 'user' | 'deck' | 'trade'
+export type ReportStatus = 'open' | 'reviewed' | 'resolved' | 'dismissed'
+export type FeedbackCategory = 'bug' | 'feature' | 'general'
+export type FeedbackStatus = 'new' | 'reviewed' | 'archived'
+
+export interface Report {
+  id: string
+  reporter_id: string
+  target_type: ReportTargetType
+  target_id: string
+  reason: string
+  description: string | null
+  status: ReportStatus
+  admin_notes: string | null
+  resolved_at: string | null
+  resolved_by: string | null
+  created_at: string
+}
+
+export interface Feedback {
+  id: string
+  user_id: string | null
+  category: FeedbackCategory
+  message: string
+  page_url: string | null
+  page_route: string | null
+  user_agent: string | null
+  status: FeedbackStatus
+  admin_notes: string | null
+  created_at: string
+}
+
+export interface UserSuspension {
+  id: string
+  user_id: string
+  reason: string
+  suspended_by: string
+  suspended_at: string
+  expires_at: string | null
+  lifted_at: string | null
+  lifted_by: string | null
+}
+
+export interface AdminStats {
+  total_users: number
+  total_decks: number
+  active_trades: number
+  completed_trades: number
+  total_want_lists: number
+  total_trade_value_cents: number
+  open_reports: number
+  new_feedback: number
 }
 
 // Service response wrapper

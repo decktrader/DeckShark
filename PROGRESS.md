@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M24 (Email Polish) complete
-**Status:** Branded auth emails, HMAC unsubscribe, re-engagement cron, data export all implemented. Ready for production deployment.
-**Next step:** M18 (Performance & Caching) → M19 (Admin Portal) → M21/M22.
+**Milestone:** M19 (Admin Portal) — Phases 1-5 complete
+**Status:** Admin dashboard, user management, trade oversight, reports queue, feedback inbox all implemented. Report button on deck/profile pages, feedback form in footer, suspension system with middleware redirect.
+**Next step:** Apply migration 028 to production. Then M21 (Remote Interest Signal) → M22 (Notification System).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes.
 
@@ -32,8 +32,8 @@
 | M15: Disputes                   | Deferred | Build when user base warrants                                                                                                                |
 | **M16: Security Hardening**     | Complete | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged.         |
 | **M17: Rate Limiting**          | Complete | Upstash Redis (@upstash/ratelimit) on all routes. 4 tiers: search/mutation/notify/auth. Graceful fallback without Redis.                     |
-| **M18: Performance & Caching**  | Planned  | DB pagination, ISR caching, browse indexes, image optimization, query optimization                                                           |
-| **M19: Admin Portal**           | Planned  | Stats dashboard, user mgmt, trade oversight, moderation/reporting, feedback inbox, platform health. After M16-M18.                           |
+| **M18: Performance & Caching**  | Complete | DB pagination (.range()), browse indexes (027), Scryfall fetch timeouts, next/image, ISR on want-lists                                       |
+| **M19: Admin Portal**           | Complete | Stats dashboard, user mgmt, trade oversight, reports queue, feedback inbox, suspension system, report/feedback public components             |
 | **M20: UX Overhaul**            | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt              |
 | **M21: Remote Interest Signal** | Planned  | "I'd trade for this" button, interest counts, owner notifications, demand data for shipping launch                                           |
 | **M22: Notification System**    | Planned  | Centralized bell notifications, notifications table, dropdown inbox, replace scattered badge counts, notification preferences                |
@@ -46,6 +46,15 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-12 — M18 Performance & M19 Admin Portal
+
+**M18 Done:** Migration 027 (browse indexes: idx_decks_browse, idx_decks_value, idx_want_lists_browse). Server-side pagination with .range() + count on getPublicDecks and getPublicWantLists (falls back to client-side when city/province filters or power-level sort active). 10s AbortController timeout on all Scryfall API fetch calls. Replaced raw `<img>` with next/image on homepage, browse, want-lists. ISR revalidate (5min) on want-lists page. Homepage/browse can't use ISR due to auth-dependent default city/province.
+
+**M19 Done:** Migration 028 (is_admin flag with trigger protection, reports table, feedback table, user_suspensions table, get_admin_stats RPC, RLS policies, indexes). Admin service layer (admin.server.ts: stats, growth data, geographic distribution, user management, suspensions, reports, feedback, trades). Admin layout with sidebar nav ((admin)/admin/). 5 admin pages: dashboard (stat cards, 30d growth tables, geographic distribution), users list (searchable, paginated), user detail (decks, reviews, suspend/lift actions), trades (filterable by status), reports queue (resolve/dismiss actions), feedback inbox (mark reviewed/archive). Server actions for suspend/lift/report-update/feedback-update with admin auth check. Suspension middleware redirect to /suspended page. Public ReportButton component on deck detail and profile pages. FeedbackForm component in root layout footer. Branded auth email templates pasted into production Supabase (manual step completed).
+
+**Production needs:** Apply migration 027 + 028. Set testuser as admin via service role.
+**Next:** M21 (Remote Interest Signal) → M22 (Notification System).
 
 ### 2026-04-12 — M24 Email Polish + Production Deploy + Fixes
 

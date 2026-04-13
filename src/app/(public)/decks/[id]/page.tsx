@@ -18,6 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DeckArt } from '@/components/deck/deck-art'
 import { Button } from '@/components/ui/button'
+import { ReportButton } from '@/components/report-button'
 
 const FORMAT_COLORS: Record<string, string> = {
   commander: 'border-violet-500/40 text-violet-300',
@@ -294,6 +295,11 @@ export default async function PublicDeckPage({
                   View {deck.owner.username}&apos;s profile
                 </Link>
               </Button>
+              {authUser && !isOwner && (
+                <div className="pt-2">
+                  <ReportButton targetType="deck" targetId={deck.id} />
+                </div>
+              )}
             </div>
           </div>
         </div>

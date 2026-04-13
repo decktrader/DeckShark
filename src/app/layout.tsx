@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Header } from '@/components/header'
+import { FeedbackForm } from '@/components/feedback-form'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -26,6 +27,9 @@ export default function RootLayout({
       <body>
         <Header />
         {children}
+        <footer className="border-t border-white/5 py-6 text-center">
+          <FeedbackForm />
+        </footer>
         <Analytics />
         <SpeedInsights />
       </body>

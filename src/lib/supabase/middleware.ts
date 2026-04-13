@@ -38,12 +38,55 @@ export async function updateSession(request: NextRequest) {
     '/onboarding',
     '/decks',
     '/trades',
+    '/admin',
   ]
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path))
   if (!user && isProtected) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
+  }
+
+  // Admin routes — require is_admin flag
+  if (user && pathname.startsWith('/admin')) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.is_admin) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // Suspended users — redirect to /suspended for protected routes
+  if (
+    user &&
+    isProtected &&
+    !pathname.startsWith('/admin') &&
+    !pathname.startsWith('/suspended')
+  ) {
+    const { data: suspension } = await supabase
+      .from('user_suspensions')
+      .select('id, expires_at')
+      .eq('user_id', user.id)
+      .is('lifted_at', null)
+      .limit(1)
+      .maybeSingle()
+
+    if (suspension) {
+      // Check if not expired
+      const isActive =
+        !suspension.expires_at || new Date(suspension.expires_at) > new Date()
+      if (isActive) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/suspended'
+        return NextResponse.redirect(url)
+      }
+    }
   }
 
   // Login page — redirect to dashboard if already authenticated
