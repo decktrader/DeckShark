@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M19 (Admin Portal) — Phases 1-5 complete
-**Status:** Admin dashboard, user management, trade oversight, reports queue, feedback inbox all implemented. Report button on deck/profile pages, feedback form in footer, suspension system with middleware redirect.
-**Next step:** Apply migration 028 to production. Then M21 (Remote Interest Signal) → M22 (Notification System).
+**Milestone:** M18 + M19 complete, admin portal live on production
+**Status:** Performance & caching (M18) and admin portal (M19) shipped. Migrations 027-028 applied to production. Admin account (GreatWhite) granted. Growth page, card cache stats, activity feed, user deck counts all in admin. `git push` now permission-blocked — requires explicit CLI approval.
+**Next step:** M21 (Remote Interest Signal) → M22 (Notification System).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes.
 
@@ -47,7 +47,19 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
-### 2026-04-12 — M18 Performance & M19 Admin Portal
+### 2026-04-12 — M18 Performance, M19 Admin Portal, Admin Enhancements
+
+**M18 Done:** Migration 027 (browse indexes). Server-side pagination with .range() on getPublicDecks/getPublicWantLists. 10s Scryfall fetch timeouts. Raw `<img>` → next/image. ISR on want-lists.
+
+**M19 Done:** Migration 028 (is_admin, reports, feedback, user_suspensions, get_admin_stats RPC). Full admin portal: dashboard (8 stat cards, card cache stats, activity feed), user management (searchable, deck/listed counts, suspend/lift), trade oversight (filterable), reports queue (resolve/dismiss), feedback inbox (review/archive). Public ReportButton on deck/profile pages. FeedbackForm in footer. Suspension middleware + /suspended page.
+
+**Admin enhancements:** Growth page with interactive bar charts (7d/30d/90d/1y, click metrics to switch). Username in user menu dropdown. Admin link in header (admin-only). Card cache stats + manual sync link. Recent activity feed. User deck count + listed-for-trade columns.
+
+**Production:** Migrations 027-028 applied. Branded auth email templates pasted into Supabase. GreatWhite account granted admin. `git push` now permission-blocked in settings.local.json.
+
+**Next:** M21 (Remote Interest Signal) → M22 (Notification System). See BACKLOG.md for deferred M19 Phase 6-7 items.
+
+### 2026-04-12 — M18 Performance & M19 Admin Portal (superseded by entry above)
 
 **M18 Done:** Migration 027 (browse indexes: idx_decks_browse, idx_decks_value, idx_want_lists_browse). Server-side pagination with .range() + count on getPublicDecks and getPublicWantLists (falls back to client-side when city/province filters or power-level sort active). 10s AbortController timeout on all Scryfall API fetch calls. Replaced raw `<img>` with next/image on homepage, browse, want-lists. ISR revalidate (5min) on want-lists page. Homepage/browse can't use ISR due to auth-dependent default city/province.
 

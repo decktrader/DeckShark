@@ -31,6 +31,7 @@ Repo: `github.com/decktrader/DeckShark`
 - `(auth)/` — login, register (unauthenticated only)
 - `(public)/` — browsable without login (decks, profiles, want lists)
 - `(protected)/` — requires auth (dashboard, settings, trades)
+- `(admin)/` — requires auth + `is_admin` flag (admin dashboard, users, trades, reports, feedback, growth)
 
 **Route conflict warning:** Never create a static sibling route next to a dynamic `[id]` segment (e.g., `/trades/preview` will be caught by `/trades/[id]` and error). Use a different path prefix instead (e.g., `/trade-preview`).
 
@@ -119,6 +120,7 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 - NEVER add "Generated with Claude Code" or similar attribution to PR descriptions
 - Commit messages: concise, explain WHY and WHAT changed
 - Keep commits minimal — do not batch unrelated changes
+- **NEVER push without explicit user confirmation** — `git push` is blocked in permissions and requires CLI approval. Each push needs its own "yes" even if the user said to push earlier in the session.
 - Direct commits to `main` are fine for straightforward changes
 - Feature branches + PRs for larger or riskier changes
 - One migration owner at a time — announce before writing migrations
@@ -141,7 +143,7 @@ Users just describe what they want done.
 - ESLint with Next.js config for catching bugs
 - Husky + lint-staged runs Prettier and ESLint on every commit automatically
 - Do not argue about formatting — Prettier decides
-- ESLint enforces `react-hooks/set-state-in-effect` — avoid calling setState directly in useEffect bodies. For async data fetching on mount, use `// eslint-disable-next-line react-hooks/set-state-in-effect` with a comment explaining the pattern.
+- ESLint enforces `react-hooks/set-state-in-effect` — this rule is very strict and traces through callbacks. It blocks any function that transitively calls setState inside an effect body, even with disable comments on the calling line. **Working pattern:** server-render initial data as component props, then use event handlers (onClick, onChange) for subsequent fetches that call setState. Never fetch in useEffect — pass initial data from the server component instead.
 
 ## Permissions Hygiene
 
@@ -158,3 +160,5 @@ Before ending a work session, review `.claude/settings.local.json`:
 - Migrations in `supabase/migrations/`, numbered sequentially
 - Use Supabase Auth (email + Google OAuth)
 - Storage for deck photos (`deck-photos` bucket)
+- `is_admin` flag on `users` table is trigger-protected — to set it, temporarily disable the `check_user_update_columns_trigger`, UPDATE, then re-enable. Must use service role or SQL Editor.
+- Admin access: middleware checks `is_admin` on every `/admin/*` request and redirects non-admins to `/dashboard`
