@@ -89,6 +89,91 @@ export async function getGrowthMetrics(
   }
 }
 
+export type ChartRange = '7d' | '30d' | '90d' | '1y'
+
+export interface ChartDataPoint {
+  date: string
+  users: number
+  decks: number
+  listed: number
+  trades: number
+}
+
+export async function getGrowthChartData(
+  range: ChartRange,
+): Promise<ServiceResponse<ChartDataPoint[]>> {
+  const supabase = await createClient()
+
+  const days =
+    range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 365
+
+  const since = new Date()
+  since.setDate(since.getDate() - days)
+  const sinceStr = since.toISOString()
+
+  const [usersRes, decksRes, tradesRes] = await Promise.all([
+    supabase.from('users').select('created_at').gte('created_at', sinceStr),
+    supabase
+      .from('decks')
+      .select('created_at, available_for_trade')
+      .gte('created_at', sinceStr),
+    supabase.from('trades').select('created_at').gte('created_at', sinceStr),
+  ])
+
+  // Group by date bucket (day for 7d/30d, week for 90d/1y)
+  const useWeekly = range === '90d' || range === '1y'
+
+  function toBucket(dateStr: string): string {
+    const d = new Date(dateStr)
+    if (useWeekly) {
+      // Monday of the week
+      const day = d.getUTCDay()
+      const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1)
+      const monday = new Date(d)
+      monday.setUTCDate(diff)
+      return monday.toISOString().slice(0, 10)
+    }
+    return d.toISOString().slice(0, 10)
+  }
+
+  // Initialize all buckets with zeros
+  const buckets: Record<
+    string,
+    { users: number; decks: number; listed: number; trades: number }
+  > = {}
+
+  const cursor = new Date(since)
+  while (cursor <= new Date()) {
+    const key = toBucket(cursor.toISOString())
+    if (!buckets[key]) {
+      buckets[key] = { users: 0, decks: 0, listed: 0, trades: 0 }
+    }
+    cursor.setDate(cursor.getDate() + 1)
+  }
+
+  for (const row of usersRes.data ?? []) {
+    const key = toBucket(row.created_at)
+    if (buckets[key]) buckets[key].users++
+  }
+  for (const row of decksRes.data ?? []) {
+    const key = toBucket(row.created_at)
+    if (buckets[key]) {
+      buckets[key].decks++
+      if (row.available_for_trade) buckets[key].listed++
+    }
+  }
+  for (const row of tradesRes.data ?? []) {
+    const key = toBucket(row.created_at)
+    if (buckets[key]) buckets[key].trades++
+  }
+
+  const points: ChartDataPoint[] = Object.entries(buckets)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, counts]) => ({ date, ...counts }))
+
+  return { data: points, error: null }
+}
+
 export interface CardCacheStats {
   total_cards: number
   last_synced: string | null

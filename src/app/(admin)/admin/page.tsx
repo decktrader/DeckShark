@@ -6,7 +6,6 @@ import {
   getRecentActivity,
 } from '@/lib/services/admin.server'
 import type { ActivityItem } from '@/lib/services/admin.server'
-import { GrowthMetrics } from '@/components/admin/growth-metrics'
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
@@ -173,9 +172,6 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
       </div>
-
-      {/* Growth metrics */}
-      <GrowthMetrics />
 
       {/* Geographic distribution */}
       {geo && geo.length > 0 && (
