@@ -17,6 +17,7 @@ export async function createDeck(
     condition_notes?: string
     includes_sleeves?: boolean
     includes_deckbox?: boolean
+    available_for_trade?: boolean
   },
 ): Promise<ServiceResponse<Deck>> {
   const supabase = createClient()

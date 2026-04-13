@@ -60,6 +60,7 @@ export function DeckForm({ userId }: { userId: string }) {
   const [parseErrors, setParseErrors] = useState<string[]>([])
   const [includesSleeves, setIncludesSleeves] = useState(false)
   const [includesDeckbox, setIncludesDeckbox] = useState(false)
+  const [listForTrade, setListForTrade] = useState(true)
   const [loading, setLoading] = useState(false)
 
   async function handleFetchUrl() {
@@ -145,6 +146,7 @@ export function DeckForm({ userId }: { userId: string }) {
       partner_commander_name: resolvedPartnerName,
       includes_sleeves: includesSleeves,
       includes_deckbox: includesDeckbox,
+      available_for_trade: listForTrade,
     })
 
     if (deckError || !deck) {
@@ -563,15 +565,26 @@ export function DeckForm({ userId }: { userId: string }) {
               )
             })}
           </CardContent>
-          <CardFooter className="border-t px-6 py-4">
+          <CardFooter className="flex-col gap-3 border-t px-6 py-4">
             <Button
               type="submit"
               className="w-full"
               size="lg"
               disabled={loading || !name || (!decklistText && !fetchingUrl)}
             >
-              {loading ? 'Creating deck...' : 'Create deck'}
+              {loading
+                ? 'Creating deck...'
+                : listForTrade
+                  ? 'Create deck and list for trade'
+                  : 'Create deck'}
             </Button>
+            <label className="text-muted-foreground flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={!listForTrade}
+                onCheckedChange={(checked) => setListForTrade(!checked)}
+              />
+              Don&apos;t list for trade yet
+            </label>
           </CardFooter>
         </Card>
       </form>
