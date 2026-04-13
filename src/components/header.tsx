@@ -121,6 +121,14 @@ export async function Header() {
                 </svg>
               </Link>
               <TradeBadge />
+              {profile.is_admin && (
+                <Link
+                  href="/admin"
+                  className="text-muted-foreground hover:bg-accent rounded-full px-3 py-2 text-xs font-medium"
+                >
+                  Admin
+                </Link>
+              )}
               <UserMenu
                 username={profile.username}
                 avatarUrl={profile.avatar_url}
