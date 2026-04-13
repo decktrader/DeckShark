@@ -1,14 +1,14 @@
-# DeckTrader — MTG Deck Exchange
+# DeckShark — MTG Deck Exchange
 
 ## Project Overview
 
-MTG deck trading marketplace. Canada-first, in-person trades.
+MTG deck trading marketplace. Local, in-person trades (not limited to Canada — works globally).
 Stack: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + Supabase + Vercel.
 Repo: `github.com/decktrader/DeckShark`
 
 ## Progress Tracking (MANDATORY)
 
-**At the start of every conversation:** Read PROGRESS.md, DECISIONS.md, and PLAN.md.
+**At the start of every conversation:** Read PROGRESS.md, DECISIONS.md, PLAN.md, and BACKLOG.md (if it exists).
 
 **Before ending any work session, you MUST:**
 
@@ -18,6 +18,8 @@ Repo: `github.com/decktrader/DeckShark`
    - Add an entry to "Recent Changes" with: date, what was done, what's next
 2. Update DECISIONS.md if any non-obvious technical choices were made
 3. These updates are NOT optional. Do them even if the user doesn't ask.
+
+**If the user asks where they left off or what's next:** Show the next milestone from PROGRESS.md, and mention any relevant unchecked BACKLOG.md items that could be tackled alongside it.
 
 **If the user says "continue":** Read the tracking files, pick up from where
 "Next step" left off, and keep going. No need to ask what to do.
@@ -55,13 +57,13 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 ### Data Conventions
 
 - Prices stored as integers (cents), displayed as formatted USD
-- Card data sourced from Scryfall, cached in `card_cache` table
+- Card data sourced from Scryfall, cached in `card_cache` table (PK: `scryfall_id`, not `id`)
 
 ## Local Dev
 
 - `supabase start` — starts local Postgres, Auth, Studio, Inbucket (requires Docker)
 - `supabase stop` → `supabase start` — **safe restart, data is preserved** (Docker volumes intact)
-- `supabase db reset` — ⚠️ **wipes all data**, re-runs migrations + seed.sql. Use only intentionally.
+- `supabase db reset` — ⚠️ **wipes all data**, re-runs migrations + seed.sql. Use only intentionally. Prefer `supabase db push` to apply new migrations without losing data.
 - `.env.development` — local Supabase credentials (committed, shared)
 - `.env.development` includes `SUPABASE_SERVICE_ROLE_KEY` (local demo key) for server-side operations that bypass RLS (e.g., cron sync)
 - `.env.production.local` — real Supabase credentials (gitignored, personal)

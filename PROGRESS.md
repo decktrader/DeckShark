@@ -47,12 +47,12 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
-### 2026-04-12 — M24 Email Polish
+### 2026-04-12 — M24 Email Polish + Production Deploy + Fixes
 
-**Done:** Migration 026: `email_updates_opt_in` and `last_nudge_sent_at` columns on users, `get_inactive_users_for_nudge()` RPC. Rebranded all emails from DeckTrader → DeckShark with purple brand header and tagline. Added `List-Unsubscribe` + `List-Unsubscribe-Post` headers to all outgoing Resend emails (improves deliverability). HMAC-signed `/api/email/unsubscribe` endpoint (GET for browser, POST for RFC 8058). `sendReEngagementEmail()` function. Daily cron `/api/cron/nudge-inactive` at 15:00 UTC (batch 50, updates `last_nudge_sent_at`). Restored `/api/account/export` for PIPEDA data export (JSON download). 5 branded Supabase auth templates (confirm, reset, magic link, email change, invite) in `supabase/templates/`. Added `HMAC_SECRET` to `.env.example`. All 37 tests pass, type-check clean.
-**Production deploy needs:** Run migration 026 on production Supabase. Set `HMAC_SECRET` env var on Vercel. Configure branded auth templates in Supabase dashboard (config.toml only applies locally). Update `RESEND_FROM` to `DeckShark <noreply@deckshark.gg>` once domain is verified in Resend.
-**When shipping launches:** Add "Trading globally" section to re-engagement email below the "New in [city]" local decks. Currently local-only by design since all trades are in-person.
-**Next:** M18 (Performance & Caching) or M19 (Admin Portal).
+**Done:** Migration 026: `email_updates_opt_in` and `last_nudge_sent_at` columns on users, `get_inactive_users_for_nudge()` RPC. Rebranded all emails from DeckTrader → DeckShark with purple brand header and tagline. Added `List-Unsubscribe` + `List-Unsubscribe-Post` headers to all outgoing Resend emails (improves deliverability). HMAC-signed `/api/email/unsubscribe` endpoint (GET for browser, POST for RFC 8058). `sendReEngagementEmail()` with featured local decks (V3C design — big purple stats banner + right-aligned prices). Daily cron `/api/cron/nudge-inactive` at 15:00 UTC (batch 50). Restored `/api/account/export` for PIPEDA data export. 5 branded Supabase auth templates. Migration 026 applied to production. HMAC_SECRET set on Vercel. Marketing strategy doc created (MARKETING-STRATEGY.md). M26 Settings Overhaul milestone added. Cash difference input fixed to allow cents (step="0.01"). New deck form defaults to "Create deck and list for trade" with opt-out checkbox. CLAUDE.md updated: DeckShark branding, not Canada-only, prefer db push over db reset.
+**Production still needs:** Paste branded auth templates into Supabase dashboard (Auth → Email Templates) — config.toml only works locally.
+**When shipping launches:** Add "Trading globally" section to re-engagement email below the "New in [city]" local decks.
+**Next:** M18 (Performance & Caching).
 
 ### 2026-04-12 — M17 Rate Limiting
 

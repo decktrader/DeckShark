@@ -10,6 +10,13 @@ Architectural and implementation decisions made during development. Newest first
 **Rationale:** Why this option won
 -->
 
+## 2026-04-08 — Switch dev server from Turbopack to Webpack
+
+**Context:** Dev server (`pnpm dev`) froze the machine 3 times in a row. Docker showed Supabase containers were fine (~2% CPU). Turbopack was spiking all 8 CPU cores during initial compilation on a 16GB Mac, with Docker already consuming ~2GB for Supabase.
+**Decision:** Changed dev script to `next dev --webpack` with `NODE_OPTIONS='--max-old-space-size=4096'` memory cap.
+**Alternatives considered:** CPU cgroup limits (not practical on macOS), reducing Supabase containers, downgrading Next.js.
+**Rationale:** Webpack uses significantly less CPU than Turbopack. The memory cap prevents Node heap from ballooning. HMR is slightly slower but the system stays responsive. Can revisit Turbopack when the project moves to a beefier machine or Turbopack's resource usage improves.
+
 ## 2026-03-30 — Distance radius filter deferred to future milestone
 
 **Context:** M10.5 browse filter additions included a distance radius filter (10/25/50/100 km, Anywhere). The `users` table stores `city` and `province` text only — no lat/lng coordinates.
