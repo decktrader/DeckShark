@@ -16,5 +16,5 @@
 
 ### 2026-04-12 — Admin growth chart cleanup
 
-- [ ] Delete unused `src/components/admin/growth-metrics.tsx` (replaced by growth-charts.tsx)
-- [ ] Remove unused `getGrowthData` function from admin.server.ts (replaced by getGrowthChartData)
+- [x] Delete unused `src/components/admin/growth-metrics.tsx` (replaced by growth-charts.tsx) — already deleted
+- [x] Remove unused `getGrowthData` function from admin.server.ts (replaced by getGrowthChartData)

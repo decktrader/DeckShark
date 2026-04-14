@@ -207,6 +207,14 @@ export interface AdminStats {
   new_feedback: number
 }
 
+// Deck interest
+export interface DeckInterest {
+  id: string
+  user_id: string
+  deck_id: string
+  created_at: string
+}
+
 // Service response wrapper
 export interface ServiceResponse<T> {
   data: T | null

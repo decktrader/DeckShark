@@ -394,3 +394,34 @@ export async function sendReEngagementEmail({
   )
   await send(to, `Your decks are waiting, ${username}`, html, userId)
 }
+
+// ─── Interest Threshold ─────────────────────────────────────────────────────
+
+export async function sendInterestThresholdEmail({
+  to,
+  userId,
+  username,
+  deckName,
+  deckId,
+  interestCount,
+}: {
+  to: string
+  userId: string
+  username: string
+  deckName: string
+  deckId: string
+  interestCount: number
+}) {
+  const html = emailWrapper(
+    `
+    <p style="font-size:20px;font-weight:700;margin:0 0 8px">🔥 ${interestCount} trader${interestCount !== 1 ? 's' : ''} interested in your deck</p>
+    <p style="color:#555;margin:0 0 8px">Hi ${username},</p>
+    <p style="color:#555;margin:0 0 16px">
+      <strong>${interestCount} people</strong> have expressed interest in your deck <strong>${deckName}</strong>. They'd trade for it if shipping were available — stay tuned!
+    </p>
+    ${ctaButton(`${APP_URL}/decks/${deckId}`, 'View your deck')}
+  `,
+    userId,
+  )
+  await send(to, `${interestCount} traders want your ${deckName}`, html, userId)
+}

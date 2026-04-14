@@ -9,6 +9,8 @@ import { BrowseSidebar } from '@/components/deck/browse-sidebar'
 import { DeckArt } from '@/components/deck/deck-art'
 import { getPowerLevelLabel } from '@/lib/constants'
 import { PaginationNav } from '@/components/ui/pagination-nav'
+import { getInterestCountsForDecks } from '@/lib/services/deck-interests.server'
+import { Heart } from 'lucide-react'
 
 export const metadata = {
   title: 'Browse Decks — DeckShark',
@@ -22,7 +24,13 @@ function formatPrice(cents: number | null): string {
   return `$${(cents / 100).toFixed(2)}`
 }
 
-function DeckCard({ deck }: { deck: PublicDeck }) {
+function DeckCard({
+  deck,
+  interestCount,
+}: {
+  deck: PublicDeck
+  interestCount: number
+}) {
   const commanderLabel = [deck.commander_name, deck.partner_commander_name]
     .filter(Boolean)
     .join(' / ')
@@ -86,6 +94,14 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
             </p>
           </div>
         </div>
+        {interestCount > 0 && (
+          <div className="flex items-center gap-1 border-t border-white/5 bg-white/[2%] px-4 py-1.5">
+            <Heart className="h-3 w-3 text-pink-400" />
+            <span className="text-[10px] text-pink-400/80">
+              {interestCount} interested
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   )
@@ -140,6 +156,11 @@ export default async function BrowseDecksPage({
 
   const pageDecks = result?.decks ?? []
   const totalDecks = result?.total ?? 0
+
+  // Batch-fetch interest counts for this page of decks
+  const { data: interestCounts } = await getInterestCountsForDecks(
+    pageDecks.map((d) => d.id),
+  )
   const totalPages = Math.max(1, Math.ceil(totalDecks / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
 
@@ -188,7 +209,11 @@ export default async function BrowseDecksPage({
             <>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {pageDecks.map((deck) => (
-                  <DeckCard key={deck.id} deck={deck} />
+                  <DeckCard
+                    key={deck.id}
+                    deck={deck}
+                    interestCount={interestCounts?.[deck.id] ?? 0}
+                  />
                 ))}
               </div>
               <PaginationNav

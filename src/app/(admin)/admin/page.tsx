@@ -6,6 +6,7 @@ import {
   getRecentActivity,
 } from '@/lib/services/admin.server'
 import type { ActivityItem } from '@/lib/services/admin.server'
+import { getInterestByCityPair } from '@/lib/services/deck-interests.server'
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
@@ -39,11 +40,13 @@ export default async function AdminDashboardPage() {
     { data: geo },
     { data: cardCache },
     { data: activity },
+    { data: cityPairs },
   ] = await Promise.all([
     getAdminStats(),
     getGeographicDistribution(),
     getCardCacheStats(),
     getRecentActivity(20),
+    getInterestByCityPair(),
   ])
 
   const s = stats ?? {
@@ -172,6 +175,38 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Interest demand by city pair */}
+      {cityPairs && cityPairs.length > 0 && (
+        <div>
+          <h2 className="mb-3 text-lg font-bold">
+            Interest demand (city → city)
+          </h2>
+          <p className="text-muted-foreground mb-3 text-xs">
+            Where interested traders are located vs. where desired decks are
+            listed. Informs shipping launch priority.
+          </p>
+          <div className="rounded-xl border border-white/5">
+            <div className="divide-y divide-white/5">
+              {cityPairs.slice(0, 15).map((row) => (
+                <div
+                  key={`${row.from_city}-${row.to_city}`}
+                  className="flex items-center justify-between px-4 py-2.5"
+                >
+                  <span className="text-sm">
+                    {row.from_city}{' '}
+                    <span className="text-muted-foreground">→</span>{' '}
+                    {row.to_city}
+                  </span>
+                  <span className="text-sm font-medium text-pink-400">
+                    {row.count} interested
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Geographic distribution */}
       {geo && geo.length > 0 && (

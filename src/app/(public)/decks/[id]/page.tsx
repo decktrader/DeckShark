@@ -19,6 +19,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DeckArt } from '@/components/deck/deck-art'
 import { Button } from '@/components/ui/button'
 import { ReportButton } from '@/components/report-button'
+import { InterestToggle } from '@/components/deck/interest-toggle'
+import { getUserById } from '@/lib/services/users.server'
+import { Info } from 'lucide-react'
+import {
+  getInterestCount,
+  hasUserInterest,
+} from '@/lib/services/deck-interests.server'
 
 const FORMAT_COLORS: Record<string, string> = {
   commander: 'border-violet-500/40 text-violet-300',
@@ -70,13 +77,31 @@ export default async function PublicDeckPage({
 
   if (!deck) notFound()
 
-  const [{ data: cards }, { data: photos }] = await Promise.all([
+  const [
+    { data: cards },
+    { data: photos },
+    { data: interestCount },
+    { data: userInterested },
+  ] = await Promise.all([
     getDeckCards(deck.id),
     getDeckPhotos(deck.id),
+    getInterestCount(deck.id),
+    authUser
+      ? hasUserInterest(authUser.id, deck.id)
+      : Promise.resolve({ data: false, error: null }),
   ])
+
+  // Fetch viewer's profile to determine locality
+  const { data: viewerProfile } = authUser
+    ? await getUserById(authUser.id)
+    : { data: null }
 
   const isOwner = authUser?.id === deck.user_id
   const canPropose = !!authUser && !isOwner
+  const isLocal =
+    !!viewerProfile?.city &&
+    !!deck.owner.city &&
+    viewerProfile.city.toLowerCase() === deck.owner.city.toLowerCase()
 
   const primaryPhoto = photos?.find((p) => p.is_primary) ?? photos?.[0]
   const photoUrl = primaryPhoto
@@ -276,12 +301,33 @@ export default async function PublicDeckPage({
                   </div>
                 </div>
               )}
+              {!isOwner && !isLocal && (
+                <InterestToggle
+                  deckId={deck.id}
+                  userId={authUser?.id ?? null}
+                  initialInterested={!!userInterested}
+                  initialCount={interestCount ?? 0}
+                />
+              )}
               {canPropose && (
-                <Button className="w-full" asChild>
-                  <Link href={`/trades/new?deckId=${deck.id}`}>
-                    Propose trade
-                  </Link>
-                </Button>
+                <div className="space-y-1">
+                  <Button
+                    className="w-full"
+                    variant={isLocal ? 'default' : 'outline'}
+                    asChild
+                  >
+                    <Link href={`/trades/new?deckId=${deck.id}`}>
+                      Propose trade
+                    </Link>
+                  </Button>
+                  {!isLocal && deck.owner.city && (
+                    <p className="flex items-center justify-center gap-1 text-[10px] text-amber-400/80">
+                      <Info className="h-3 w-3" />
+                      This trader is in {deck.owner.city} — local meetup
+                      required
+                    </p>
+                  )}
+                </div>
               )}
               {!authUser && (
                 <Button className="w-full" variant="outline" asChild>

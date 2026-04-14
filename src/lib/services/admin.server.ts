@@ -302,41 +302,6 @@ export async function getRecentActivity(
   return { data: items.slice(0, limit), error: null }
 }
 
-export interface GrowthRow {
-  date: string
-  count: number
-}
-
-export async function getGrowthData(
-  table: 'users' | 'decks' | 'trades',
-  days = 30,
-): Promise<ServiceResponse<GrowthRow[]>> {
-  const supabase = await createClient()
-  const since = new Date()
-  since.setDate(since.getDate() - days)
-
-  const { data, error } = await supabase
-    .from(table)
-    .select('created_at')
-    .gte('created_at', since.toISOString())
-    .order('created_at', { ascending: true })
-
-  if (error) return { data: null, error: error.message }
-
-  // Aggregate by date
-  const counts: Record<string, number> = {}
-  for (const row of data ?? []) {
-    const date = row.created_at.slice(0, 10)
-    counts[date] = (counts[date] ?? 0) + 1
-  }
-
-  const rows: GrowthRow[] = Object.entries(counts).map(([date, count]) => ({
-    date,
-    count,
-  }))
-  return { data: rows, error: null }
-}
-
 export async function getGeographicDistribution(): Promise<
   ServiceResponse<{ province: string; count: number }[]>
 > {

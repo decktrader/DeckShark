@@ -10,6 +10,8 @@ import { BrowseSidebar } from '@/components/deck/browse-sidebar'
 import { DeckArt } from '@/components/deck/deck-art'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 import { Button } from '@/components/ui/button'
+import { getInterestCountsForDecks } from '@/lib/services/deck-interests.server'
+import { Heart } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'DeckShark — Trade MTG Decks Near You',
@@ -34,7 +36,13 @@ function scryfallArtUrl(scryfallId: string): string {
   return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
 }
 
-function DeckCard({ deck }: { deck: PublicDeck }) {
+function DeckCard({
+  deck,
+  interestCount,
+}: {
+  deck: PublicDeck
+  interestCount: number
+}) {
   const commanderLabel = [deck.commander_name, deck.partner_commander_name]
     .filter(Boolean)
     .join(' / ')
@@ -93,6 +101,14 @@ function DeckCard({ deck }: { deck: PublicDeck }) {
             </span>
           </div>
         </div>
+        {interestCount > 0 && (
+          <div className="flex items-center gap-1 border-t border-white/5 bg-white/[2%] px-4 py-1.5">
+            <Heart className="h-3 w-3 text-pink-400" />
+            <span className="text-[10px] text-pink-400/80">
+              {interestCount} interested
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   )
@@ -147,6 +163,11 @@ export default async function HomePage({
   const pageDecks = result?.decks ?? []
   const totalDecks = result?.total ?? 0
   const totalPages = Math.max(1, Math.ceil(totalDecks / PAGE_SIZE))
+
+  // Batch-fetch interest counts for this page of decks
+  const { data: interestCounts } = await getInterestCountsForDecks(
+    pageDecks.map((d) => d.id),
+  )
   const safePage = Math.min(page, totalPages)
 
   const hasFilters =
@@ -377,7 +398,11 @@ export default async function HomePage({
               <>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {pageDecks.map((deck) => (
-                    <DeckCard key={deck.id} deck={deck} />
+                    <DeckCard
+                      key={deck.id}
+                      deck={deck}
+                      interestCount={interestCounts?.[deck.id] ?? 0}
+                    />
                   ))}
                 </div>
                 <PaginationNav

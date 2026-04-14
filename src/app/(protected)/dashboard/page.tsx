@@ -8,7 +8,16 @@ import { getUserTrades } from '@/lib/services/trades.server'
 import { isOnboardingComplete } from '@/lib/services/users'
 import { DeckCardNew } from '@/components/deck/deck-card-new'
 import { Button } from '@/components/ui/button'
+import {
+  getTotalInterestForUser,
+  getUserInterestedDecks,
+} from '@/lib/services/deck-interests.server'
+import { Heart, MapPin } from 'lucide-react'
 import type { WantList } from '@/types'
+
+function scryfallArtUrl(id: string) {
+  return `https://cards.scryfall.io/art_crop/front/${id[0]}/${id[1]}/${id}.jpg`
+}
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
@@ -45,12 +54,19 @@ export default async function DashboardPage() {
     redirect('/onboarding')
   }
 
-  const [{ data: decks }, { data: wantLists }, { data: trades }] =
-    await Promise.all([
-      getUserDecks(authUser.id),
-      getUserWantLists(authUser.id),
-      getUserTrades(authUser.id),
-    ])
+  const [
+    { data: decks },
+    { data: wantLists },
+    { data: trades },
+    { data: totalInterest },
+    { data: wantedDecks },
+  ] = await Promise.all([
+    getUserDecks(authUser.id),
+    getUserWantLists(authUser.id),
+    getUserTrades(authUser.id),
+    getTotalInterestForUser(authUser.id),
+    getUserInterestedDecks(authUser.id),
+  ])
 
   const deckList = decks ?? []
   const wlList = wantLists ?? []
@@ -75,7 +91,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat boxes */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <div className="overflow-hidden rounded-xl border border-white/5">
           <div className="h-1 w-full bg-gradient-to-r from-violet-500/80 via-violet-500/30 to-transparent" />
           <div className="p-4 text-center">
@@ -104,6 +120,13 @@ export default async function DashboardPage() {
               {wlList.filter((w) => w.status === 'active').length}
             </p>
             <p className="text-muted-foreground text-xs">Want lists</p>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-white/5">
+          <div className="h-1 w-full bg-gradient-to-r from-pink-500/80 via-pink-500/30 to-transparent" />
+          <div className="p-4 text-center">
+            <p className="text-3xl font-black">{totalInterest ?? 0}</p>
+            <p className="text-muted-foreground text-xs">Interested</p>
           </div>
         </div>
       </div>
@@ -192,6 +215,66 @@ export default async function DashboardPage() {
           )}
         </div>
       </section>
+
+      {/* Wanted decks section */}
+      {(wantedDecks ?? []).length > 0 && (
+        <section className="mt-6 overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-white/[2%] to-transparent">
+          <div className="px-6 py-5">
+            <h2 className="text-lg font-bold">Decks you want</h2>
+            <p className="text-muted-foreground text-xs">
+              {wantedDecks!.length} deck{wantedDecks!.length !== 1 ? 's' : ''}{' '}
+              you&apos;ve voted for shipping
+            </p>
+          </div>
+          <div className="divide-y divide-white/5 px-6 pb-4">
+            {wantedDecks!.map((d) => (
+              <Link
+                key={d.deck_id}
+                href={`/decks/${d.deck_id}`}
+                className="flex items-center gap-4 py-3 transition-colors hover:bg-white/[2%]"
+              >
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
+                  {d.commander_scryfall_id ? (
+                    <div
+                      className="h-full w-full bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url(${scryfallArtUrl(d.commander_scryfall_id)})`,
+                      }}
+                    />
+                  ) : (
+                    <div className="bg-muted h-full w-full" />
+                  )}
+                  <div className="absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/40 to-transparent p-1">
+                    <Heart className="h-3.5 w-3.5 fill-pink-400 text-pink-400" />
+                  </div>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold">{d.name}</p>
+                  <p className="text-muted-foreground truncate text-xs">
+                    {d.commander_name}
+                  </p>
+                  <div className="mt-0.5 flex items-center gap-1.5">
+                    <MapPin className="text-muted-foreground h-3 w-3" />
+                    <span className="text-muted-foreground text-[10px]">
+                      {d.owner_username} · {d.owner_city}
+                    </span>
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-lg font-bold text-emerald-400">
+                    {d.estimated_value_cents
+                      ? `$${(d.estimated_value_cents / 100).toFixed(0)}`
+                      : '—'}
+                  </p>
+                  <p className="text-muted-foreground text-[10px] capitalize">
+                    {d.format}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   )
 }
