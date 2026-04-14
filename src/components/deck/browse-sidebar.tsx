@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -114,7 +114,6 @@ export function BrowseSidebar({
 }: BrowseSidebarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const didInit = useRef(false)
 
   const colorIdentity =
     searchParams.get('colorIdentity')?.split(',').filter(Boolean) ?? []
@@ -145,21 +144,8 @@ export function BrowseSidebar({
     [router, searchParams, basePath],
   )
 
-  // Auto-apply user location on first mount
-  useEffect(() => {
-    if (didInit.current) return
-    didInit.current = true
-    if (
-      !searchParams.has('city') &&
-      !searchParams.has('province') &&
-      defaultProvince
-    ) {
-      updateFilter({
-        province: defaultProvince,
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // No auto-filter on mount — show all decks globally by default.
+  // Users can manually filter by province/city in the sidebar.
 
   function clearFilters() {
     router.replace(basePath)
