@@ -23,6 +23,29 @@ export type WantListStatus = 'active' | 'fulfilled'
 export interface NotificationPreferences {
   trade_updates: boolean
   want_list_matches: boolean
+  review_received: boolean
+  interest_threshold: boolean
+}
+
+export type NotificationType =
+  | 'trade_proposed'
+  | 'trade_countered'
+  | 'trade_accepted'
+  | 'trade_declined'
+  | 'trade_completed'
+  | 'want_list_match'
+  | 'review_received'
+  | 'interest_threshold'
+
+export interface Notification {
+  id: string
+  user_id: string
+  type: NotificationType
+  title: string
+  body: string | null
+  link: string | null
+  read: boolean
+  created_at: string
 }
 
 export interface User {

@@ -5,7 +5,11 @@ import { getUserById } from '@/lib/services/users.server'
 import { HeaderSearch } from '@/components/header-search'
 import { UserMenu } from '@/components/user-menu'
 import { MobileNav } from '@/components/mobile-nav'
-import { TradeBadge } from '@/components/trade-badge'
+import { NotificationBell } from '@/components/notification-bell'
+import {
+  getUserNotifications,
+  getUnreadCount,
+} from '@/lib/services/notifications.server'
 import { Button } from '@/components/ui/button'
 
 export async function Header() {
@@ -15,9 +19,19 @@ export async function Header() {
   } = await supabase.auth.getUser()
 
   let profile = null
+  let initialNotifications: Awaited<
+    ReturnType<typeof getUserNotifications>
+  >['data'] = []
+  let initialUnreadCount = 0
   if (authUser) {
-    const { data } = await getUserById(authUser.id)
+    const [{ data }, { data: notifs }, { data: count }] = await Promise.all([
+      getUserById(authUser.id),
+      getUserNotifications(authUser.id, { limit: 10 }),
+      getUnreadCount(authUser.id),
+    ])
     profile = data
+    initialNotifications = notifs ?? []
+    initialUnreadCount = count ?? 0
   }
 
   return (
@@ -120,7 +134,10 @@ export async function Header() {
                   <path d="M12 5v14" />
                 </svg>
               </Link>
-              <TradeBadge />
+              <NotificationBell
+                initialNotifications={initialNotifications ?? []}
+                initialUnreadCount={initialUnreadCount}
+              />
               {profile.is_admin && (
                 <Link
                   href="/admin"

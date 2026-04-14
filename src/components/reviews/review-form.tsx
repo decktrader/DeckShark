@@ -42,6 +42,12 @@ export function ReviewForm({
     } else {
       setDone(true)
       router.refresh()
+      // Notify reviewee (fire-and-forget)
+      fetch('/api/notify/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ revieweeId, rating, tradeId }),
+      }).catch(() => {})
     }
   }
 

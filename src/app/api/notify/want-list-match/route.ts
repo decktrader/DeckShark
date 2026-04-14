@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { sendWantListMatchEmail } from '@/lib/services/email'
 import { checkRateLimit, getIp, notifyLimiter } from '@/lib/rate-limit'
+import { createNotification } from '@/lib/services/notifications.server'
 
 function adminClient() {
   return createAdminClient(
@@ -100,6 +101,15 @@ export async function POST(request: Request) {
         username: string
         notification_preferences: { want_list_matches: boolean }
       }
+      // Always create in-app notification
+      await createNotification({
+        userId: wlOwner.id,
+        type: 'want_list_match',
+        title: 'Want list match found',
+        body: `${deck.name} by ${owner.username} matches your "${wl.title}" list`,
+        link: `/want-lists/${wl.id}`,
+      })
+
       if (wlOwner.notification_preferences?.want_list_matches === false) return
 
       const email = await getUserEmail(wlOwner.id)

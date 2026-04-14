@@ -9,6 +9,7 @@ import {
   sendTradeCompletedEmail,
 } from '@/lib/services/email'
 import { checkRateLimit, getIp, notifyLimiter } from '@/lib/rate-limit'
+import { createNotification } from '@/lib/services/notifications.server'
 
 type TradeEvent =
   | 'proposed'
@@ -105,6 +106,14 @@ export async function POST(request: Request) {
 
   try {
     if (event === 'proposed') {
+      // Always create in-app notification
+      await createNotification({
+        userId: receiver.id,
+        type: 'trade_proposed',
+        title: 'New trade proposal',
+        body: `${proposer.username} wants to trade for your deck`,
+        link: `/trades/${tradeId}`,
+      })
       if (receiver.notification_preferences?.trade_updates !== false) {
         const email = await getUserEmail(receiver.id)
         if (email) {
@@ -120,6 +129,13 @@ export async function POST(request: Request) {
         }
       }
     } else if (event === 'accepted') {
+      await createNotification({
+        userId: proposer.id,
+        type: 'trade_accepted',
+        title: 'Trade accepted!',
+        body: `${receiver.username} accepted your trade proposal`,
+        link: `/trades/${tradeId}`,
+      })
       if (proposer.notification_preferences?.trade_updates !== false) {
         const email = await getUserEmail(proposer.id)
         if (email) {
@@ -134,6 +150,13 @@ export async function POST(request: Request) {
         }
       }
     } else if (event === 'declined') {
+      await createNotification({
+        userId: proposer.id,
+        type: 'trade_declined',
+        title: 'Trade declined',
+        body: `${receiver.username} declined your trade proposal`,
+        link: `/trades/${tradeId}`,
+      })
       if (proposer.notification_preferences?.trade_updates !== false) {
         const email = await getUserEmail(proposer.id)
         if (email) {
@@ -158,6 +181,13 @@ export async function POST(request: Request) {
       const recipientDecks =
         authUser.id === trade.proposer_id ? receiverDecks : proposerDecks
 
+      await createNotification({
+        userId: otherPartyId,
+        type: 'trade_countered',
+        title: 'Counter-offer received',
+        body: `${counterBy.username} countered your trade offer`,
+        link: `/trades/${tradeId}`,
+      })
       if (otherParty.notification_preferences?.trade_updates !== false) {
         const email = await getUserEmail(otherPartyId)
         if (email) {
@@ -189,12 +219,19 @@ export async function POST(request: Request) {
       const theirDecks =
         authUser.id === trade.proposer_id ? proposerDecks : receiverDecks
 
+      const myUsername =
+        authUser.id === trade.proposer_id
+          ? proposer.username
+          : receiver.username
+      await createNotification({
+        userId: otherPartyId,
+        type: 'trade_completed',
+        title: 'Trade completed',
+        body: `Your trade with ${myUsername} has been marked as complete`,
+        link: `/trades/${tradeId}`,
+      })
       if (otherPartyPrefs.notification_preferences?.trade_updates !== false) {
         const email = await getUserEmail(otherPartyId)
-        const myUsername =
-          authUser.id === trade.proposer_id
-            ? proposer.username
-            : receiver.username
         if (email) {
           await sendTradeCompletedEmail({
             to: email,

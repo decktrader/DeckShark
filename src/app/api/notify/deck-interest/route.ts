@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { sendInterestThresholdEmail } from '@/lib/services/email'
 import { checkRateLimit, getIp, notifyLimiter } from '@/lib/rate-limit'
+import { createNotification } from '@/lib/services/notifications.server'
 
 const THRESHOLDS = [1, 5, 10, 25]
 
@@ -82,7 +83,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
   }
 
-  // Send the email
+  // Always create in-app notification
+  await createNotification({
+    userId: deck.user_id,
+    type: 'interest_threshold',
+    title: `${count} trader${count !== 1 ? 's' : ''} want your deck shipped`,
+    body: `Your ${deck.name} deck is gaining interest from remote traders`,
+    link: `/decks/${deck.id}`,
+  })
+
+  // Send email if opted in
   await sendInterestThresholdEmail({
     to: ownerEmail,
     userId: deck.user_id,
