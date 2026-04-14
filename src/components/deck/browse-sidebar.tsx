@@ -164,6 +164,8 @@ export function BrowseSidebar({
     }
   }
 
+  const isLocal =
+    !!defaultProvince && searchParams.get('province') === defaultProvince
   const isCedh = searchParams.get('powerLevel') === 'bracket5'
   const isOptimized = searchParams.get('powerLevel') === 'bracket4'
   const isUnder200 = searchParams.get('maxValue') === '20000'
@@ -184,6 +186,13 @@ export function BrowseSidebar({
 
         {/* Quick chips */}
         <div className="flex flex-wrap gap-1.5">
+          {defaultProvince && (
+            <QuickChip
+              label="Near me"
+              active={isLocal}
+              onClick={() => toggleQuick({ province: defaultProvince! })}
+            />
+          )}
           <QuickChip
             label="cEDH"
             active={isCedh}
