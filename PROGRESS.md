@@ -4,7 +4,7 @@
 
 **Milestone:** M21 + M22 complete
 **Status:** M21 (Remote Interest Signal) and M22 (Notification System) shipped. Migrations 029-030 applied locally. Centralized notification bell replaces TradeBadge. All events create in-app notifications. Per-type email preferences on settings page.
-**Next step:** Apply migrations 029-030 to production. Then M25 (Mobile Polish & QA) or M26 (Settings Overhaul).
+**Next step:** Apply migrations 029-030 to production Supabase. Then M25 (Mobile Polish & QA) → M28 (Seed Content & Empty States) → M29 (Regional Launch Strategy).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes.
 
@@ -50,6 +50,17 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-14 — M21, M22, Cold Start Fixes, Milestones M27-M30
+
+**M21 Done:** Migration 029 (deck_interests table). "Want this shipped?" voting (V3B: globe info card + purple button) on non-local deck detail pages. Propose trade demoted to outline with amber location warning for non-local decks. Interest badges on browse cards + homepage. Dashboard: "Interested" stat card + "Decks you want" list (V2B). Threshold email notifications at 1/5/10/25. Admin city-pair interest analytics. Removed dead getGrowthData.
+
+**M22 Done:** Migration 030 (notifications table, expanded notification_preferences). NotificationBell dropdown replaces TradeBadge — server-rendered initial data, type-specific icons, mark all read, view all. Full /notifications page. All notify routes create in-app notifications. New /api/notify/review route. Settings: 4 email preference toggles.
+
+**Other:** Removed auto province filter on browse (show all decks globally). Added "Near me" quick filter chip. Removed "Optimized" chip. Dead code audit saved to memory. Added M27 (Stripe tips), M28 (seed content/empty states), M29 (regional launch), M30 (game store partnerships).
+
+**Production needs:** Apply migrations 029-030 to production Supabase.
+**Next:** M25 (Mobile Polish) → M28 (Seed Content) → M29 (Regional Launch).
 
 ### 2026-04-14 — M22 Notification System
 
