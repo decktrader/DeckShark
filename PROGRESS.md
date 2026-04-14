@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M21 complete, remote interest signal live
-**Status:** M21 shipped. Migration 029 applied locally. "Want this shipped?" voting on non-local deck detail pages (purple button, globe info card, amber location warning on propose trade). Interest badges on browse cards. Dashboard "Interested" stat card + "Decks you want" list (V2B). Threshold email notifications at 1/5/10/25. Admin city-pair interest analytics. Dead `getGrowthData` function removed.
-**Next step:** Apply migration 029 to production. Then M22 (Notification System).
+**Milestone:** M21 + M22 complete
+**Status:** M21 (Remote Interest Signal) and M22 (Notification System) shipped. Migrations 029-030 applied locally. Centralized notification bell replaces TradeBadge. All events create in-app notifications. Per-type email preferences on settings page.
+**Next step:** Apply migrations 029-030 to production. Then M25 (Mobile Polish & QA) or M26 (Settings Overhaul).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes.
 
@@ -12,40 +12,47 @@
 
 ## Milestone Status
 
-| Milestone                       | Status   | Notes                                                                                                                                        |
-| ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| M0: Project Scaffolding         | Complete |                                                                                                                                              |
-| M1: Auth & User Profiles        | Complete | Google OAuth deferred to M9                                                                                                                  |
-| M2: Card Data Infrastructure    | Complete |                                                                                                                                              |
-| M3: Deck Management (Phase A)   | Complete | Text import only, URL importers in M4                                                                                                        |
-| M4: Public Browsing             | Complete |                                                                                                                                              |
-| M5: Trading (Phase B)           | Complete | Realtime updates optional polish                                                                                                             |
-| M6: Reviews & Reputation        | Complete |                                                                                                                                              |
-| M7: Want Lists                  | Complete |                                                                                                                                              |
-| M8: Email Notifications         | Complete |                                                                                                                                              |
-| M9: Onboarding & Landing Page   | Complete | Google OAuth deferred                                                                                                                        |
-| M10: Polish & Mobile            | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA                         |
-| M11: Browse Filters             | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand                  |
-| M12: Production Deploy          | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                                            |
-| M13: Counter-Offers             | Complete | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                                      |
-| M14: Color Identity Filter      | Complete | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                                     |
-| M15: Disputes                   | Deferred | Build when user base warrants                                                                                                                |
-| **M16: Security Hardening**     | Complete | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged.         |
-| **M17: Rate Limiting**          | Complete | Upstash Redis (@upstash/ratelimit) on all routes. 4 tiers: search/mutation/notify/auth. Graceful fallback without Redis.                     |
-| **M18: Performance & Caching**  | Complete | DB pagination (.range()), browse indexes (027), Scryfall fetch timeouts, next/image, ISR on want-lists                                       |
-| **M19: Admin Portal**           | Complete | Stats dashboard, user mgmt, trade oversight, reports queue, feedback inbox, suspension system, report/feedback public components             |
-| **M20: UX Overhaul**            | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt              |
-| **M21: Remote Interest Signal** | Complete | "Want this shipped?" vote on non-local decks, interest badges, dashboard wanted list, threshold emails, admin city-pair analytics            |
-| **M22: Notification System**    | Planned  | Centralized bell notifications, notifications table, dropdown inbox, replace scattered badge counts, notification preferences                |
-| **M23: Observability**          | Complete | Sentry, /api/health, Vercel Analytics + Speed Insights, post-deploy smoke test. Needs Sentry DSN + Analytics enabled in prod.                |
-| **M24: Email Polish**           | Complete | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                              |
-| **M25: Mobile Polish & QA**     | Planned  | Fix iOS hamburger bug, mobile QA all redesigned pages, touch targets, responsive breakpoints, cross-browser testing                          |
-| **M26: Settings Overhaul**      | Planned  | Tabbed settings (profile, account, notifications, privacy & data, appearance). Data export buried in Privacy. Per-type notification toggles. |
-| Branch Protection               | Planned  | Protect main branch — require PRs, no direct pushes to production                                                                            |
+| Milestone                       | Status   | Notes                                                                                                                                         |
+| ------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0: Project Scaffolding         | Complete |                                                                                                                                               |
+| M1: Auth & User Profiles        | Complete | Google OAuth deferred to M9                                                                                                                   |
+| M2: Card Data Infrastructure    | Complete |                                                                                                                                               |
+| M3: Deck Management (Phase A)   | Complete | Text import only, URL importers in M4                                                                                                         |
+| M4: Public Browsing             | Complete |                                                                                                                                               |
+| M5: Trading (Phase B)           | Complete | Realtime updates optional polish                                                                                                              |
+| M6: Reviews & Reputation        | Complete |                                                                                                                                               |
+| M7: Want Lists                  | Complete |                                                                                                                                               |
+| M8: Email Notifications         | Complete |                                                                                                                                               |
+| M9: Onboarding & Landing Page   | Complete | Google OAuth deferred                                                                                                                         |
+| M10: Polish & Mobile            | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA                          |
+| M11: Browse Filters             | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand                   |
+| M12: Production Deploy          | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                                             |
+| M13: Counter-Offers             | Complete | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                                       |
+| M14: Color Identity Filter      | Complete | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                                      |
+| M15: Disputes                   | Deferred | Build when user base warrants                                                                                                                 |
+| **M16: Security Hardening**     | Complete | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged.          |
+| **M17: Rate Limiting**          | Complete | Upstash Redis (@upstash/ratelimit) on all routes. 4 tiers: search/mutation/notify/auth. Graceful fallback without Redis.                      |
+| **M18: Performance & Caching**  | Complete | DB pagination (.range()), browse indexes (027), Scryfall fetch timeouts, next/image, ISR on want-lists                                        |
+| **M19: Admin Portal**           | Complete | Stats dashboard, user mgmt, trade oversight, reports queue, feedback inbox, suspension system, report/feedback public components              |
+| **M20: UX Overhaul**            | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt               |
+| **M21: Remote Interest Signal** | Complete | "Want this shipped?" vote on non-local decks, interest badges, dashboard wanted list, threshold emails, admin city-pair analytics             |
+| **M22: Notification System**    | Complete | Centralized bell dropdown + /notifications page, in-app notifications on all events, per-type email preferences, server-rendered initial data |
+| **M23: Observability**          | Complete | Sentry, /api/health, Vercel Analytics + Speed Insights, post-deploy smoke test. Needs Sentry DSN + Analytics enabled in prod.                 |
+| **M24: Email Polish**           | Complete | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                               |
+| **M25: Mobile Polish & QA**     | Planned  | Fix iOS hamburger bug, mobile QA all redesigned pages, touch targets, responsive breakpoints, cross-browser testing                           |
+| **M26: Settings Overhaul**      | Planned  | Tabbed settings (profile, account, notifications, privacy & data, appearance). Data export buried in Privacy. Per-type notification toggles.  |
+| Branch Protection               | Planned  | Protect main branch — require PRs, no direct pushes to production                                                                             |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-14 — M22 Notification System
+
+**Done:** Migration 030 (notifications table, RLS, partial index on unread, expanded notification_preferences with review_received + interest_threshold). NotificationBell dropdown replaces TradeBadge — server-rendered initial data, type-specific icons (Handshake/ArrowLeftRight/CheckCircle/XCircle/Star/Package/Search), unread dots, mark all read, view all link. Full /notifications page with simple list layout. All notify routes (trade, want-list-match, deck-interest) now create in-app notifications alongside emails. New /api/notify/review route + review form fires it on submit. Settings form expanded: 4 email preference toggles (trade updates, want list matches, reviews, shipping interest).
+
+**Production needs:** Apply migrations 029-030 to production Supabase.
+**Next:** M25 (Mobile Polish & QA) or M26 (Settings Overhaul).
 
 ### 2026-04-14 — M21 Remote Interest Signal
 
