@@ -116,11 +116,13 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 
 ## Git & Commit Conventions
 
+> **⚠️ PUSH RULE — READ THIS FIRST:**
+> **NEVER run `git push` without stopping to ask the user.** Every push to `main` triggers a Vercel production deploy. After committing, ALWAYS say "Ready to push — want me to go ahead?" and WAIT. Do NOT chain `&& git push` onto commit commands. Each push needs its own explicit "yes." This applies even if the user said "commit and push" — commit first, then ask before the push.
+
 - NEVER include "Co-Authored-By" lines in commits
 - NEVER add "Generated with Claude Code" or similar attribution to PR descriptions
 - Commit messages: concise, explain WHY and WHAT changed
 - Keep commits minimal — do not batch unrelated changes
-- **NEVER push without explicit user confirmation** — `git push` is blocked in permissions and requires CLI approval. Each push needs its own "yes" even if the user said to push earlier in the session.
 - Direct commits to `main` are fine for straightforward changes
 - Feature branches + PRs for larger or riskier changes
 - One migration owner at a time — announce before writing migrations
