@@ -586,6 +586,36 @@ End-to-end smoke test for full MVP:
 
 ---
 
+## Milestone 27: Support DeckShark (Stripe Tips)
+
+**Goal:** Let users tip/donate to support DeckShark. Sets up Stripe integration that will be reused for shipping fees and marketplace transactions later.
+
+**Migration `031_support_payments.sql`:**
+
+- Create `support_payments` table: `id`, `user_id` (nullable — allow anonymous tips), `amount_cents`, `stripe_session_id`, `stripe_payment_intent_id`, `status` (pending/completed/failed), `message` (optional supporter note), `created_at`. RLS: users can read own, service role inserts/updates.
+- Add `is_supporter` boolean to `users` table (default false), set by webhook on first completed payment.
+
+**Stripe Setup:**
+
+- Create Stripe account, get API keys
+- Env vars: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
+- Add to Vercel env vars for production/preview
+
+**Build:**
+
+- **`/api/stripe/create-checkout`** — creates Stripe Checkout session with preset amounts ($3, $5, $10, $25, custom). Redirects to Stripe hosted checkout.
+- **`/api/stripe/webhook`** — handles `checkout.session.completed`, updates `support_payments` status, sets `is_supporter = true` on user if first payment.
+- **`/support` page** — pitch section ("DeckShark is free, built by one person, and always will be for local trades. Help keep the servers running."), amount buttons ($3/$5/$10/$25/custom), optional message field, Stripe Checkout redirect.
+- **`/support/thanks` page** — thank you message, link back to browse.
+- **Footer link** — "Support DeckShark" on all pages.
+- **Post-trade nudge** — after completing a trade, show a small dismissible card ("Enjoy the trade? Support DeckShark"). Dismissible, shows once per session.
+- **Supporter badge on profiles** — purple heart or similar icon next to username for `is_supporter` users.
+- **Admin dashboard** — total raised, supporter count, recent support payments list.
+
+**Depends on:** Nothing — can build independently.
+
+---
+
 ## Phase 3 Concept: Deck Rotation Subscription (future exploration)
 
 > **Status:** Idea stage — not planned for implementation yet. Captured here for future reference.
