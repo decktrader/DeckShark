@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M18 + M19 complete, admin portal live on production
-**Status:** Performance & caching (M18) and admin portal (M19) shipped. Migrations 027-028 applied to production. Admin account (GreatWhite) granted. Growth page, card cache stats, activity feed, user deck counts all in admin. `git push` now permission-blocked — requires explicit CLI approval.
-**Next step:** M21 (Remote Interest Signal) → M22 (Notification System).
+**Milestone:** M21 complete, remote interest signal live
+**Status:** M21 shipped. Migration 029 applied locally. "Want this shipped?" voting on non-local deck detail pages (purple button, globe info card, amber location warning on propose trade). Interest badges on browse cards. Dashboard "Interested" stat card + "Decks you want" list (V2B). Threshold email notifications at 1/5/10/25. Admin city-pair interest analytics. Dead `getGrowthData` function removed.
+**Next step:** Apply migration 029 to production. Then M22 (Notification System).
 **Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes.
 
@@ -35,7 +35,7 @@
 | **M18: Performance & Caching**  | Complete | DB pagination (.range()), browse indexes (027), Scryfall fetch timeouts, next/image, ISR on want-lists                                       |
 | **M19: Admin Portal**           | Complete | Stats dashboard, user mgmt, trade oversight, reports queue, feedback inbox, suspension system, report/feedback public components             |
 | **M20: UX Overhaul**            | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt              |
-| **M21: Remote Interest Signal** | Planned  | "I'd trade for this" button, interest counts, owner notifications, demand data for shipping launch                                           |
+| **M21: Remote Interest Signal** | Complete | "Want this shipped?" vote on non-local decks, interest badges, dashboard wanted list, threshold emails, admin city-pair analytics            |
 | **M22: Notification System**    | Planned  | Centralized bell notifications, notifications table, dropdown inbox, replace scattered badge counts, notification preferences                |
 | **M23: Observability**          | Complete | Sentry, /api/health, Vercel Analytics + Speed Insights, post-deploy smoke test. Needs Sentry DSN + Analytics enabled in prod.                |
 | **M24: Email Polish**           | Complete | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                              |
@@ -46,6 +46,13 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-14 — M21 Remote Interest Signal
+
+**Done:** Migration 029 (deck_interests table, RLS, indexes, interest_thresholds_notified on decks). Service layer: client toggle (add/remove interest), server batch counts, user wanted decks, admin city-pair analytics. InterestToggle component (V3B): globe info card + purple "Want this shipped?" button on non-local deck detail pages. Propose trade demoted to outline with amber "This trader is in [city] — local meetup required" warning on non-local decks. Browse cards + homepage show pink heart "X interested" badge when count > 0. Dashboard: 5th stat card (pink "Interested" count), "Decks you want" section (V2B — square art thumbnails with heart overlay, commander, map pin, price). Threshold email notifications at 1/5/10/25 interests via /api/notify/deck-interest. Admin dashboard: interest demand by city pair table. Removed dead getGrowthData function + GrowthRow interface. Dead code audit saved to memory for future cleanup.
+
+**Production needs:** Apply migration 029 to production Supabase.
+**Next:** M22 (Notification System).
 
 ### 2026-04-12 — M18 Performance, M19 Admin Portal, Admin Enhancements
 
