@@ -167,7 +167,6 @@ export function BrowseSidebar({
   const isLocal =
     !!defaultProvince && searchParams.get('province') === defaultProvince
   const isCedh = searchParams.get('powerLevel') === 'bracket5'
-  const isOptimized = searchParams.get('powerLevel') === 'bracket4'
   const isUnder200 = searchParams.get('maxValue') === '20000'
 
   return (
@@ -197,11 +196,6 @@ export function BrowseSidebar({
             label="cEDH"
             active={isCedh}
             onClick={() => toggleQuick({ powerLevel: 'bracket5' })}
-          />
-          <QuickChip
-            label="Optimized"
-            active={isOptimized}
-            onClick={() => toggleQuick({ powerLevel: 'bracket4' })}
           />
           <QuickChip
             label="Under $200"
