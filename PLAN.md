@@ -616,6 +616,51 @@ End-to-end smoke test for full MVP:
 
 ---
 
+## Milestone 28: Seed Content & Empty States
+
+**Goal:** Make the platform feel alive for early users. Improve empty states so users in low-activity cities still have a reason to stay and engage.
+
+**Build:**
+
+- **Seed decks** — list 5-10 real decks from your own collections across 2-3 cities. Diverse formats and price ranges. These are real decks, really available for trade.
+- **"Be the first" empty state** — when browse has no local results, replace "No decks match your filters" with: "No decks in [city] yet. You'd be the first! List a deck and we'll notify local traders when they join." CTA button to create a deck.
+- **Want list first nudge** — for users who haven't listed a deck, suggest creating a want list instead. "Don't have a deck to list? Tell us what you're looking for and we'll email you when it shows up." Lower friction than listing a full deck.
+- **"Coming soon to your city" section** — on browse page when few/no local results, show a count of users in the province/city and a teaser: "4 traders in Ontario are watching for decks."
+
+**Depends on:** Nothing — can build immediately.
+
+---
+
+## Milestone 29: Regional Launch Strategy
+
+**Goal:** Achieve critical mass in one city before expanding. Concentrated user base is more valuable than thin global coverage.
+
+**Build:**
+
+- **Game store outreach kit** — one-page PDF or shareable link explaining DeckShark to LGS owners. "Put this QR code at your trade table." Tracks signups via UTM params.
+- **City-specific landing pages** — `/cities/toronto`, `/cities/vancouver` etc. SEO-friendly, show local deck count, local traders, and a CTA. Can be generated from existing data.
+- **Referral tracking** — simple `?ref=username` param on signup. Track who referred whom. No rewards yet, just data. Shows which users are organic evangelists.
+- **Community outreach list** — document target communities: local MTG Facebook groups, Reddit (r/mtgfinance, r/EDH, city subreddits), game store Discords, Commander nights. Not a code feature, but a strategy doc.
+
+**Depends on:** M28 (seed content should be in place before marketing push).
+
+---
+
+## Milestone 30: Game Store Partnerships
+
+**Goal:** Partner with local game stores to drive in-person signups. LGS owners get a tool that increases foot traffic; DeckShark gets concentrated users.
+
+**Build:**
+
+- **Store directory** — `/stores` page listing partner game stores with address, hours, and a "decks available near this store" count. Store owners can claim their listing.
+- **Store badge on decks** — optional "Trades at [Store Name]" tag on deck listings, signaling where the trade meetup would happen. Builds trust.
+- **Store dashboard** — simple page for store owners to see how many trades happened at their location. Social proof for continued partnership.
+- **QR code generator** — per-store QR code linking to DeckShark with store attribution. Print-ready for counter cards or flyers.
+
+**Depends on:** M29 (regional strategy identifies target stores). Could also be Phase 2 if partnerships prove difficult to land early.
+
+---
+
 ## Phase 3 Concept: Deck Rotation Subscription (future exploration)
 
 > **Status:** Idea stage — not planned for implementation yet. Captured here for future reference.
