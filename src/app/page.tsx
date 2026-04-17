@@ -8,10 +8,10 @@ import { getUserById } from '@/lib/services/users.server'
 import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
 import { DeckArt } from '@/components/deck/deck-art'
+import { DeckBrowseCard } from '@/components/deck/deck-browse-card'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 import { Button } from '@/components/ui/button'
 import { getInterestCountsForDecks } from '@/lib/services/deck-interests.server'
-import { Heart } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'DeckShark — Trade MTG Decks Near You',
@@ -34,84 +34,6 @@ function formatPrice(cents: number | null): string {
 
 function scryfallArtUrl(scryfallId: string): string {
   return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
-}
-
-function DeckCard({
-  deck,
-  interestCount,
-}: {
-  deck: PublicDeck
-  interestCount: number
-}) {
-  const commanderLabel = [deck.commander_name, deck.partner_commander_name]
-    .filter(Boolean)
-    .join(' / ')
-
-  return (
-    <Link href={`/decks/${deck.id}`} className="group block">
-      <div className="overflow-hidden rounded-2xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
-        <div className="relative">
-          <DeckArt
-            commanderScryfallId={deck.commander_scryfall_id}
-            partnerScryfallId={deck.partner_commander_scryfall_id}
-            className="transition-transform duration-500 group-hover:scale-105"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <p className="truncate text-sm font-bold text-white drop-shadow-lg">
-              {deck.name}
-            </p>
-            {commanderLabel && (
-              <p className="truncate text-xs text-white/50">{commanderLabel}</p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
-          <div className="flex items-center gap-2">
-            {deck.owner.avatar_url ? (
-              <Image
-                src={deck.owner.avatar_url}
-                alt=""
-                width={24}
-                height={24}
-                className="h-6 w-6 rounded-full object-cover"
-              />
-            ) : (
-              <div className="bg-primary/40 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white">
-                {deck.owner.username.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className="min-w-0">
-              <p className="truncate text-xs font-medium">
-                {deck.owner.username}
-              </p>
-              <p className="text-muted-foreground truncate text-[10px]">
-                {deck.owner.city && deck.owner.province
-                  ? `${deck.owner.city}, ${deck.owner.province}`
-                  : (deck.owner.province ?? '')}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-lg font-bold text-emerald-400">
-              {formatPrice(deck.estimated_value_cents)}
-            </p>
-            <span className="text-muted-foreground text-[10px] capitalize">
-              {deck.format}
-            </span>
-          </div>
-        </div>
-        {interestCount > 0 && (
-          <div className="flex items-center gap-1 border-t border-white/5 bg-white/[2%] px-4 py-1.5">
-            <Heart className="h-3 w-3 text-pink-400" />
-            <span className="text-[10px] text-pink-400/80">
-              {interestCount} interested
-            </span>
-          </div>
-        )}
-      </div>
-    </Link>
-  )
 }
 
 export default async function HomePage({
@@ -291,7 +213,7 @@ export default async function HomePage({
             </div>
           </div>
 
-          {/* Two featured decks */}
+          {/* Two featured decks — desktop only */}
           {featured.length > 0 && (
             <div className="hidden lg:block">
               <div className="grid grid-cols-2 gap-4">
@@ -370,38 +292,62 @@ export default async function HomePage({
 
       {/* Browse grid with sidebar */}
       <section id="browse" className="container mx-auto max-w-7xl px-4 py-8">
-        <div className="flex gap-6">
+        <div className="mb-4 lg:mb-6">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-xl font-bold">
+              {hasFilters ? 'Matching decks' : 'All decks'}
+            </h2>
+            <span className="text-muted-foreground text-sm">
+              {totalDecks} available
+            </span>
+          </div>
+        </div>
+
+        {/* Mobile filter bar */}
+        <div className="mb-4 lg:hidden">
           <Suspense>
             <BrowseSidebar
               resultCount={totalDecks}
               defaultCity={defaultCity}
               defaultProvince={defaultProvince}
               basePath="/"
+              mobileOnly
+            />
+          </Suspense>
+        </div>
+
+        <div className="flex gap-6">
+          {/* Desktop sidebar */}
+          <Suspense>
+            <BrowseSidebar
+              resultCount={totalDecks}
+              defaultCity={defaultCity}
+              defaultProvince={defaultProvince}
+              basePath="/"
+              desktopOnly
             />
           </Suspense>
 
           <div className="flex-1">
-            <div className="mb-6 flex items-baseline justify-between">
-              <h2 className="text-xl font-bold">
-                {hasFilters ? 'Matching decks' : 'All decks'}
-              </h2>
-              <span className="text-muted-foreground text-sm">
-                {totalDecks} available
-              </span>
-            </div>
-
             {pageDecks.length === 0 ? (
               <p className="text-muted-foreground py-20 text-center text-lg">
                 No decks match your filters. Try broadening your search.
               </p>
             ) : (
               <>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div
+                  className={
+                    params.view === 'list'
+                      ? 'flex flex-col gap-3 lg:grid lg:grid-cols-3 lg:gap-4 xl:grid-cols-4'
+                      : 'grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-4 xl:grid-cols-4'
+                  }
+                >
                   {pageDecks.map((deck) => (
-                    <DeckCard
+                    <DeckBrowseCard
                       key={deck.id}
                       deck={deck}
                       interestCount={interestCounts?.[deck.id] ?? 0}
+                      listView={params.view === 'list'}
                     />
                   ))}
                 </div>
