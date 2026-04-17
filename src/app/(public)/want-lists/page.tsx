@@ -113,7 +113,9 @@ export default async function WantListsPage({
   return (
     <main className="container mx-auto max-w-4xl px-4 py-8">
       <div className="mb-10 text-center">
-        <h1 className="text-4xl font-black tracking-tight">Wanted decks</h1>
+        <h1 className="text-2xl font-black tracking-tight sm:text-4xl">
+          Wanted decks
+        </h1>
         <p className="text-muted-foreground mt-2">
           Traders across Canada are searching for these
         </p>
@@ -143,11 +145,11 @@ export default async function WantListsPage({
                   <div
                     className={`h-1.5 w-full bg-gradient-to-r ${accentGradient(wl.format)} to-transparent`}
                   />
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-4">
+                  <div className="p-4 sm:p-5">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-3">
-                          <h2 className="truncate text-xl font-black tracking-tight group-hover:text-white">
+                          <h2 className="truncate text-lg font-black tracking-tight group-hover:text-white sm:text-xl">
                             {wl.title}
                           </h2>
                           <ColorPips colors={wl.color_identity} />
