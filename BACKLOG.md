@@ -2,6 +2,15 @@
 
 <!-- Newest entries at the top. Check items off as they're completed. -->
 
+### 2026-04-17 — Future settings enhancements
+
+- [ ] Appearance tab — dark/light/system theme toggle (requires building light theme)
+- [ ] Default browse view preference (grid/list) stored in user profile
+- [ ] Two-factor authentication (TOTP)
+- [ ] Blocked users list and management
+- [ ] Trade preferences (preferred formats, min trade value, trade radius)
+- [ ] Push notification preferences (when PWA push is implemented)
+
 ### 2026-04-12 — M19 Admin Portal deferred phases
 
 - [ ] Rate limit dashboard — show top rate-limited IPs/users, hit counts by endpoint (requires Upstash logging)

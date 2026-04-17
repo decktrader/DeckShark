@@ -10,6 +10,13 @@ Architectural and implementation decisions made during development. Newest first
 **Rationale:** Why this option won
 -->
 
+## 2026-04-17 — Country/state/province: reuse `province` column for US states
+
+**Context:** Expanding from Canada-only to Canada + US. Need to store US state codes alongside Canadian province codes.
+**Decision:** Added `country` column (check constraint: 'CA' or 'US'). Reuse `province` column for both CA provinces and US states. Disambiguate by country when filtering.
+**Alternatives considered:** Separate `state` column for US, or a generic `region` column rename.
+**Rationale:** Province column is referenced in 30+ places. Renaming would be massive churn. The country field provides disambiguation. State/province codes don't overlap in practice (except 'CA' for California, which is fine since country field distinguishes it).
+
 ## 2026-04-08 — Switch dev server from Turbopack to Webpack
 
 **Context:** Dev server (`pnpm dev`) froze the machine 3 times in a row. Docker showed Supabase containers were fine (~2% CPU). Turbopack was spiking all 8 CPU cores during initial compilation on a 16GB Mac, with Docker already consuming ~2GB for Supabase.

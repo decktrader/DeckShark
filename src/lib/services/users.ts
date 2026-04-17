@@ -34,10 +34,12 @@ export async function updateUser(
       User,
       | 'username'
       | 'bio'
+      | 'country'
       | 'city'
       | 'province'
       | 'avatar_url'
       | 'notification_preferences'
+      | 'email_updates_opt_in'
     >
   > & { notification_preferences?: NotificationPreferences },
 ): Promise<ServiceResponse<User>> {

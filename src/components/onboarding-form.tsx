@@ -17,26 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
-const PROVINCES = [
-  { value: 'AB', label: 'Alberta' },
-  { value: 'BC', label: 'British Columbia' },
-  { value: 'MB', label: 'Manitoba' },
-  { value: 'NB', label: 'New Brunswick' },
-  { value: 'NL', label: 'Newfoundland and Labrador' },
-  { value: 'NS', label: 'Nova Scotia' },
-  { value: 'NT', label: 'Northwest Territories' },
-  { value: 'NU', label: 'Nunavut' },
-  { value: 'ON', label: 'Ontario' },
-  { value: 'PE', label: 'Prince Edward Island' },
-  { value: 'QC', label: 'Quebec' },
-  { value: 'SK', label: 'Saskatchewan' },
-  { value: 'YT', label: 'Yukon' },
-] as const
+import { COUNTRIES, getRegions } from '@/lib/constants'
 
 export function OnboardingForm({ userId }: { userId: string }) {
   const router = useRouter()
   const [username, setUsername] = useState('')
+  const [country, setCountry] = useState('CA')
   const [city, setCity] = useState('')
   const [province, setProvince] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -72,6 +58,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
     const { error: updateError } = await updateUser(userId, {
       username,
+      country,
       city,
       province,
     })
@@ -190,20 +177,50 @@ export function OnboardingForm({ userId }: { userId: string }) {
                   placeholder="Your city"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="province">Province / Territory</Label>
-                <Select value={province} onValueChange={setProvince} required>
-                  <SelectTrigger id="province" className="h-11">
-                    <SelectValue placeholder="Select province" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PROVINCES.map((p) => (
-                      <SelectItem key={p.value} value={p.value}>
-                        {p.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="country">Country</Label>
+                  <Select
+                    value={country}
+                    onValueChange={(v) => {
+                      setCountry(v)
+                      setProvince('')
+                    }}
+                    required
+                  >
+                    <SelectTrigger id="country" className="h-11">
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="province">
+                    {country === 'US' ? 'State' : 'Province'}
+                  </Label>
+                  <Select value={province} onValueChange={setProvince} required>
+                    <SelectTrigger id="province" className="h-11">
+                      <SelectValue
+                        placeholder={
+                          country === 'US' ? 'Select state' : 'Select province'
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getRegions(country).map((r) => (
+                        <SelectItem key={r.value} value={r.value}>
+                          {r.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <Button
                 type="submit"

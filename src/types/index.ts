@@ -54,6 +54,7 @@ export interface User {
   avatar_url: string | null
   bio: string | null
   city: string | null
+  country: string | null
   province: string | null
   reputation_score: number
   completed_trades: number

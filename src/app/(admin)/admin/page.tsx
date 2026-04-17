@@ -211,7 +211,7 @@ export default async function AdminDashboardPage() {
       {/* Geographic distribution */}
       {geo && geo.length > 0 && (
         <div>
-          <h2 className="mb-3 text-lg font-bold">Users by province</h2>
+          <h2 className="mb-3 text-lg font-bold">Users by region</h2>
           <div className="rounded-xl border border-white/5">
             <div className="divide-y divide-white/5">
               {geo.map((row) => (

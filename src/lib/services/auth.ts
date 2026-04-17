@@ -61,6 +61,19 @@ export async function signInWithGoogle(): Promise<ServiceResponse<null>> {
   return { data: null, error: null }
 }
 
+export async function resetPassword(
+  email: string,
+): Promise<ServiceResponse<null>> {
+  const supabase = createClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  })
+
+  if (error)
+    return { data: null, error: genericAuthError(error, 'resetPassword') }
+  return { data: null, error: null }
+}
+
 export async function signOut(): Promise<ServiceResponse<null>> {
   const supabase = createClient()
   const { error } = await supabase.auth.signOut()

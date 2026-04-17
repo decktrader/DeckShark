@@ -9,7 +9,9 @@ import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -18,7 +20,8 @@ import { CommanderAutocomplete } from '@/components/ui/commander-autocomplete'
 import { CityAutocomplete } from '@/components/ui/city-autocomplete'
 import {
   FORMATS,
-  PROVINCES,
+  COUNTRIES,
+  getAllRegions,
   ARCHETYPES,
   POWER_LEVELS,
   SORT_OPTIONS,
@@ -264,7 +267,7 @@ export function BrowseFilters({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="province-filter">Province</Label>
+          <Label htmlFor="province-filter">State / Province</Label>
           <Select
             value={province || 'all'}
             onValueChange={(v) =>
@@ -272,14 +275,21 @@ export function BrowseFilters({
             }
           >
             <SelectTrigger id="province-filter">
-              <SelectValue placeholder="All provinces" />
+              <SelectValue placeholder="All regions" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All provinces</SelectItem>
-              {PROVINCES.map((p) => (
-                <SelectItem key={p.value} value={p.value}>
-                  {p.label}
-                </SelectItem>
+            <SelectContent className="max-h-72">
+              <SelectItem value="all">All regions</SelectItem>
+              {COUNTRIES.map((c) => (
+                <SelectGroup key={c.value}>
+                  <SelectLabel>{c.label}</SelectLabel>
+                  {getAllRegions()
+                    .filter((r) => r.country === c.value)
+                    .map((r) => (
+                      <SelectItem key={`${c.value}-${r.value}`} value={r.value}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>

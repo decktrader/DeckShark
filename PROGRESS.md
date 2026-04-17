@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M25 complete
-**Status:** M25 (Mobile Polish & QA) shipped across 3 phases. All pages audited and fixed for mobile. Migrations 029-030 applied to production. iOS touch bug resolved (was dev server HMR, not a real issue).
-**Next step:** M26 (Settings Overhaul) → M27 (Support DeckShark) → M28 (Seed Content & Empty States).
+**Milestone:** M26 in progress
+**Status:** M26 (Settings Overhaul) implementation complete — tabbed settings, country/state support, password change, forgot password, privacy & data tab. Migration 031 applied locally. Needs production migration + testing.
+**Next step:** Push M26, apply migration 031 to production. Then M27 (Support DeckShark) → M28 (Seed Content).
 **Blocked:** Nothing.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
 
@@ -40,7 +40,7 @@
 | **M23: Observability**               | Complete | Sentry, /api/health, Vercel Analytics + Speed Insights, post-deploy smoke test. Needs Sentry DSN + Analytics enabled in prod.                      |
 | **M24: Email Polish**                | Complete | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                                    |
 | **M25: Mobile Polish & QA**          | Complete | V4D browse cards, filter sheet, list/grid toggle, sticky deck detail bar, stacked trade cards, notification sheet, responsive grids, touch targets |
-| **M26: Settings Overhaul**           | Planned  | Tabbed settings (profile, account, notifications, privacy & data, appearance). Data export buried in Privacy. Per-type notification toggles.       |
+| **M26: Settings Overhaul**           | Complete | Tabbed settings (profile, notifications, account, privacy & data). Country/state support (CA+US). Password change, forgot password, data export.   |
 | **M27: Support DeckShark**           | Planned  | Stripe tips ($3/$5/$10/$25/custom), supporter badge, post-trade nudge, /support page, admin stats. Stripe foundation for future shipping fees.     |
 | **M28: Seed Content & Empty States** | Planned  | Seed decks, "be the first" empty state, want-list-first nudge, "coming soon to your city" section                                                  |
 | **M29: Regional Launch Strategy**    | Planned  | Game store outreach kit, city landing pages, referral tracking, community outreach list                                                            |
@@ -50,6 +50,24 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-17 — M26 Settings Overhaul
+
+**Migration:** 031 (country column on users, default 'CA', check constraint CA/US).
+
+**Country/State support:** Added `country` field to users. Onboarding and settings forms now have country picker (Canada/US) with cascading state/province dropdown. Browse filters updated with grouped region selector (Canada provinces + US states). All 50 US states + DC added. Admin geo distribution relabeled "Users by region". Privacy policy updated.
+
+**Tabbed settings:** Refactored monolithic settings form into 4-tab layout (Profile, Notifications, Account, Privacy & Data). Horizontal scrollable tab bar works on mobile. Avatar sidebar stays in Profile tab. Notification preferences have save button. Marketing email opt-in toggle in Notifications tab.
+
+**Account tab:** Password change form for email users (verifies current password, then updates). AccountDangerZone moved inside Account tab. OAuth users only see the danger zone (no password form).
+
+**Forgot password flow:** New `/forgot-password` page with email form. Sends Supabase reset link. New `/reset-password` page handles the magic link callback and lets user set a new password. "Forgot password?" link added to login form.
+
+**Privacy & Data tab:** Data export button (downloads JSON via `/api/account/export`). Privacy summary with link to full policy.
+
+**Other:** Fixed pre-existing test failure (missing NotificationPreferences fields in test fixture). Added `email_updates_opt_in` to allowed user update fields.
+
+**Next:** Push, apply migration 031 to production. Then M27 (Support DeckShark).
 
 ### 2026-04-17 — M25 Mobile Polish & QA (complete)
 

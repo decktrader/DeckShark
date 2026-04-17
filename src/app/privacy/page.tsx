@@ -19,8 +19,8 @@ export default function PrivacyPage() {
         <h2>2. Information We Collect</h2>
         <ul>
           <li>
-            <strong>Account information:</strong> email address, username, city,
-            and province
+            <strong>Account information:</strong> email address, username,
+            country, city, and state/province
           </li>
           <li>
             <strong>Profile information:</strong> bio, avatar (optional)
@@ -46,9 +46,9 @@ export default function PrivacyPage() {
 
         <h2>4. Information Sharing</h2>
         <p>
-          Your public profile (username, city, province, bio, trade history) is
-          visible to all users. Your email address is only shared with a trade
-          partner after both parties accept a trade.
+          Your public profile (username, city, state/province, bio, trade
+          history) is visible to all users. Your email address is only shared
+          with a trade partner after both parties accept a trade.
         </p>
         <p>We do not sell your personal information to third parties.</p>
 
