@@ -36,9 +36,10 @@ export async function updateSession(request: NextRequest) {
     '/dashboard',
     '/settings',
     '/onboarding',
-    '/decks',
+    '/decks/new',
     '/trades',
     '/admin',
+    '/notifications',
   ]
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path))
   if (!user && isProtected) {

@@ -27,18 +27,112 @@ function formatPrice(cents: number | null): string {
 function DeckCard({
   deck,
   interestCount,
+  listView,
 }: {
   deck: PublicDeck
   interestCount: number
+  listView?: boolean
 }) {
   const commanderLabel = [deck.commander_name, deck.partner_commander_name]
     .filter(Boolean)
     .join(' / ')
 
+  const ownerInitial = deck.owner.username.charAt(0).toUpperCase()
+  const location = deck.owner.city
+    ? deck.owner.city
+    : (deck.owner.province ?? '')
+
+  const avatar = deck.owner.avatar_url ? (
+    <Image
+      src={deck.owner.avatar_url}
+      alt=""
+      width={20}
+      height={20}
+      className="h-5 w-5 shrink-0 rounded-full object-cover"
+    />
+  ) : (
+    <div className="bg-primary/40 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white">
+      {ownerInitial}
+    </div>
+  )
+
   return (
     <Link href={`/decks/${deck.id}`} className="group block">
-      <div className="overflow-hidden rounded-2xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
-        {/* Art section — name overlaid */}
+      {/* Mobile: compact V4D grid card */}
+      {!listView && (
+        <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[3%] p-2.5 transition-all hover:border-white/15 lg:hidden">
+          <div className="flex gap-2.5">
+            {deck.commander_scryfall_id ? (
+              <img
+                src={`https://cards.scryfall.io/art_crop/front/${deck.commander_scryfall_id[0]}/${deck.commander_scryfall_id[1]}/${deck.commander_scryfall_id}.jpg`}
+                alt={deck.commander_name ?? ''}
+                className="h-14 w-14 shrink-0 rounded-lg border border-white/10 object-cover"
+              />
+            ) : (
+              <div className="bg-muted h-14 w-14 shrink-0 rounded-lg" />
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-bold">{deck.name}</p>
+              {commanderLabel && (
+                <p className="text-muted-foreground truncate text-[10px]">
+                  {commanderLabel}
+                </p>
+              )}
+              <div className="mt-1 flex items-center gap-1">
+                <span className="rounded-full bg-violet-500/15 px-1.5 py-0.5 text-[9px] text-violet-300 capitalize">
+                  {deck.format}
+                </span>
+                {location && (
+                  <span className="text-[9px] text-white/30">{location}</span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="mt-2.5 flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              {avatar}
+              <span className="text-[10px]">{deck.owner.username}</span>
+            </div>
+            <p className="text-lg font-extrabold text-emerald-400">
+              {formatPrice(deck.estimated_value_cents)}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile: compact list row */}
+      {listView && (
+        <div className="flex items-center gap-2 border-b border-white/[0.04] px-1 py-1.5 lg:hidden">
+          {deck.commander_scryfall_id ? (
+            <img
+              src={`https://cards.scryfall.io/art_crop/front/${deck.commander_scryfall_id[0]}/${deck.commander_scryfall_id[1]}/${deck.commander_scryfall_id}.jpg`}
+              alt={deck.commander_name ?? ''}
+              className="h-8 w-8 shrink-0 rounded object-cover"
+            />
+          ) : (
+            <div className="bg-muted h-8 w-8 shrink-0 rounded" />
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-1">
+              <p className="truncate text-[12px] font-semibold">{deck.name}</p>
+              <span className="shrink-0 text-[9px] text-violet-300 capitalize">
+                {deck.format}
+              </span>
+            </div>
+            <p className="text-muted-foreground truncate text-[10px]">
+              {commanderLabel ? `${commanderLabel} · ` : ''}
+              {deck.owner.username}
+              {location ? ` · ${location}` : ''}
+            </p>
+          </div>
+          <p className="shrink-0 text-[13px] font-bold text-emerald-400">
+            {formatPrice(deck.estimated_value_cents)}
+          </p>
+        </div>
+      )}
+
+      {/* Desktop: full art card */}
+      <div className="hidden overflow-hidden rounded-2xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5 lg:block">
         <div className="relative">
           <DeckArt
             commanderScryfallId={deck.commander_scryfall_id}
@@ -46,8 +140,6 @@ function DeckCard({
             className="transition-transform duration-500 group-hover:scale-105"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-          {/* Name + commander on art */}
           <div className="absolute inset-x-0 bottom-0 p-4">
             <p className="truncate text-sm font-bold text-white drop-shadow-lg">
               {deck.name}
@@ -57,23 +149,9 @@ function DeckCard({
             )}
           </div>
         </div>
-
-        {/* Info bar below art */}
-        <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
-          <div className="flex min-w-0 items-center gap-2">
-            {deck.owner.avatar_url ? (
-              <Image
-                src={deck.owner.avatar_url}
-                alt=""
-                width={24}
-                height={24}
-                className="h-6 w-6 shrink-0 rounded-full object-cover"
-              />
-            ) : (
-              <div className="bg-primary/40 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white">
-                {deck.owner.username.charAt(0).toUpperCase()}
-              </div>
-            )}
+        <div className="border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            {avatar}
             <div className="min-w-0">
               <p className="truncate text-xs font-medium">
                 {deck.owner.username}
@@ -85,7 +163,7 @@ function DeckCard({
               </p>
             </div>
           </div>
-          <div className="shrink-0 text-right">
+          <div className="mt-1 flex items-baseline justify-between">
             <p className="text-lg font-bold text-emerald-400">
               {formatPrice(deck.estimated_value_cents)}
             </p>
@@ -183,36 +261,59 @@ export default async function BrowseDecksPage({
 
   return (
     <main className="container mx-auto max-w-7xl px-4 py-8">
-      <div className="flex gap-6">
+      <div className="mb-4 lg:mb-6">
+        <h1 className="text-2xl font-black tracking-tight lg:text-3xl">
+          Browse decks
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">
+          {totalDecks} deck{totalDecks !== 1 ? 's' : ''} available for trade
+        </p>
+      </div>
+
+      {/* Mobile filter bar — above the grid */}
+      <div className="mb-4 lg:hidden">
         <Suspense>
           <BrowseSidebar
             resultCount={totalDecks}
             defaultCity={defaultCity}
             defaultProvince={defaultProvince}
+            mobileOnly
+          />
+        </Suspense>
+      </div>
+
+      <div className="flex gap-6">
+        {/* Desktop sidebar */}
+        <Suspense>
+          <BrowseSidebar
+            resultCount={totalDecks}
+            defaultCity={defaultCity}
+            defaultProvince={defaultProvince}
+            desktopOnly
           />
         </Suspense>
 
         {/* Main content */}
         <div className="flex-1">
-          <div className="mb-6">
-            <h1 className="text-3xl font-black tracking-tight">Browse decks</h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              {totalDecks} deck{totalDecks !== 1 ? 's' : ''} available for trade
-            </p>
-          </div>
-
           {pageDecks.length === 0 ? (
             <p className="text-muted-foreground py-20 text-center text-lg">
               No decks match your filters. Try broadening your search.
             </p>
           ) : (
             <>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div
+                className={
+                  params.view === 'list'
+                    ? 'flex flex-col gap-3 lg:grid lg:grid-cols-3 lg:gap-4 xl:grid-cols-4'
+                    : 'grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-4 xl:grid-cols-4'
+                }
+              >
                 {pageDecks.map((deck) => (
                   <DeckCard
                     key={deck.id}
                     deck={deck}
                     interestCount={interestCounts?.[deck.id] ?? 0}
+                    listView={params.view === 'list'}
                   />
                 ))}
               </div>

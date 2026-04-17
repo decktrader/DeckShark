@@ -20,6 +20,7 @@ import { DeckArt } from '@/components/deck/deck-art'
 import { Button } from '@/components/ui/button'
 import { ReportButton } from '@/components/report-button'
 import { InterestToggle } from '@/components/deck/interest-toggle'
+import { InterestToggleMobile } from '@/components/deck/interest-toggle-mobile'
 import { getUserById } from '@/lib/services/users.server'
 import { Info } from 'lucide-react'
 import {
@@ -142,7 +143,7 @@ export default async function PublicDeckPage({
   ]
 
   return (
-    <main className="container mx-auto max-w-4xl px-4 py-8">
+    <main className="container mx-auto max-w-4xl px-4 py-8 pb-32 lg:pb-8">
       <div className="mb-4">
         <Link
           href="/decks"
@@ -279,7 +280,7 @@ export default async function PublicDeckPage({
 
           {/* Sidebar */}
           <div>
-            <div className="space-y-3 lg:sticky lg:top-24">
+            <div className="hidden space-y-3 lg:sticky lg:top-24 lg:block">
               {/* Card preview — sticky, follows scroll */}
               <div className="hidden lg:block">
                 <DeckCardPreview />
@@ -350,6 +351,32 @@ export default async function PublicDeckPage({
           </div>
         </div>
       </DeckCardListProvider>
+
+      {/* Mobile sticky action bar */}
+      {!isOwner && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl lg:hidden">
+          {canPropose && (
+            <Button className="w-full" asChild>
+              <Link href={`/trades/new?deckId=${deck.id}`}>Propose trade</Link>
+            </Button>
+          )}
+          {!authUser && (
+            <Button className="w-full" asChild>
+              <Link href={`/login?next=/decks/${deck.id}`}>
+                Sign in to propose trade
+              </Link>
+            </Button>
+          )}
+          {!isLocal && (
+            <InterestToggleMobile
+              deckId={deck.id}
+              userId={authUser?.id ?? null}
+              initialInterested={!!userInterested}
+              initialCount={interestCount ?? 0}
+            />
+          )}
+        </div>
+      )}
     </main>
   )
 }

@@ -142,8 +142,83 @@ export default async function TradeDetailPage({
         </span>
       </div>
 
-      {/* Two-column deck comparison */}
-      <Card className="mb-4">
+      {/* Deck comparison — stacked on mobile, side-by-side on sm+ */}
+      {/* Mobile: stacked cards */}
+      <div className="mb-4 space-y-3 sm:hidden">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-widest uppercase">
+              You offer
+            </p>
+            <div className="space-y-3">
+              {myDecks.map((td) => (
+                <div key={td.id} className="flex items-center gap-3">
+                  {td.deck?.commander_scryfall_id ? (
+                    <img
+                      src={scryfallArtUrl(td.deck.commander_scryfall_id)}
+                      alt={td.deck.commander_name ?? ''}
+                      className="aspect-[5/3] w-24 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="bg-muted aspect-[5/3] w-24 shrink-0 rounded-lg" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">
+                      {td.deck?.name ?? 'Unknown deck'}
+                    </p>
+                    {td.deck?.commander_name && (
+                      <p className="text-muted-foreground truncate text-xs">
+                        {td.deck.commander_name}
+                      </p>
+                    )}
+                    <p className="text-primary mt-1 font-bold">
+                      {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-widest uppercase">
+              You receive
+            </p>
+            <div className="space-y-3">
+              {theirDecks.map((td) => (
+                <div key={td.id} className="flex items-center gap-3">
+                  {td.deck?.commander_scryfall_id ? (
+                    <img
+                      src={scryfallArtUrl(td.deck.commander_scryfall_id)}
+                      alt={td.deck.commander_name ?? ''}
+                      className="aspect-[5/3] w-24 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="bg-muted aspect-[5/3] w-24 shrink-0 rounded-lg" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">
+                      {td.deck?.name ?? 'Unknown deck'}
+                    </p>
+                    {td.deck?.commander_name && (
+                      <p className="text-muted-foreground truncate text-xs">
+                        {td.deck.commander_name}
+                      </p>
+                    )}
+                    <p className="text-primary mt-1 font-bold">
+                      {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Desktop: two-column comparison */}
+      <Card className="mb-4 hidden sm:block">
         <CardContent className="p-0">
           <div className="grid grid-cols-2 divide-x divide-white/5">
             {/* Your side */}
