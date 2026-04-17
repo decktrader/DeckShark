@@ -35,21 +35,23 @@ export function DeckCardNew({ deck }: { deck: Deck }) {
           </div>
         </div>
         <div
-          className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-3 py-2.5"
+          className="border-t border-white/5 bg-white/[3%] px-3 py-2"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/60 capitalize">
-              {deck.format}
-            </span>
+          <div className="flex items-center justify-between">
             <span className="text-lg font-bold text-emerald-400">
               {formatPrice(deck.estimated_value_cents)}
             </span>
+            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/60 capitalize">
+              {deck.format}
+            </span>
           </div>
-          <TradeToggle
-            deckId={deck.id}
-            initialValue={deck.available_for_trade}
-          />
+          <div className="mt-1 flex items-center justify-end">
+            <TradeToggle
+              deckId={deck.id}
+              initialValue={deck.available_for_trade}
+            />
+          </div>
         </div>
       </div>
     </Link>
