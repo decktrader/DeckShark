@@ -2,54 +2,84 @@
 
 ## Current Focus
 
-**Milestone:** M21 + M22 complete
-**Status:** M21 (Remote Interest Signal) and M22 (Notification System) shipped. Migrations 029-030 applied locally. Centralized notification bell replaces TradeBadge. All events create in-app notifications. Per-type email preferences on settings page.
-**Next step:** Apply migrations 029-030 to production Supabase. Then M25 (Mobile Polish & QA) → M28 (Seed Content & Empty States) → M29 (Regional Launch Strategy).
-**Blocked:** iOS hamburger menu non-responsive on iPhone Chrome — root cause unknown; needs remote DevTools inspection.
-**Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes.
+**Milestone:** M25 complete
+**Status:** M25 (Mobile Polish & QA) shipped across 3 phases. All pages audited and fixed for mobile. Migrations 029-030 applied to production. iOS touch bug resolved (was dev server HMR, not a real issue).
+**Next step:** M26 (Settings Overhaul) → M27 (Support DeckShark) → M28 (Seed Content & Empty States).
+**Blocked:** Nothing.
+**Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
 
 ---
 
 ## Milestone Status
 
-| Milestone                            | Status   | Notes                                                                                                                                          |
-| ------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| M0: Project Scaffolding              | Complete |                                                                                                                                                |
-| M1: Auth & User Profiles             | Complete | Google OAuth deferred to M9                                                                                                                    |
-| M2: Card Data Infrastructure         | Complete |                                                                                                                                                |
-| M3: Deck Management (Phase A)        | Complete | Text import only, URL importers in M4                                                                                                          |
-| M4: Public Browsing                  | Complete |                                                                                                                                                |
-| M5: Trading (Phase B)                | Complete | Realtime updates optional polish                                                                                                               |
-| M6: Reviews & Reputation             | Complete |                                                                                                                                                |
-| M7: Want Lists                       | Complete |                                                                                                                                                |
-| M8: Email Notifications              | Complete |                                                                                                                                                |
-| M9: Onboarding & Landing Page        | Complete | Google OAuth deferred                                                                                                                          |
-| M10: Polish & Mobile                 | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA                           |
-| M11: Browse Filters                  | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand                    |
-| M12: Production Deploy               | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                                              |
-| M13: Counter-Offers                  | Complete | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                                        |
-| M14: Color Identity Filter           | Complete | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                                       |
-| M15: Disputes                        | Deferred | Build when user base warrants                                                                                                                  |
-| **M16: Security Hardening**          | Complete | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged.           |
-| **M17: Rate Limiting**               | Complete | Upstash Redis (@upstash/ratelimit) on all routes. 4 tiers: search/mutation/notify/auth. Graceful fallback without Redis.                       |
-| **M18: Performance & Caching**       | Complete | DB pagination (.range()), browse indexes (027), Scryfall fetch timeouts, next/image, ISR on want-lists                                         |
-| **M19: Admin Portal**                | Complete | Stats dashboard, user mgmt, trade oversight, reports queue, feedback inbox, suspension system, report/feedback public components               |
-| **M20: UX Overhaul**                 | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt                |
-| **M21: Remote Interest Signal**      | Complete | "Want this shipped?" vote on non-local decks, interest badges, dashboard wanted list, threshold emails, admin city-pair analytics              |
-| **M22: Notification System**         | Complete | Centralized bell dropdown + /notifications page, in-app notifications on all events, per-type email preferences, server-rendered initial data  |
-| **M23: Observability**               | Complete | Sentry, /api/health, Vercel Analytics + Speed Insights, post-deploy smoke test. Needs Sentry DSN + Analytics enabled in prod.                  |
-| **M24: Email Polish**                | Complete | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                                |
-| **M25: Mobile Polish & QA**          | Planned  | Fix iOS hamburger bug, mobile QA all redesigned pages, touch targets, responsive breakpoints, cross-browser testing                            |
-| **M26: Settings Overhaul**           | Planned  | Tabbed settings (profile, account, notifications, privacy & data, appearance). Data export buried in Privacy. Per-type notification toggles.   |
-| **M27: Support DeckShark**           | Planned  | Stripe tips ($3/$5/$10/$25/custom), supporter badge, post-trade nudge, /support page, admin stats. Stripe foundation for future shipping fees. |
-| **M28: Seed Content & Empty States** | Planned  | Seed decks, "be the first" empty state, want-list-first nudge, "coming soon to your city" section                                              |
-| **M29: Regional Launch Strategy**    | Planned  | Game store outreach kit, city landing pages, referral tracking, community outreach list                                                        |
-| **M30: Game Store Partnerships**     | Planned  | Store directory, store badge on decks, store dashboard, QR code generator                                                                      |
-| Branch Protection                    | Planned  | Protect main branch — require PRs, no direct pushes to production                                                                              |
+| Milestone                            | Status   | Notes                                                                                                                                              |
+| ------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0: Project Scaffolding              | Complete |                                                                                                                                                    |
+| M1: Auth & User Profiles             | Complete | Google OAuth deferred to M9                                                                                                                        |
+| M2: Card Data Infrastructure         | Complete |                                                                                                                                                    |
+| M3: Deck Management (Phase A)        | Complete | Text import only, URL importers in M4                                                                                                              |
+| M4: Public Browsing                  | Complete |                                                                                                                                                    |
+| M5: Trading (Phase B)                | Complete | Realtime updates optional polish                                                                                                                   |
+| M6: Reviews & Reputation             | Complete |                                                                                                                                                    |
+| M7: Want Lists                       | Complete |                                                                                                                                                    |
+| M8: Email Notifications              | Complete |                                                                                                                                                    |
+| M9: Onboarding & Landing Page        | Complete | Google OAuth deferred                                                                                                                              |
+| M10: Polish & Mobile                 | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA                               |
+| M11: Browse Filters                  | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand                        |
+| M12: Production Deploy               | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                                                  |
+| M13: Counter-Offers                  | Complete | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                                            |
+| M14: Color Identity Filter           | Complete | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                                           |
+| M15: Disputes                        | Deferred | Build when user base warrants                                                                                                                      |
+| **M16: Security Hardening**          | Complete | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged.               |
+| **M17: Rate Limiting**               | Complete | Upstash Redis (@upstash/ratelimit) on all routes. 4 tiers: search/mutation/notify/auth. Graceful fallback without Redis.                           |
+| **M18: Performance & Caching**       | Complete | DB pagination (.range()), browse indexes (027), Scryfall fetch timeouts, next/image, ISR on want-lists                                             |
+| **M19: Admin Portal**                | Complete | Stats dashboard, user mgmt, trade oversight, reports queue, feedback inbox, suspension system, report/feedback public components                   |
+| **M20: UX Overhaul**                 | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt                    |
+| **M21: Remote Interest Signal**      | Complete | "Want this shipped?" vote on non-local decks, interest badges, dashboard wanted list, threshold emails, admin city-pair analytics                  |
+| **M22: Notification System**         | Complete | Centralized bell dropdown + /notifications page, in-app notifications on all events, per-type email preferences, server-rendered initial data      |
+| **M23: Observability**               | Complete | Sentry, /api/health, Vercel Analytics + Speed Insights, post-deploy smoke test. Needs Sentry DSN + Analytics enabled in prod.                      |
+| **M24: Email Polish**                | Complete | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                                    |
+| **M25: Mobile Polish & QA**          | Complete | V4D browse cards, filter sheet, list/grid toggle, sticky deck detail bar, stacked trade cards, notification sheet, responsive grids, touch targets |
+| **M26: Settings Overhaul**           | Planned  | Tabbed settings (profile, account, notifications, privacy & data, appearance). Data export buried in Privacy. Per-type notification toggles.       |
+| **M27: Support DeckShark**           | Planned  | Stripe tips ($3/$5/$10/$25/custom), supporter badge, post-trade nudge, /support page, admin stats. Stripe foundation for future shipping fees.     |
+| **M28: Seed Content & Empty States** | Planned  | Seed decks, "be the first" empty state, want-list-first nudge, "coming soon to your city" section                                                  |
+| **M29: Regional Launch Strategy**    | Planned  | Game store outreach kit, city landing pages, referral tracking, community outreach list                                                            |
+| **M30: Game Store Partnerships**     | Planned  | Store directory, store badge on decks, store dashboard, QR code generator                                                                          |
+| Branch Protection                    | Planned  | Protect main branch — require PRs, no direct pushes to production                                                                                  |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-17 — M25 Mobile Polish & QA (complete)
+
+**Migrations:** 029-030 applied to production Supabase.
+
+**iOS touch bug resolved:** Root cause was dev server HMR WebSocket connecting to `localhost` from the phone, blocking React hydration. Production was never affected — all buttons work fine on deckshark.gg. Not a real bug.
+
+**Phase 1 — Browse, Deck Detail, Trade Detail:**
+
+- Browse: mobile filter bottom sheet (VA pattern), compact V4D grid cards (square art thumbnails), list/grid toggle via URL param, extracted shared `DeckBrowseCard` component
+- Deck detail: sticky bottom action bar on mobile with "Propose trade" + "Want this shipped?" buttons, sidebar hidden on mobile
+- Trade detail: stacked vertical deck cards on mobile instead of cramped 2-col grid
+- Middleware fix: removed `/decks` from protected paths (was blocking public browse for unauthenticated users)
+
+**Phase 2 — Landing Page, Trade List, Notification Bell:**
+
+- Landing page: same mobile browse layout (filter bar, V4D cards, list/grid toggle), sign-up CTAs hidden for logged-in users
+- Trade list: compact horizontal cards with overlapping art thumbnails, truncated deck names
+- Notification bell: bottom Sheet on mobile instead of absolute dropdown
+
+**Phase 3 — Dashboard, Profile, Forms, Touch Targets:**
+
+- Dashboard: responsive stat grid (2→3→5 col), responsive number sizing, 2-col deck grid, deck card info bar overflow fix (price + Trading/Private stacked)
+- Profile: horizontal avatar row on mobile, 2-col deck grid
+- Settings form: inputs stack on mobile, avatar buttons padded for touch
+- Want lists: responsive heading, stacked card headers, smaller padding
+- Touch targets: pagination buttons 36→40px, hamburger 40→44px, nav auth buttons to default size
+- Want list detail: header stacks vertically, criteria pill text bumped to 11px
+
+**Next:** M26 (Settings Overhaul) → M27 (Support DeckShark) → M28 (Seed Content).
 
 ### 2026-04-14 — M21, M22, Cold Start Fixes, Milestones M27-M30
 
