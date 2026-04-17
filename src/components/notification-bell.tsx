@@ -13,6 +13,13 @@ import {
   Search,
 } from 'lucide-react'
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
+import {
   getRecentNotifications,
   getUnreadCountClient,
   markAsRead,
@@ -50,11 +57,93 @@ interface NotificationBellProps {
   initialUnreadCount: number
 }
 
+function NotificationList({
+  notifications,
+  unreadCount,
+  onMarkAllRead,
+  onClickNotification,
+}: {
+  notifications: Notification[]
+  unreadCount: number
+  onMarkAllRead: () => void
+  onClickNotification: (n: Notification) => void
+}) {
+  return (
+    <>
+      <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+        <p className="text-sm font-bold">Notifications</p>
+        {unreadCount > 0 && (
+          <button
+            onClick={onMarkAllRead}
+            className="text-primary text-xs hover:underline"
+          >
+            Mark all read
+          </button>
+        )}
+      </div>
+      <div className="max-h-80 divide-y divide-white/5 overflow-y-auto">
+        {notifications.length === 0 ? (
+          <p className="text-muted-foreground px-4 py-8 text-center text-sm">
+            No notifications yet
+          </p>
+        ) : (
+          notifications.map((n) => {
+            const config = NOTIF_ICONS[n.type] ?? {
+              icon: Bell,
+              color: 'text-muted-foreground',
+            }
+            const Icon = config.icon
+            return (
+              <Link
+                key={n.id}
+                href={n.link ?? '/notifications'}
+                onClick={() => onClickNotification(n)}
+                className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[3%] ${!n.read ? 'bg-white/[2%]' : ''}`}
+              >
+                <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${config.color}`} />
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={`truncate text-xs ${!n.read ? 'font-semibold' : 'text-muted-foreground'}`}
+                  >
+                    {n.title}
+                  </p>
+                  {n.body && (
+                    <p className="text-muted-foreground mt-0.5 truncate text-[10px]">
+                      {n.body}
+                    </p>
+                  )}
+                </div>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <span className="text-muted-foreground text-[10px]">
+                    {timeAgo(n.created_at)}
+                  </span>
+                  {!n.read && (
+                    <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                  )}
+                </div>
+              </Link>
+            )
+          })
+        )}
+      </div>
+      <div className="border-t border-white/5 px-4 py-2.5 text-center">
+        <Link
+          href="/notifications"
+          className="text-primary text-xs hover:underline"
+        >
+          View all notifications
+        </Link>
+      </div>
+    </>
+  )
+}
+
 export function NotificationBell({
   initialNotifications,
   initialUnreadCount,
 }: NotificationBellProps) {
-  const [open, setOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const [notifications, setNotifications] =
     useState<Notification[]>(initialNotifications)
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount)
@@ -80,7 +169,7 @@ export function NotificationBell({
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
+        setDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClick)
@@ -101,98 +190,75 @@ export function NotificationBell({
       )
       setUnreadCount((c) => Math.max(0, c - 1))
     }
-    setOpen(false)
+    setDropdownOpen(false)
+    setSheetOpen(false)
   }
 
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => {
-          setOpen(!open)
-          if (!open) void refreshData()
-        }}
-        className="text-muted-foreground hover:text-foreground relative p-2 transition-colors"
-        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
-      >
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span className="bg-primary absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-bold text-white">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </button>
-
-      {open && (
-        <div className="absolute top-full right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
-            <p className="text-sm font-bold">Notifications</p>
-            {unreadCount > 0 && (
-              <button
-                onClick={handleMarkAllRead}
-                className="text-primary text-xs hover:underline"
-              >
-                Mark all read
-              </button>
-            )}
-          </div>
-          <div className="max-h-80 divide-y divide-white/5 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <p className="text-muted-foreground px-4 py-8 text-center text-sm">
-                No notifications yet
-              </p>
-            ) : (
-              notifications.map((n) => {
-                const config = NOTIF_ICONS[n.type] ?? {
-                  icon: Bell,
-                  color: 'text-muted-foreground',
-                }
-                const Icon = config.icon
-                return (
-                  <Link
-                    key={n.id}
-                    href={n.link ?? '/notifications'}
-                    onClick={() => handleClickNotification(n)}
-                    className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[3%] ${!n.read ? 'bg-white/[2%]' : ''}`}
-                  >
-                    <Icon
-                      className={`mt-0.5 h-4 w-4 shrink-0 ${config.color}`}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className={`truncate text-xs ${!n.read ? 'font-semibold' : 'text-muted-foreground'}`}
-                      >
-                        {n.title}
-                      </p>
-                      {n.body && (
-                        <p className="text-muted-foreground mt-0.5 truncate text-[10px]">
-                          {n.body}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex shrink-0 items-center gap-1.5">
-                      <span className="text-muted-foreground text-[10px]">
-                        {timeAgo(n.created_at)}
-                      </span>
-                      {!n.read && (
-                        <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
-                      )}
-                    </div>
-                  </Link>
-                )
-              })
-            )}
-          </div>
-          <div className="border-t border-white/5 px-4 py-2.5 text-center">
-            <Link
-              href="/notifications"
-              onClick={() => setOpen(false)}
-              className="text-primary text-xs hover:underline"
-            >
-              View all notifications
-            </Link>
-          </div>
-        </div>
+  const bellButton = (
+    <button
+      className="text-muted-foreground hover:text-foreground relative p-2 transition-colors"
+      aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
+    >
+      <Bell className="h-5 w-5" />
+      {unreadCount > 0 && (
+        <span className="bg-primary absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-bold text-white">
+          {unreadCount > 9 ? '9+' : unreadCount}
+        </span>
       )}
-    </div>
+    </button>
+  )
+
+  return (
+    <>
+      {/* Mobile: Sheet */}
+      <div className="sm:hidden">
+        <Sheet
+          open={sheetOpen}
+          onOpenChange={(open) => {
+            setSheetOpen(open)
+            if (open) void refreshData()
+          }}
+        >
+          <SheetTrigger asChild>{bellButton}</SheetTrigger>
+          <SheetContent
+            side="bottom"
+            className="max-h-[80vh] overflow-y-auto rounded-t-2xl p-0"
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>Notifications</SheetTitle>
+            </SheetHeader>
+            <NotificationList
+              notifications={notifications}
+              unreadCount={unreadCount}
+              onMarkAllRead={handleMarkAllRead}
+              onClickNotification={handleClickNotification}
+            />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop: Dropdown */}
+      <div ref={ref} className="relative hidden sm:block">
+        <div
+          onClick={() => {
+            setDropdownOpen(!dropdownOpen)
+            if (!dropdownOpen) void refreshData()
+          }}
+        >
+          {bellButton}
+        </div>
+
+        {dropdownOpen && (
+          <div className="absolute top-full right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-2xl">
+            <NotificationList
+              notifications={notifications}
+              unreadCount={unreadCount}
+              onMarkAllRead={handleMarkAllRead}
+              onClickNotification={handleClickNotification}
+            />
+          </div>
+        )}
+      </div>
+    </>
   )
 }

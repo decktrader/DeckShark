@@ -117,70 +117,62 @@ export default async function TradesPage() {
 
               return (
                 <Link key={trade.id} href={`/trades/${trade.id}`}>
-                  <div className="bg-card hover:border-primary/50 rounded-lg border p-4 transition-colors">
-                    <div className="flex items-start justify-between gap-3">
+                  <div className="bg-card hover:border-primary/50 rounded-lg border p-3 transition-colors sm:p-4">
+                    <div className="flex items-center gap-3">
+                      {/* Art thumbnails */}
+                      <div className="flex shrink-0 -space-x-2">
+                        {getFirstCommanderArt(myDecks) ? (
+                          <img
+                            src={getFirstCommanderArt(myDecks)!}
+                            alt=""
+                            className="h-10 w-10 rounded-lg object-cover ring-2 ring-zinc-900 sm:h-12 sm:w-12"
+                          />
+                        ) : (
+                          <div className="bg-muted h-10 w-10 rounded-lg ring-2 ring-zinc-900 sm:h-12 sm:w-12" />
+                        )}
+                        {getFirstCommanderArt(theirDecks) ? (
+                          <img
+                            src={getFirstCommanderArt(theirDecks)!}
+                            alt=""
+                            className="h-10 w-10 rounded-lg object-cover ring-2 ring-zinc-900 sm:h-12 sm:w-12"
+                          />
+                        ) : (
+                          <div className="bg-muted h-10 w-10 rounded-lg ring-2 ring-zinc-900 sm:h-12 sm:w-12" />
+                        )}
+                      </div>
+                      {/* Info */}
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-sm font-medium">
                             {isProposer ? 'You → ' : ''}
                             {them.username}
                             {!isProposer ? ' → You' : ''}
                           </p>
-                          {them.city && (
-                            <span className="text-muted-foreground text-xs">
-                              {them.city}, {them.province}
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm">
-                          {getFirstCommanderArt(myDecks) && (
-                            <img
-                              src={getFirstCommanderArt(myDecks)!}
-                              alt=""
-                              className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10"
-                            />
-                          )}
-                          <span className="text-foreground/80">
-                            {myDecks
-                              .map((td) => td.deck?.name ?? 'Unknown')
-                              .join(', ')}
-                          </span>
-                          <span className="text-muted-foreground">for</span>
-                          {getFirstCommanderArt(theirDecks) && (
-                            <img
-                              src={getFirstCommanderArt(theirDecks)!}
-                              alt=""
-                              className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10"
-                            />
-                          )}
-                          <span className="text-foreground/80">
-                            {theirDecks
-                              .map((td) => td.deck?.name ?? 'Unknown')
-                              .join(', ')}
+                          <span
+                            className={`shrink-0 text-[10px] font-semibold sm:text-xs ${status.color}`}
+                          >
+                            {status.label}
                           </span>
                         </div>
-                        <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
-                          <span>
+                        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                          {myDecks.map((td) => td.deck?.name ?? '?').join(', ')}
+                          {' for '}
+                          {theirDecks
+                            .map((td) => td.deck?.name ?? '?')
+                            .join(', ')}
+                        </p>
+                        <div className="text-muted-foreground mt-1 flex items-center gap-2 text-[10px] sm:text-xs">
+                          <span className="text-emerald-400/80">
                             {formatPrice(myValue)} → {formatPrice(theirValue)}
                           </span>
-                          {cashLabel && <span>{cashLabel}</span>}
+                          {cashLabel && (
+                            <span className="hidden sm:inline">
+                              {cashLabel}
+                            </span>
+                          )}
                           <span>{timeAgo(trade.updated_at)}</span>
                         </div>
-                        {getLastMessage(trade) && (
-                          <p className="bg-muted/50 text-foreground/70 mt-2 rounded-md px-2.5 py-1.5 text-xs italic">
-                            &ldquo;
-                            {getLastMessage(trade)!.length > 50
-                              ? `${getLastMessage(trade)!.slice(0, 50)}...`
-                              : getLastMessage(trade)}
-                            &rdquo;
-                          </p>
-                        )}
                       </div>
-                      <span
-                        className={`shrink-0 text-xs font-semibold ${status.color}`}
-                      >
-                        {status.label}
-                      </span>
                     </div>
                   </div>
                 </Link>
@@ -217,65 +209,53 @@ export default async function TradesPage() {
 
               return (
                 <Link key={trade.id} href={`/trades/${trade.id}`}>
-                  <div className="bg-card hover:border-primary/50 rounded-lg border p-4 opacity-70 transition-colors hover:opacity-100">
-                    <div className="flex items-start justify-between gap-3">
+                  <div className="bg-card hover:border-primary/50 rounded-lg border p-3 opacity-70 transition-colors hover:opacity-100 sm:p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex shrink-0 -space-x-2">
+                        {getFirstCommanderArt(myDecks) ? (
+                          <img
+                            src={getFirstCommanderArt(myDecks)!}
+                            alt=""
+                            className="h-10 w-10 rounded-lg object-cover ring-2 ring-zinc-900 sm:h-12 sm:w-12"
+                          />
+                        ) : (
+                          <div className="bg-muted h-10 w-10 rounded-lg ring-2 ring-zinc-900 sm:h-12 sm:w-12" />
+                        )}
+                        {getFirstCommanderArt(theirDecks) ? (
+                          <img
+                            src={getFirstCommanderArt(theirDecks)!}
+                            alt=""
+                            className="h-10 w-10 rounded-lg object-cover ring-2 ring-zinc-900 sm:h-12 sm:w-12"
+                          />
+                        ) : (
+                          <div className="bg-muted h-10 w-10 rounded-lg ring-2 ring-zinc-900 sm:h-12 sm:w-12" />
+                        )}
+                      </div>
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">{them.username}</p>
-                          {them.city && (
-                            <span className="text-muted-foreground text-xs">
-                              {them.city}, {them.province}
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm">
-                          {getFirstCommanderArt(myDecks) && (
-                            <img
-                              src={getFirstCommanderArt(myDecks)!}
-                              alt=""
-                              className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10"
-                            />
-                          )}
-                          <span className="text-foreground/80">
-                            {myDecks
-                              .map((td) => td.deck?.name ?? 'Unknown')
-                              .join(', ')}
-                          </span>
-                          <span className="text-muted-foreground">for</span>
-                          {getFirstCommanderArt(theirDecks) && (
-                            <img
-                              src={getFirstCommanderArt(theirDecks)!}
-                              alt=""
-                              className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10"
-                            />
-                          )}
-                          <span className="text-foreground/80">
-                            {theirDecks
-                              .map((td) => td.deck?.name ?? 'Unknown')
-                              .join(', ')}
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-sm font-medium">
+                            {them.username}
+                          </p>
+                          <span
+                            className={`shrink-0 text-[10px] font-semibold sm:text-xs ${status.color}`}
+                          >
+                            {status.label}
                           </span>
                         </div>
-                        <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
-                          <span>
+                        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                          {myDecks.map((td) => td.deck?.name ?? '?').join(', ')}
+                          {' for '}
+                          {theirDecks
+                            .map((td) => td.deck?.name ?? '?')
+                            .join(', ')}
+                        </p>
+                        <div className="text-muted-foreground mt-1 flex items-center gap-2 text-[10px] sm:text-xs">
+                          <span className="text-emerald-400/80">
                             {formatPrice(myValue)} → {formatPrice(theirValue)}
                           </span>
                           <span>{timeAgo(trade.updated_at)}</span>
                         </div>
-                        {getLastMessage(trade) && (
-                          <p className="bg-muted/50 text-foreground/70 mt-2 rounded-md px-2.5 py-1.5 text-xs italic">
-                            &ldquo;
-                            {getLastMessage(trade)!.length > 50
-                              ? `${getLastMessage(trade)!.slice(0, 50)}...`
-                              : getLastMessage(trade)}
-                            &rdquo;
-                          </p>
-                        )}
                       </div>
-                      <span
-                        className={`shrink-0 text-xs font-semibold ${status.color}`}
-                      >
-                        {status.label}
-                      </span>
                     </div>
                   </div>
                 </Link>
