@@ -141,7 +141,7 @@ function AvatarUpload({
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="text-primary text-xs font-medium hover:underline"
+          className="text-primary px-2 py-2 text-xs font-medium hover:underline"
         >
           {uploading
             ? 'Uploading...'
@@ -153,7 +153,7 @@ function AvatarUpload({
           <button
             type="button"
             onClick={handleRemove}
-            className="text-muted-foreground ml-2 text-xs hover:underline"
+            className="text-muted-foreground ml-1 px-2 py-2 text-xs hover:underline"
           >
             Remove
           </button>
@@ -289,7 +289,7 @@ export function SettingsForm({ user }: { user: User }) {
               {success && (
                 <p className="text-sm text-green-600">Profile updated.</p>
               )}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="username">Username</Label>
                   <Input

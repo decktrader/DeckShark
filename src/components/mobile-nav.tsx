@@ -69,7 +69,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
           setOpen((v) => !v)
         }}
         style={{ touchAction: 'manipulation' }}
-        className="active:bg-accent flex h-10 w-10 cursor-pointer items-center justify-center rounded-md"
+        className="active:bg-accent flex h-11 w-11 cursor-pointer items-center justify-center rounded-md"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -143,17 +143,12 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
                 </Link>
               ) : (
                 <div className="flex gap-2 px-3 py-2">
-                  <Button asChild size="sm" className="flex-1">
+                  <Button asChild className="flex-1">
                     <Link href="/register" onClick={() => setOpen(false)}>
                       Get started
                     </Link>
                   </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                  >
+                  <Button asChild variant="outline" className="flex-1">
                     <Link href="/login" onClick={() => setOpen(false)}>
                       Sign in
                     </Link>

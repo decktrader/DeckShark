@@ -16,7 +16,7 @@ function formatPrice(cents: number | null): string {
 function CriteriaPill({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-muted rounded-lg px-3 py-2">
-      <p className="text-muted-foreground text-[10px] tracking-wide uppercase">
+      <p className="text-muted-foreground text-[11px] tracking-wide uppercase">
         {label}
       </p>
       <p className="text-sm font-medium">{value}</p>
@@ -85,7 +85,7 @@ export default async function PublicWantListPage({
 
       {/* Header */}
       <div className="mb-6 rounded-2xl border border-white/5 bg-white/[2%] p-6">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-center gap-4">
             {wantList.owner.avatar_url ? (
               <img

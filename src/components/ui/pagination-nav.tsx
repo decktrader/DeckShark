@@ -17,11 +17,11 @@ export function PaginationNav({
   return (
     <div className="mt-8 flex items-center justify-center gap-3">
       {page > 1 ? (
-        <Button variant="outline" size="sm" asChild>
+        <Button variant="outline" size="default" asChild>
           <Link href={buildUrl(page - 1)}>← Previous</Link>
         </Button>
       ) : (
-        <Button variant="outline" size="sm" disabled>
+        <Button variant="outline" size="default" disabled>
           ← Previous
         </Button>
       )}
@@ -29,11 +29,11 @@ export function PaginationNav({
         Page {page} of {totalPages}
       </span>
       {page < totalPages ? (
-        <Button variant="outline" size="sm" asChild>
+        <Button variant="outline" size="default" asChild>
           <Link href={buildUrl(page + 1)}>Next →</Link>
         </Button>
       ) : (
-        <Button variant="outline" size="sm" disabled>
+        <Button variant="outline" size="default" disabled>
           Next →
         </Button>
       )}
