@@ -46,12 +46,14 @@ export default async function HomePage({
 
   let defaultCity: string | null = null
   let defaultProvince: string | null = null
+  let isLoggedIn = false
   try {
     const supabase = await createClient()
     const {
       data: { user: authUser },
     } = await supabase.auth.getUser()
     if (authUser) {
+      isLoggedIn = true
       const { data: profile } = await getUserById(authUser.id)
       defaultCity = profile?.city ?? null
       defaultProvince = profile?.province ?? null
@@ -202,14 +204,16 @@ export default async function HomePage({
               <Button asChild size="lg" className="h-14 px-8 text-lg">
                 <Link href="#browse">Browse decks now</Link>
               </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="ghost"
-                className="h-14 px-8 text-lg"
-              >
-                <Link href="/register">Sign up</Link>
-              </Button>
+              {!isLoggedIn && (
+                <Button
+                  asChild
+                  size="lg"
+                  variant="ghost"
+                  className="h-14 px-8 text-lg"
+                >
+                  <Link href="/register">Sign up</Link>
+                </Button>
+              )}
             </div>
           </div>
 
@@ -363,14 +367,19 @@ export default async function HomePage({
       </section>
 
       {/* Bottom CTA */}
-      <section className="border-t border-white/5 py-10 text-center">
-        <p className="text-muted-foreground text-sm">
-          Ready to trade?{' '}
-          <Link href="/register" className="text-primary font-medium underline">
-            Create a free account
-          </Link>
-        </p>
-      </section>
+      {!isLoggedIn && (
+        <section className="border-t border-white/5 py-10 text-center">
+          <p className="text-muted-foreground text-sm">
+            Ready to trade?{' '}
+            <Link
+              href="/register"
+              className="text-primary font-medium underline"
+            >
+              Create a free account
+            </Link>
+          </p>
+        </section>
+      )}
     </main>
   )
 }
