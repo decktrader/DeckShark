@@ -78,7 +78,9 @@ export default async function DashboardPage() {
     <main className="container mx-auto max-w-5xl px-4 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
+            Dashboard
+          </h1>
         </div>
         <div className="flex gap-2">
           <Button asChild>
@@ -91,32 +93,34 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat boxes */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <div className="overflow-hidden rounded-xl border border-white/5">
           <div className="h-1 w-full bg-gradient-to-r from-violet-500/80 via-violet-500/30 to-transparent" />
           <div className="p-4 text-center">
-            <p className="text-3xl font-black">{deckList.length}</p>
+            <p className="text-2xl font-black sm:text-3xl">{deckList.length}</p>
             <p className="text-muted-foreground text-xs">Decks</p>
           </div>
         </div>
         <div className="overflow-hidden rounded-xl border border-white/5">
           <div className="h-1 w-full bg-gradient-to-r from-sky-500/80 via-sky-500/30 to-transparent" />
           <div className="p-4 text-center">
-            <p className="text-3xl font-black">{activeTrades}</p>
+            <p className="text-2xl font-black sm:text-3xl">{activeTrades}</p>
             <p className="text-muted-foreground text-xs">Active trades</p>
           </div>
         </div>
         <div className="overflow-hidden rounded-xl border border-white/5">
           <div className="h-1 w-full bg-gradient-to-r from-emerald-500/80 via-emerald-500/30 to-transparent" />
           <div className="p-4 text-center">
-            <p className="text-3xl font-black">{profile.completed_trades}</p>
+            <p className="text-2xl font-black sm:text-3xl">
+              {profile.completed_trades}
+            </p>
             <p className="text-muted-foreground text-xs">Completed</p>
           </div>
         </div>
         <div className="overflow-hidden rounded-xl border border-white/5">
           <div className="h-1 w-full bg-gradient-to-r from-amber-500/80 via-amber-500/30 to-transparent" />
           <div className="p-4 text-center">
-            <p className="text-3xl font-black">
+            <p className="text-2xl font-black sm:text-3xl">
               {wlList.filter((w) => w.status === 'active').length}
             </p>
             <p className="text-muted-foreground text-xs">Want lists</p>
@@ -125,7 +129,9 @@ export default async function DashboardPage() {
         <div className="overflow-hidden rounded-xl border border-white/5">
           <div className="h-1 w-full bg-gradient-to-r from-pink-500/80 via-pink-500/30 to-transparent" />
           <div className="p-4 text-center">
-            <p className="text-3xl font-black">{totalInterest ?? 0}</p>
+            <p className="text-2xl font-black sm:text-3xl">
+              {totalInterest ?? 0}
+            </p>
             <p className="text-muted-foreground text-xs">Interested</p>
           </div>
         </div>
@@ -151,7 +157,7 @@ export default async function DashboardPage() {
               </Link>
             </p>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-4">
               {deckList.map((d) => (
                 <DeckCardNew key={d.id} deck={d} />
               ))}

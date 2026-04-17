@@ -70,7 +70,7 @@ export default async function TradesPage() {
 
   return (
     <main className="container mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Trades</h1>
+      <h1 className="mb-6 text-2xl font-bold sm:mb-8 sm:text-3xl">Trades</h1>
 
       {(trades ?? []).length === 0 && (
         <p className="text-muted-foreground">

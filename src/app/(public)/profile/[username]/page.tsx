@@ -97,32 +97,36 @@ export default async function PublicProfilePage({
   return (
     <main className="container mx-auto max-w-5xl px-4 py-8">
       <div className="flex flex-col gap-6 sm:flex-row">
-        {/* Sidebar */}
+        {/* Sidebar — horizontal on mobile, vertical on sm+ */}
         <div className="shrink-0 sm:sticky sm:top-24 sm:w-56 sm:self-start">
           <div className="space-y-3">
-            {/* Avatar card */}
-            <div className="overflow-hidden rounded-xl border border-white/5 p-5">
-              <div className="flex flex-col items-center">
-                <Avatar className="h-20 w-20">
+            {/* Avatar card — compact row on mobile, centered column on sm+ */}
+            <div className="overflow-hidden rounded-xl border border-white/5 p-4 sm:p-5">
+              <div className="flex items-center gap-3 sm:flex-col sm:items-center sm:gap-0">
+                <Avatar className="h-14 w-14 sm:h-20 sm:w-20">
                   <AvatarImage
                     src={user.avatar_url ?? undefined}
                     alt={user.username}
                   />
-                  <AvatarFallback className="text-xl">
+                  <AvatarFallback className="text-lg sm:text-xl">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                <h1 className="mt-2 text-lg font-black">{user.username}</h1>
-                {user.city && user.province && (
-                  <p className="text-muted-foreground text-xs">
-                    {user.city}, {user.province}
-                  </p>
-                )}
-                {user.bio && (
-                  <p className="text-muted-foreground mt-2 text-center text-xs leading-relaxed">
-                    {user.bio}
-                  </p>
-                )}
+                <div className="min-w-0 sm:mt-2 sm:text-center">
+                  <h1 className="text-base font-black sm:text-lg">
+                    {user.username}
+                  </h1>
+                  {user.city && user.province && (
+                    <p className="text-muted-foreground text-xs">
+                      {user.city}, {user.province}
+                    </p>
+                  )}
+                  {user.bio && (
+                    <p className="text-muted-foreground mt-1 text-xs leading-relaxed sm:mt-2 sm:text-center">
+                      {user.bio}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -170,7 +174,7 @@ export default async function PublicProfilePage({
                   ({decks.length})
                 </span>
               </h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-4">
                 {decks.map((deck) => (
                   <DeckMiniCard key={deck.id} deck={deck} />
                 ))}
