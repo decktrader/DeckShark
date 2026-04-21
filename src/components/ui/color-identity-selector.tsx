@@ -25,15 +25,29 @@ interface ColorIdentitySelectorProps {
   onChange: (value: string[]) => void
 }
 
+const CATEGORY_VALUES = ['_mono', '_dual', '_tri', '_four'] as const
+
 export function ColorIdentitySelector({
   value,
   onChange,
 }: ColorIdentitySelectorProps) {
-  const selectValue = value.length ? toKey(value) || 'none' : 'none'
+  // Category values are stored as a single-element array like ['_mono']
+  const isCategory =
+    value.length === 1 &&
+    CATEGORY_VALUES.includes(value[0] as (typeof CATEGORY_VALUES)[number])
+  const selectValue = isCategory
+    ? value[0]
+    : value.length
+      ? toKey(value) || 'none'
+      : 'none'
 
   function handleChange(v: string) {
     if (v === 'none') {
       onChange([])
+      return
+    }
+    if (CATEGORY_VALUES.includes(v as (typeof CATEGORY_VALUES)[number])) {
+      onChange([v])
       return
     }
     const option = COLOR_IDENTITY_OPTIONS.find((o) => o.value === v)
@@ -47,6 +61,14 @@ export function ColorIdentitySelector({
       </SelectTrigger>
       <SelectContent className="max-h-80">
         <SelectItem value="none">Any color identity</SelectItem>
+
+        <SelectGroup>
+          <SelectLabel>By count</SelectLabel>
+          <SelectItem value="_mono">Any mono-color</SelectItem>
+          <SelectItem value="_dual">Any two-color</SelectItem>
+          <SelectItem value="_tri">Any three-color</SelectItem>
+          <SelectItem value="_four">Any four-color</SelectItem>
+        </SelectGroup>
 
         <SelectGroup>
           <SelectLabel>Mono</SelectLabel>

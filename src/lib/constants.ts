@@ -149,11 +149,11 @@ export const COLOR_IDENTITY_OPTIONS = [
 ] as const
 
 export const SORT_OPTIONS = [
-  { value: 'recent', label: 'Recently added' },
-  { value: 'value_asc', label: 'Price: low to high' },
-  { value: 'value_desc', label: 'Price: high to low' },
-  { value: 'power_asc', label: 'Power: low to high' },
-  { value: 'power_desc', label: 'Power: high to low' },
+  { value: 'recent', label: 'Recent' },
+  { value: 'name_asc', label: 'Name A-Z' },
+  { value: 'name_desc', label: 'Name Z-A' },
+  { value: 'value_asc', label: 'Price ↑' },
+  { value: 'value_desc', label: 'Price ↓' },
 ] as const
 
 export const COUNTRIES = [

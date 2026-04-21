@@ -29,10 +29,9 @@ import {
   getAllRegions,
   ARCHETYPES,
   POWER_LEVELS,
-  SORT_OPTIONS,
 } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { X, SlidersHorizontal } from 'lucide-react'
+import { X, SlidersHorizontal, Plus, Minus } from 'lucide-react'
 
 // ---------- helpers ----------
 
@@ -60,25 +59,55 @@ function buildParams(
 
 // ---------- sub-components ----------
 
-function GlassDivider() {
-  return (
-    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-  )
-}
-
-function SidebarSection({
+function AccordionSection({
   label,
+  preview,
+  open,
+  onToggle,
   children,
 }: {
   label: string
+  preview?: string | null
+  open: boolean
+  onToggle: () => void
   children: React.ReactNode
 }) {
   return (
     <div>
-      <p className="text-muted-foreground mb-2.5 text-[10px] font-bold tracking-widest uppercase">
-        {label}
-      </p>
-      {children}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center gap-2 px-3.5 py-[7px]"
+      >
+        <span
+          className={cn(
+            'flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-[3px]',
+            open
+              ? 'bg-primary/15 text-primary'
+              : 'bg-white/[0.06] text-white/30',
+          )}
+        >
+          {open ? (
+            <Minus className="h-2.5 w-2.5" />
+          ) : (
+            <Plus className="h-2.5 w-2.5" />
+          )}
+        </span>
+        <span
+          className={cn(
+            'flex-1 text-left text-[11px]',
+            open ? 'font-semibold text-white/75' : 'font-medium text-white/45',
+          )}
+        >
+          {label}
+        </span>
+        {!open && preview && (
+          <span className="text-primary/70 truncate text-[10px]">
+            {preview}
+          </span>
+        )}
+      </button>
+      {open && <div className="px-3.5 pb-2.5 pl-[34px]">{children}</div>}
     </div>
   )
 }
@@ -128,27 +157,95 @@ function FilterContent({
     searchParams.get('colorIdentity')?.split(',').filter(Boolean) ?? []
   const powerLevel = searchParams.get('powerLevel') ?? ''
   const archetype = searchParams.get('archetype') ?? ''
-  const sortBy = searchParams.get('sortBy') ?? ''
   const format = searchParams.get('format') ?? ''
   const province = searchParams.get('province') ?? ''
+  const commander = searchParams.get('commander') ?? ''
+  const city = searchParams.get('city') ?? ''
+  const minValue = searchParams.get('minValue')
+  const maxValue = searchParams.get('maxValue')
 
   const triggerClass = `${inputSize} border-white/10 bg-white/5 text-xs`
 
+  // Determine which sections have active values (auto-open those)
+  const hasPrice = !!(minValue || maxValue)
+  const hasLocation = !!(province || city)
+  const hasFormat = !!format
+  const hasCommander = !!commander
+  const hasPower = !!powerLevel
+  const hasColors = colorIdentity.length > 0
+  const hasArchetype = !!archetype
+
+  // Track which sections are open — sections with active filters start open
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    price: true,
+    location: true,
+    format: false,
+    commander: false,
+    power: false,
+    colors: false,
+    archetype: false,
+  })
+
+  function toggle(key: string) {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  // Build preview strings for collapsed sections
+  const pricePreview = hasPrice
+    ? [
+        minValue ? `$${Number(minValue) / 100}` : null,
+        maxValue ? `$${Number(maxValue) / 100}` : null,
+      ]
+        .filter(Boolean)
+        .join(' — ')
+    : null
+
+  const locationPreview = hasLocation
+    ? [
+        getAllRegions().find((r) => r.value === province)?.label ?? province,
+        city,
+      ]
+        .filter(Boolean)
+        .join(', ')
+    : null
+
+  const formatPreview = hasFormat
+    ? (FORMATS.find((f) => f.value === format)?.label ?? format)
+    : null
+
+  const powerPreview = hasPower
+    ? (POWER_LEVELS.find((p) => p.value === powerLevel)?.label?.replace(
+        /^Bracket \d — /,
+        '',
+      ) ?? powerLevel)
+    : null
+
+  const COLOR_CATEGORY_LABELS: Record<string, string> = {
+    _mono: 'Any mono',
+    _dual: 'Any two-color',
+    _tri: 'Any three-color',
+    _four: 'Any four-color',
+  }
+  const colorPreview = hasColors
+    ? (colorIdentity.length === 1 && COLOR_CATEGORY_LABELS[colorIdentity[0]]) ||
+      colorIdentity.join(', ')
+    : null
+
   return (
-    <div className="space-y-5">
-      {/* Price range */}
-      <SidebarSection label="Price range">
+    <div>
+      <AccordionSection
+        label="Price range"
+        preview={pricePreview}
+        open={openSections.price || hasPrice}
+        onToggle={() => toggle('price')}
+      >
         <div className="flex items-center gap-2">
           <Input
             type="number"
             min={0}
             placeholder="Min $"
-            className={`${triggerClass}`}
-            defaultValue={
-              searchParams.get('minValue')
-                ? String(Number(searchParams.get('minValue')) / 100)
-                : ''
-            }
+            className={triggerClass}
+            defaultValue={minValue ? String(Number(minValue) / 100) : ''}
             onBlur={(e) => {
               const dollars = parseFloat(e.target.value)
               updateFilter({
@@ -163,12 +260,8 @@ function FilterContent({
             type="number"
             min={0}
             placeholder="Max $"
-            className={`${triggerClass}`}
-            defaultValue={
-              searchParams.get('maxValue')
-                ? String(Number(searchParams.get('maxValue')) / 100)
-                : ''
-            }
+            className={triggerClass}
+            defaultValue={maxValue ? String(Number(maxValue) / 100) : ''}
             onBlur={(e) => {
               const dollars = parseFloat(e.target.value)
               updateFilter({
@@ -179,12 +272,14 @@ function FilterContent({
             }}
           />
         </div>
-      </SidebarSection>
+      </AccordionSection>
 
-      <GlassDivider />
-
-      {/* Location */}
-      <SidebarSection label="Location">
+      <AccordionSection
+        label="Location"
+        preview={locationPreview}
+        open={openSections.location || hasLocation}
+        onToggle={() => toggle('location')}
+      >
         <div className="space-y-1.5">
           <Select
             value={province || 'all'}
@@ -213,17 +308,19 @@ function FilterContent({
           </Select>
           <CityAutocomplete
             key={searchParams.get('city') ?? 'empty'}
-            defaultValue={searchParams.get('city') ?? ''}
+            defaultValue={city}
             onCommit={(v) => updateFilter({ city: v || null })}
             placeholder="City"
           />
         </div>
-      </SidebarSection>
+      </AccordionSection>
 
-      <GlassDivider />
-
-      {/* Format */}
-      <SidebarSection label="Format">
+      <AccordionSection
+        label="Format"
+        preview={formatPreview}
+        open={openSections.format || hasFormat}
+        onToggle={() => toggle('format')}
+      >
         <Select
           value={format || 'all'}
           onValueChange={(v) =>
@@ -242,24 +339,28 @@ function FilterContent({
             ))}
           </SelectContent>
         </Select>
-      </SidebarSection>
+      </AccordionSection>
 
-      <GlassDivider />
-
-      {/* Commander */}
-      <SidebarSection label="Commander">
+      <AccordionSection
+        label="Commander"
+        preview={hasCommander ? commander : null}
+        open={openSections.commander || hasCommander}
+        onToggle={() => toggle('commander')}
+      >
         <CommanderAutocomplete
-          key={searchParams.get('commander') ?? 'empty'}
-          defaultValue={searchParams.get('commander') ?? ''}
+          key={commander || 'empty'}
+          defaultValue={commander}
           onCommit={(v) => updateFilter({ commander: v || null })}
           placeholder="e.g. Atraxa"
         />
-      </SidebarSection>
+      </AccordionSection>
 
-      <GlassDivider />
-
-      {/* Power level */}
-      <SidebarSection label="Power level">
+      <AccordionSection
+        label="Power level"
+        preview={powerPreview}
+        open={openSections.power || hasPower}
+        onToggle={() => toggle('power')}
+      >
         <Select
           value={powerLevel || 'all'}
           onValueChange={(v) =>
@@ -278,24 +379,28 @@ function FilterContent({
             ))}
           </SelectContent>
         </Select>
-      </SidebarSection>
+      </AccordionSection>
 
-      <GlassDivider />
-
-      {/* Color identity */}
-      <SidebarSection label="Color identity">
+      <AccordionSection
+        label="Color identity"
+        preview={colorPreview}
+        open={openSections.colors || hasColors}
+        onToggle={() => toggle('colors')}
+      >
         <ColorIdentitySelector
           value={colorIdentity}
           onChange={(colors) =>
             updateFilter({ colorIdentity: colors.length ? colors : null })
           }
         />
-      </SidebarSection>
+      </AccordionSection>
 
-      <GlassDivider />
-
-      {/* Archetype */}
-      <SidebarSection label="Archetype">
+      <AccordionSection
+        label="Archetype"
+        preview={hasArchetype ? archetype : null}
+        open={openSections.archetype || hasArchetype}
+        onToggle={() => toggle('archetype')}
+      >
         <Select
           value={archetype || 'all'}
           onValueChange={(v) =>
@@ -314,41 +419,20 @@ function FilterContent({
             ))}
           </SelectContent>
         </Select>
-      </SidebarSection>
-
-      <GlassDivider />
-
-      {/* Sort */}
-      <SidebarSection label="Sort by">
-        <Select
-          value={sortBy || 'recent'}
-          onValueChange={(v) =>
-            updateFilter({ sortBy: v === 'recent' ? null : v })
-          }
-        >
-          <SelectTrigger className={triggerClass}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </SidebarSection>
+      </AccordionSection>
 
       {/* Reset */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={clearFilters}
-        className="text-muted-foreground w-full text-xs"
-        disabled={!hasFilters}
-      >
-        Reset all filters
-      </Button>
+      <div className="px-3.5 pt-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearFilters}
+          className="text-muted-foreground w-full text-xs"
+          disabled={!hasFilters}
+        >
+          Reset all filters
+        </Button>
+      </div>
     </div>
   )
 }
@@ -385,8 +469,7 @@ export function BrowseSidebar({
     searchParams.has('maxValue') ||
     searchParams.has('powerLevel') ||
     searchParams.has('colorIdentity') ||
-    searchParams.has('archetype') ||
-    searchParams.has('sortBy')
+    searchParams.has('archetype')
 
   const updateFilter = useCallback(
     (updates: Record<string, string | string[] | null>) => {
@@ -456,19 +539,17 @@ export function BrowseSidebar({
     return (
       <aside className="hidden w-64 shrink-0 lg:block">
         <div
-          className="sticky top-20 space-y-5 overflow-y-auto rounded-2xl border border-white/10 bg-white/[3%] p-5 backdrop-blur-xl"
+          className="sticky top-20 overflow-y-auto rounded-2xl border border-white/10 bg-white/[3%] backdrop-blur-xl"
           style={{ maxHeight: 'calc(100vh - 6rem)' }}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2">
             <h2 className="text-sm font-bold">Filters</h2>
             <span className="text-muted-foreground text-[10px]">
               {resultCount} results
             </span>
           </div>
 
-          {quickChips}
-
-          <GlassDivider />
+          <div className="px-3.5 pb-2.5">{quickChips}</div>
 
           <FilterContent
             searchParams={searchParams}
@@ -646,20 +727,17 @@ export function BrowseSidebar({
       {/* Desktop: original sidebar */}
       <aside className="hidden w-64 shrink-0 lg:block">
         <div
-          className="sticky top-20 space-y-5 overflow-y-auto rounded-2xl border border-white/10 bg-white/[3%] p-5 backdrop-blur-xl"
+          className="sticky top-20 overflow-y-auto rounded-2xl border border-white/10 bg-white/[3%] backdrop-blur-xl"
           style={{ maxHeight: 'calc(100vh - 6rem)' }}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2">
             <h2 className="text-sm font-bold">Filters</h2>
             <span className="text-muted-foreground text-[10px]">
               {resultCount} results
             </span>
           </div>
 
-          {quickChips}
-
-          <GlassDivider />
+          <div className="px-3.5 pb-2.5">{quickChips}</div>
 
           <FilterContent
             searchParams={searchParams}

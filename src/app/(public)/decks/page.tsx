@@ -4,6 +4,7 @@ import { getUserById } from '@/lib/services/users.server'
 import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
 import { DeckBrowseCard } from '@/components/deck/deck-browse-card'
+import { SortBar } from '@/components/deck/sort-bar'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 import { getInterestCountsForDecks } from '@/lib/services/deck-interests.server'
 
@@ -124,6 +125,11 @@ export default async function BrowseDecksPage({
 
         {/* Main content */}
         <div className="flex-1">
+          <div className="mb-4">
+            <Suspense>
+              <SortBar />
+            </Suspense>
+          </div>
           {pageDecks.length === 0 ? (
             <p className="text-muted-foreground py-20 text-center text-lg">
               No decks match your filters. Try broadening your search.

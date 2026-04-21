@@ -3,6 +3,8 @@ import type { Deck, DeckCard, DeckPhoto, ServiceResponse, User } from '@/types'
 
 export type SortOption =
   | 'recent'
+  | 'name_asc'
+  | 'name_desc'
   | 'value_asc'
   | 'value_desc'
   | 'power_asc'
@@ -61,9 +63,26 @@ export async function getPublicDecks(
   const page = filters.page ?? 1
   const pageSize = filters.pageSize ?? filters.limit ?? 1000
 
-  // When city/province filters or power-level sort are active we must fetch all
-  // rows because those operations happen client-side. Otherwise use DB pagination.
-  const needsClientFilter = !!(filters.city || filters.province)
+  // Color count category filter (_mono, _dual, _tri, _four)
+  const colorCountCategory =
+    filters.colorIdentity?.length === 1 &&
+    filters.colorIdentity[0].startsWith('_')
+      ? filters.colorIdentity[0]
+      : null
+  const COLOR_COUNT_MAP: Record<string, number> = {
+    _mono: 1,
+    _dual: 2,
+    _tri: 3,
+    _four: 4,
+  }
+
+  // When city/province filters, color count categories, or power-level sort
+  // are active we must fetch all rows because those operations happen client-side.
+  const needsClientFilter = !!(
+    filters.city ||
+    filters.province ||
+    colorCountCategory
+  )
   const needsClientSort = sortBy === 'power_asc' || sortBy === 'power_desc'
   const canDbPaginate = !needsClientFilter && !needsClientSort
 
@@ -76,7 +95,11 @@ export async function getPublicDecks(
     .eq('available_for_trade', true)
     .eq('status', 'active')
 
-  if (sortBy === 'value_asc') {
+  if (sortBy === 'name_asc') {
+    query = query.order('name', { ascending: true })
+  } else if (sortBy === 'name_desc') {
+    query = query.order('name', { ascending: false })
+  } else if (sortBy === 'value_asc') {
     query = query.order('estimated_value_cents', {
       ascending: true,
       nullsFirst: false,
@@ -110,7 +133,14 @@ export async function getPublicDecks(
     query = query.eq('power_level', filters.powerLevel)
   }
   if (filters.colorIdentity && filters.colorIdentity.length > 0) {
-    query = query.contains('color_identity', filters.colorIdentity)
+    const isCategory =
+      filters.colorIdentity.length === 1 &&
+      filters.colorIdentity[0].startsWith('_')
+    if (!isCategory) {
+      query = query.contains('color_identity', filters.colorIdentity)
+    }
+    // Category filters (_mono, _dual, _tri, _four) are applied client-side
+    // below since Supabase doesn't support array_length in PostgREST.
   }
   if (filters.archetype) {
     query = query.eq('archetype', filters.archetype)
@@ -143,6 +173,12 @@ export async function getPublicDecks(
   }
   if (filters.province) {
     decks = decks.filter((d) => d.owner?.province === filters.province)
+  }
+
+  // Client-side color count category filter
+  if (colorCountCategory && COLOR_COUNT_MAP[colorCountCategory]) {
+    const targetCount = COLOR_COUNT_MAP[colorCountCategory]
+    decks = decks.filter((d) => (d.color_identity?.length ?? 0) === targetCount)
   }
 
   // Client-side power level sort (custom ordering, not alphabetical)

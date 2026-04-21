@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
 import { DeckArt } from '@/components/deck/deck-art'
 import { DeckBrowseCard } from '@/components/deck/deck-browse-card'
+import { SortBar } from '@/components/deck/sort-bar'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 import { Button } from '@/components/ui/button'
 import { getInterestCountsForDecks } from '@/lib/services/deck-interests.server'
@@ -333,6 +334,11 @@ export default async function HomePage({
           </Suspense>
 
           <div className="flex-1">
+            <div className="mb-4">
+              <Suspense>
+                <SortBar basePath="/" />
+              </Suspense>
+            </div>
             {pageDecks.length === 0 ? (
               <p className="text-muted-foreground py-20 text-center text-lg">
                 No decks match your filters. Try broadening your search.
