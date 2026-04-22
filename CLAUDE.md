@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-MTG deck trading marketplace. Local, in-person trades (not limited to Canada — works globally).
+MTG deck trading marketplace. Local, in-person trades. Currently supports Canada and US.
 Stack: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + Supabase + Vercel.
 Repo: `github.com/decktrader/DeckShark`
 
@@ -28,14 +28,14 @@ Repo: `github.com/decktrader/DeckShark`
 
 ### Route Groups
 
-- `(auth)/` — login, register (unauthenticated only)
+- `(auth)/` — login, register, forgot-password, reset-password (unauthenticated only)
 - `(public)/` — browsable without login (decks, profiles, want lists)
 - `(protected)/` — requires auth (dashboard, settings, trades)
 - `(admin)/` — requires auth + `is_admin` flag (admin dashboard, users, trades, reports, feedback, growth)
 
 **Route conflict warning:** Never create a static sibling route next to a dynamic `[id]` segment (e.g., `/trades/preview` will be caught by `/trades/[id]` and error). Use a different path prefix instead (e.g., `/trade-preview`).
 
-**Design preview pages:** Use static routes with query params (`/preview/v3?v=a`) not nested dynamic segments. Always quote URLs with `?`/`&` in shell commands (zsh treats them as globs).
+**Design previews:** Use plain HTML files in `public/` (e.g., `public/preview-sort.html`) for UI design iteration. Avoids route group conflicts, client component issues, and HMR problems. Delete after finalizing. Always quote URLs with `?`/`&` in shell commands (zsh treats them as globs).
 
 **Client component extraction:** Components with event handlers (`onClick`, `onChange`) cannot be defined inline in server component files. Extract them to separate `'use client'` files (e.g., `deck-card-new.tsx` for deck cards with trade toggles).
 
@@ -73,6 +73,8 @@ Exception: cron routes and admin operations can import `createClient` from `@sup
 - Local Inbucket (email testing): http://127.0.0.1:54324
 - `supabase db reset` wipes all local data — re-sync cards afterward
 - If page changes aren't reflecting after edits, restart the dev server (`pnpm dev`). Turbopack HMR can get stuck, especially after adding/removing route files or `export const dynamic`.
+- **Mobile testing:** Use Chrome DevTools device toolbar (Cmd+Shift+M) for mobile simulation. Do NOT test via phone on local network — the dev server HMR WebSocket connects to `localhost`, blocking React hydration on other devices. Production deploys work perfectly on mobile.
+- **Mobile design previews:** If phone testing is needed for previews, use plain HTML files in `public/` (e.g., `public/preview-mobile.html`) with `ontouchstart` handlers. React preview pages won't work on phones due to HMR. Delete preview HTML files after finalizing designs.
 
 ### New developer setup
 

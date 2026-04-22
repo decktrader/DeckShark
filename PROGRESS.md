@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** M26 in progress
-**Status:** M26 (Settings Overhaul) implementation complete — tabbed settings, country/state support, password change, forgot password, privacy & data tab. Migration 031 applied locally. Needs production migration + testing.
-**Next step:** Push M26, apply migration 031 to production. Then M27 (Support DeckShark) → M28 (Seed Content).
+**Milestone:** Between M26 and M27
+**Status:** M26 complete and deployed. Browse UX polish done — inline sort bar, accordion filters, color count categories.
+**Next step:** M27 (Support DeckShark) → M28 (Seed Content).
 **Blocked:** Nothing.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
 
@@ -50,6 +50,14 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-21 — Browse UX polish
+
+**Sort bar:** Replaced sidebar sort dropdown with inline text links above the deck grid (D1 style — pipe separators, purple underline on active). Added alphabetical sort (Name A-Z, Z-A). Removed power level sort options. Applied to both browse page and landing page.
+
+**Accordion filters:** Refactored sidebar from stacked sections with dividers to collapsible accordion (C2 style — plus/minus icons, indented body, value previews when collapsed). Sections with active filters auto-open. Much more compact.
+
+**Color count categories:** Added "By count" group to color identity dropdown — Any mono-color, Any two-color, Any three-color, Any four-color. Filters by array length client-side.
 
 ### 2026-04-17 — M26 Settings Overhaul
 

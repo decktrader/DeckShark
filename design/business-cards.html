@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeckShark Business Cards — V6 Site Theme</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* DeckShark brand colors */
+  :root {
+    --bg: #0f172a;
+    --bg-light: #1e293b;
+    --card-bg: #1a2340;
+    --primary: #7c3aed;
+    --primary-light: #a78bfa;
+    --primary-dark: #5b21b6;
+    --muted: #2a3352;
+    --muted-fg: #7a85a5;
+    --border: rgba(255,255,255,0.1);
+    --fg: #f5f5f5;
+    --fg-dim: #94a3b8;
+  }
+
+  body {
+    background: linear-gradient(135deg, var(--bg), var(--bg-light));
+    color: var(--fg);
+    font-family: 'Inter', sans-serif;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+  }
+  h1 { font-family: 'Cinzel', serif; font-size: 28px; color: var(--primary-light); letter-spacing: 2px; }
+  .subtitle { color: var(--muted-fg); font-size: 13px; margin-top: 6px; }
+  .version-label {
+    font-family: 'Cinzel', serif; font-size: 16px; color: var(--muted-fg);
+    letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .card-pair { display: flex; gap: 32px; align-items: center; }
+  .side-label { font-size: 9px; color: var(--muted-fg); text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 6px; }
+
+  /* MTG card: 2.48" x 3.46" at 96dpi */
+  .vcard { width: 238px; height: 332px; border-radius: 10px; position: relative; overflow: hidden; }
+  /* Business card back: 3.5" x 2" */
+  .hcard { width: 336px; height: 192px; border-radius: 8px; position: relative; overflow: hidden; }
+
+  /* ============================================
+     MTG FRONT — shared structure
+     ============================================ */
+  .mtg-front { display: flex; flex-direction: column; }
+  .mtg-front .title-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 12px; font-family: 'Cinzel', serif;
+  }
+  .mtg-front .title-bar .name { font-weight: 700; font-size: 14px; }
+  .mtg-front .title-bar .mana { display: flex; gap: 3px; }
+  .pip {
+    width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; font-weight: 700;
+    border: 1px solid rgba(0,0,0,0.25);
+    box-shadow: inset 0 -1px 2px rgba(0,0,0,0.2);
+  }
+  .pip-u { background: radial-gradient(circle at 35% 35%, #4fc3f7, #0277bd); color: #fff; }
+  .pip-b { background: radial-gradient(circle at 35% 35%, #666, #1a1a1a); color: #aaa; }
+  .pip-2 { background: radial-gradient(circle at 35% 35%, #e0e0e0, #9e9e9e); color: #333; }
+
+  .mtg-front .art-box {
+    margin: 0 8px; height: 135px; border-radius: 4px;
+    position: relative; overflow: hidden;
+  }
+  .shark-art {
+    position: absolute; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .shark-art svg { width: 150px; height: 80px; }
+  .mtg-front .type-bar {
+    margin: 4px 8px; padding: 4px 10px; border-radius: 3px;
+    font-family: 'Cinzel', serif; font-size: 8.5px; letter-spacing: 0.5px;
+  }
+  .mtg-front .text-box {
+    margin: 0 8px; padding: 10px; border-radius: 4px; flex: 1;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .mtg-front .text-box .ability { font-size: 9px; line-height: 1.5; margin-bottom: 5px; }
+  .mtg-front .text-box .flavor { font-size: 8.5px; font-style: italic; line-height: 1.4; padding-top: 6px; }
+  .mtg-front .bottom-bar {
+    margin: 4px 8px 8px; padding: 3px 10px; border-radius: 3px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Cinzel', serif; font-size: 7px;
+  }
+  .mtg-front .pt-box {
+    position: absolute; bottom: 8px; right: 8px;
+    font-family: 'Cinzel', serif; font-weight: 900; font-size: 14px;
+    width: 42px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 3px;
+  }
+
+  /* ============================================
+     V1 — Violet Primary (site accent)
+     ============================================ */
+  .v1f {
+    background: var(--bg);
+    border: 2.5px solid var(--primary);
+    box-shadow: 0 8px 32px rgba(124,58,237,0.2);
+  }
+  .v1f .title-bar { background: linear-gradient(90deg, #5b21b6, #7c3aed, #5b21b6); }
+  .v1f .title-bar .name { color: #f5f3ff; }
+  .v1f .art-box {
+    border: 1.5px solid var(--primary);
+    background: linear-gradient(180deg, #0f172a, #070d1a);
+  }
+  .v1f .art-box .water {
+    position: absolute; bottom: 0; width: 100%; height: 50px;
+    background: linear-gradient(180deg, transparent, rgba(124,58,237,0.08));
+  }
+  .v1f .type-bar { background: linear-gradient(90deg, #5b21b6, #7c3aed, #5b21b6); color: #f5f3ff; }
+  .v1f .text-box { background: rgba(124,58,237,0.04); border: 1px solid rgba(124,58,237,0.12); }
+  .v1f .text-box .ability { color: var(--primary-light); }
+  .v1f .text-box .ability b { color: #c4b5fd; }
+  .v1f .text-box .flavor { color: var(--muted-fg); border-top: 1px solid rgba(124,58,237,0.1); }
+  .v1f .bottom-bar { background: linear-gradient(90deg, #5b21b6, #7c3aed, #5b21b6); color: #f5f3ff; }
+  .v1f .pt-box { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; border: 1.5px solid #5b21b6; }
+
+  .v1b {
+    background: var(--bg);
+    border: 2.5px solid var(--primary);
+    box-shadow: 0 8px 32px rgba(124,58,237,0.2);
+    display: flex; align-items: center; justify-content: center; gap: 28px; padding: 24px;
+  }
+  .v1b .qr-wrap { border: 2px solid var(--primary); border-radius: 8px; padding: 8px; background: #fff; flex-shrink: 0; }
+  .v1b .qr-wrap canvas { display: block; }
+  .v1b .text-side { display: flex; flex-direction: column; gap: 6px; }
+  .v1b .text-side .brand { font-family: 'Cinzel', serif; font-weight: 900; font-size: 20px; color: var(--primary-light); letter-spacing: 2px; }
+  .v1b .text-side .url { font-family: 'Cinzel', serif; font-size: 12px; color: var(--primary); letter-spacing: 1px; }
+  .v1b .text-side .tagline { font-size: 9px; color: var(--muted-fg); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+  /* ============================================
+     V2 — Slate + Violet accent (subtle)
+     ============================================ */
+  .v2f {
+    background: var(--bg-light);
+    border: 2.5px solid var(--muted);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .v2f .title-bar { background: var(--muted); border-bottom: 2px solid var(--primary); }
+  .v2f .title-bar .name { color: var(--fg); }
+  .v2f .art-box {
+    border: 1.5px solid var(--muted);
+    background: linear-gradient(180deg, #0f172a, #070d1a);
+  }
+  .v2f .art-box .water {
+    position: absolute; bottom: 0; width: 100%; height: 50px;
+    background: linear-gradient(180deg, transparent, rgba(124,58,237,0.06));
+  }
+  .v2f .type-bar { background: var(--muted); color: var(--fg-dim); border-left: 3px solid var(--primary); }
+  .v2f .text-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); }
+  .v2f .text-box .ability { color: var(--fg-dim); }
+  .v2f .text-box .ability b { color: var(--fg); }
+  .v2f .text-box .flavor { color: var(--muted-fg); border-top: 1px solid var(--border); }
+  .v2f .bottom-bar { background: var(--muted); color: var(--fg-dim); }
+  .v2f .pt-box { background: var(--primary); color: #fff; border: 1.5px solid var(--primary-dark); }
+
+  .v2b {
+    background: var(--bg-light);
+    border: 2.5px solid var(--muted);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center; gap: 28px; padding: 24px;
+  }
+  .v2b .qr-wrap { border: 2px solid var(--muted); border-radius: 8px; padding: 8px; background: #fff; flex-shrink: 0; }
+  .v2b .qr-wrap canvas { display: block; }
+  .v2b .text-side { display: flex; flex-direction: column; gap: 6px; }
+  .v2b .text-side .brand { font-family: 'Cinzel', serif; font-weight: 900; font-size: 20px; color: var(--fg); letter-spacing: 2px; }
+  .v2b .text-side .url { font-family: 'Cinzel', serif; font-size: 12px; color: var(--primary-light); letter-spacing: 1px; }
+  .v2b .text-side .tagline { font-size: 9px; color: var(--muted-fg); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+  /* ============================================
+     V3 — Gradient border (bg to primary)
+     ============================================ */
+  .v3f {
+    background: var(--bg);
+    border: 2.5px solid var(--primary);
+    position: relative;
+  }
+  .v3f::before {
+    content: '';
+    position: absolute; inset: -2.5px;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-light), var(--primary));
+    border-radius: 12px;
+    z-index: -1;
+  }
+  .v3f .title-bar {
+    background: linear-gradient(90deg, var(--bg), var(--card-bg), var(--bg));
+    border-bottom: 1px solid var(--primary);
+  }
+  .v3f .title-bar .name { color: var(--primary-light); }
+  .v3f .art-box {
+    border: 1.5px solid rgba(124,58,237,0.3);
+    background: linear-gradient(180deg, #100a20, #070510);
+  }
+  .v3f .art-box .water {
+    position: absolute; bottom: 0; width: 100%; height: 50px;
+    background: linear-gradient(180deg, transparent, rgba(124,58,237,0.1));
+  }
+  .v3f .type-bar {
+    background: linear-gradient(90deg, var(--bg), var(--card-bg), var(--bg));
+    color: var(--primary-light);
+    border-top: 1px solid rgba(124,58,237,0.2);
+    border-bottom: 1px solid rgba(124,58,237,0.2);
+  }
+  .v3f .text-box { background: rgba(124,58,237,0.03); border: 1px solid rgba(124,58,237,0.1); }
+  .v3f .text-box .ability { color: #c4b5fd; }
+  .v3f .text-box .ability b { color: #ddd6fe; }
+  .v3f .text-box .flavor { color: var(--muted-fg); border-top: 1px solid rgba(124,58,237,0.08); }
+  .v3f .bottom-bar {
+    background: linear-gradient(90deg, var(--bg), var(--card-bg), var(--bg));
+    color: var(--muted-fg);
+    border-top: 1px solid rgba(124,58,237,0.2);
+  }
+  .v3f .pt-box { background: var(--bg); color: var(--primary-light); border: 2px solid var(--primary); box-shadow: 0 0 8px rgba(124,58,237,0.3); }
+
+  .v3b {
+    background: var(--bg);
+    border: 2.5px solid var(--primary);
+    display: flex; align-items: center; justify-content: center; gap: 28px; padding: 24px;
+    position: relative;
+  }
+  .v3b::before {
+    content: '';
+    position: absolute; inset: -2.5px;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-light), var(--primary));
+    border-radius: 10px;
+    z-index: -1;
+  }
+  .v3b .qr-wrap { border: 2px solid var(--primary); border-radius: 8px; padding: 8px; background: #fff; flex-shrink: 0; box-shadow: 0 0 12px rgba(124,58,237,0.2); }
+  .v3b .qr-wrap canvas { display: block; }
+  .v3b .text-side { display: flex; flex-direction: column; gap: 6px; }
+  .v3b .text-side .brand { font-family: 'Cinzel', serif; font-weight: 900; font-size: 20px; color: var(--primary-light); letter-spacing: 2px; }
+  .v3b .text-side .url { font-family: 'Cinzel', serif; font-size: 12px; color: var(--primary); letter-spacing: 1px; }
+  .v3b .text-side .tagline { font-size: 9px; color: var(--muted-fg); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+  /* ============================================
+     V4 — Minimal dark (barely-there violet)
+     ============================================ */
+  .v4f {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+  }
+  .v4f .title-bar { background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
+  .v4f .title-bar .name { color: var(--fg); }
+  .pip-m {
+    background: radial-gradient(circle at 35% 35%, var(--muted-fg), var(--muted));
+    color: var(--fg-dim); border: 1px solid rgba(255,255,255,0.1);
+  }
+  .v4f .art-box {
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(124,58,237,0.03), rgba(0,0,0,0.2));
+  }
+  .v4f .art-box .water {
+    position: absolute; bottom: 0; width: 100%; height: 50px;
+    background: linear-gradient(180deg, transparent, rgba(124,58,237,0.04));
+  }
+  .v4f .type-bar { background: rgba(255,255,255,0.03); color: var(--fg-dim); border-bottom: 1px solid var(--border); }
+  .v4f .text-box { background: transparent; border: 1px solid var(--border); }
+  .v4f .text-box .ability { color: var(--fg-dim); }
+  .v4f .text-box .ability b { color: var(--fg); }
+  .v4f .text-box .flavor { color: var(--muted-fg); border-top: 1px solid var(--border); }
+  .v4f .bottom-bar { background: rgba(255,255,255,0.03); color: var(--muted-fg); }
+  .v4f .pt-box { background: transparent; color: var(--fg); border: 1.5px solid var(--border); }
+
+  .v4b {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center; gap: 28px; padding: 24px;
+  }
+  .v4b .qr-wrap { border: 1px solid var(--border); border-radius: 8px; padding: 8px; background: #fff; flex-shrink: 0; }
+  .v4b .qr-wrap canvas { display: block; }
+  .v4b .text-side { display: flex; flex-direction: column; gap: 6px; }
+  .v4b .text-side .brand { font-family: 'Cinzel', serif; font-weight: 900; font-size: 20px; color: var(--fg); letter-spacing: 2px; }
+  .v4b .text-side .url { font-family: 'Cinzel', serif; font-size: 12px; color: var(--primary-light); letter-spacing: 1px; }
+  .v4b .text-side .tagline { font-size: 9px; color: var(--muted-fg); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+  @media print {
+    body { background: #fff; padding: 20px; gap: 24px; }
+    .version-label, .side-label, h1, .subtitle { color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<div style="text-align:center;">
+  <h1>DeckShark — Business Cards V6</h1>
+  <p class="subtitle">Site theme colors (dark arcane + violet). MTG front (2.48" x 3.46") + QR back (3.5" x 2")</p>
+</div>
+
+<svg style="display:none;">
+  <defs>
+    <g id="shark">
+      <path d="M15,32 C18,22 28,18 42,18 C52,14 62,14 75,18 L88,24 C92,26 92,28 88,30 L78,33 C68,38 55,38 45,36 C42,42 38,46 33,48 L30,42 C26,44 20,44 15,42 Z"/>
+      <path d="M48,18 C50,8 55,6 58,14"/>
+      <path d="M15,32 C10,26 6,22 4,18 M15,42 C10,46 7,50 5,54"/>
+      <circle cx="80" cy="26" r="2"/>
+      <line x1="72" y1="24" x2="72" y2="30" stroke-width="0.8" opacity="0.4"/>
+      <line x1="69" y1="24" x2="69" y2="30" stroke-width="0.8" opacity="0.3"/>
+      <path d="M58,34 C62,42 58,46 54,44" opacity="0.6"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- V1: Violet Primary -->
+<div style="text-align:center;">
+  <div class="version-label">1 — Violet Primary</div>
+  <div class="card-pair">
+    <div>
+      <div class="side-label">Front</div>
+      <div class="vcard mtg-front v1f">
+        <div class="title-bar">
+          <span class="name">DeckShark</span>
+          <div class="mana"><span class="pip pip-2">2</span><span class="pip pip-u">U</span><span class="pip pip-b">B</span></div>
+        </div>
+        <div class="art-box">
+          <div class="water"></div>
+          <div class="shark-art"><svg viewBox="0 0 96 60" fill="#7c3aed" opacity="0.45" stroke="#a78bfa" stroke-width="0.5"><use href="#shark"/></svg></div>
+        </div>
+        <div class="type-bar">Legendary Creature — Shark Broker</div>
+        <div class="text-box">
+          <div class="ability"><b>Keen Sense</b> — When DeckShark enters, search your collection for any deck and reveal it to target trader.</div>
+          <div class="flavor">"The best deals are made face to face."</div>
+        </div>
+        <div class="bottom-bar"><span>DeckShark.gg &bull; 2026</span><span></span></div>
+        <div class="pt-box">5/4</div>
+      </div>
+    </div>
+    <div>
+      <div class="side-label">Back</div>
+      <div class="hcard v1b">
+        <div class="qr-wrap"><canvas id="qr1"></canvas></div>
+        <div class="text-side">
+          <div class="brand">DECKSHARK</div>
+          <div class="url">deckshark.gg</div>
+          <div class="tagline">Trade local. Trade smart.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- V2: Slate + Violet Accent -->
+<div style="text-align:center;">
+  <div class="version-label">2 — Slate + Violet Accent</div>
+  <div class="card-pair">
+    <div>
+      <div class="side-label">Front</div>
+      <div class="vcard mtg-front v2f">
+        <div class="title-bar">
+          <span class="name">DeckShark</span>
+          <div class="mana"><span class="pip pip-2">2</span><span class="pip pip-u">U</span><span class="pip pip-b">B</span></div>
+        </div>
+        <div class="art-box">
+          <div class="water"></div>
+          <div class="shark-art"><svg viewBox="0 0 96 60" fill="#94a3b8" opacity="0.3" stroke="#94a3b8" stroke-width="0.5"><use href="#shark"/></svg></div>
+        </div>
+        <div class="type-bar">Legendary Creature — Shark Broker</div>
+        <div class="text-box">
+          <div class="ability"><b>Deep Trade</b> — Tap: Exchange target deck you control with target deck an opponent controls.</div>
+          <div class="flavor">"It lurks where collections change hands."</div>
+        </div>
+        <div class="bottom-bar"><span>DeckShark.gg &bull; 2026</span><span></span></div>
+        <div class="pt-box">5/4</div>
+      </div>
+    </div>
+    <div>
+      <div class="side-label">Back</div>
+      <div class="hcard v2b">
+        <div class="qr-wrap"><canvas id="qr2"></canvas></div>
+        <div class="text-side">
+          <div class="brand">DECKSHARK</div>
+          <div class="url">deckshark.gg</div>
+          <div class="tagline">Canada's deck exchange</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- V3: Gradient Border -->
+<div style="text-align:center;">
+  <div class="version-label">3 — Gradient Border</div>
+  <div class="card-pair">
+    <div>
+      <div class="side-label">Front</div>
+      <div class="vcard mtg-front v3f">
+        <div class="title-bar">
+          <span class="name">DeckShark</span>
+          <div class="mana"><span class="pip pip-2">2</span><span class="pip pip-u">U</span><span class="pip pip-b">B</span></div>
+        </div>
+        <div class="art-box">
+          <div class="water"></div>
+          <div class="shark-art"><svg viewBox="0 0 96 60" fill="#a78bfa" opacity="0.35" stroke="#c4b5fd" stroke-width="0.5"><use href="#shark"/></svg></div>
+        </div>
+        <div class="type-bar">Legendary Creature — Shark Broker</div>
+        <div class="text-box">
+          <div class="ability"><b>Market Sense</b> — Browse any trade binder. You may propose a trade for any deck you find.</div>
+          <div class="flavor">"Browse. Propose. Meet up. Trade."</div>
+        </div>
+        <div class="bottom-bar"><span>DeckShark.gg &bull; 2026</span><span></span></div>
+        <div class="pt-box">5/4</div>
+      </div>
+    </div>
+    <div>
+      <div class="side-label">Back</div>
+      <div class="hcard v3b">
+        <div class="qr-wrap"><canvas id="qr3"></canvas></div>
+        <div class="text-side">
+          <div class="brand">DECKSHARK</div>
+          <div class="url">deckshark.gg</div>
+          <div class="tagline">MTG deck marketplace</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- V4: Minimal Dark -->
+<div style="text-align:center;">
+  <div class="version-label">4 — Minimal Dark</div>
+  <div class="card-pair">
+    <div>
+      <div class="side-label">Front</div>
+      <div class="vcard mtg-front v4f">
+        <div class="title-bar">
+          <span class="name">DeckShark</span>
+          <div class="mana"><span class="pip pip-m">2</span><span class="pip pip-m">U</span><span class="pip pip-m">B</span></div>
+        </div>
+        <div class="art-box">
+          <div class="water"></div>
+          <div class="shark-art"><svg viewBox="0 0 96 60" fill="#7a85a5" opacity="0.2" stroke="#7a85a5" stroke-width="0.5"><use href="#shark"/></svg></div>
+        </div>
+        <div class="type-bar">Legendary Creature — Shark Broker</div>
+        <div class="text-box">
+          <div class="ability"><b>Feeding Frenzy</b> — Whenever you complete a trade, draw a card. DeckShark can't be countered.</div>
+          <div class="flavor">"No mercy. Fair trades."</div>
+        </div>
+        <div class="bottom-bar"><span>DeckShark.gg &bull; 2026</span><span></span></div>
+        <div class="pt-box">5/4</div>
+      </div>
+    </div>
+    <div>
+      <div class="side-label">Back</div>
+      <div class="hcard v4b">
+        <div class="qr-wrap"><canvas id="qr4"></canvas></div>
+        <div class="text-side">
+          <div class="brand">DECKSHARK</div>
+          <div class="url">deckshark.gg</div>
+          <div class="tagline">Trade local. Trade smart.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="height:40px;"></div>
+
+<script>
+function generateQR(id, url, cellSize) {
+  const qr = qrcode(0, 'M');
+  qr.addData(url);
+  qr.make();
+  const count = qr.getModuleCount();
+  const canvas = document.getElementById(id);
+  const size = count * cellSize;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#111';
+  for (let r = 0; r < count; r++) {
+    for (let c = 0; c < count; c++) {
+      if (qr.isDark(r, c)) {
+        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+}
+generateQR('qr1', 'https://deckshark.gg', 4);
+generateQR('qr2', 'https://deckshark.gg', 4);
+generateQR('qr3', 'https://deckshark.gg', 4);
+generateQR('qr4', 'https://deckshark.gg', 4);
+</script>
+
+</body>
+</html>
