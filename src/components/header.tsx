@@ -51,6 +51,9 @@ export async function Header() {
           />
           <span className="whitespace-nowrap">
             DeckShark<span className="text-primary">.gg</span>
+            <span className="ml-2 inline-flex items-center rounded-full bg-gradient-to-r from-purple-500 to-violet-600 px-2 py-0.5 align-middle text-[9px] leading-none font-bold tracking-wide text-white uppercase">
+              Alpha
+            </span>
           </span>
         </Link>
 
