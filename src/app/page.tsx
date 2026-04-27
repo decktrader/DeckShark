@@ -8,6 +8,7 @@ import { getUserById } from '@/lib/services/users.server'
 import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
 import { DeckArt } from '@/components/deck/deck-art'
+import { ColorPips } from '@/components/deck/color-pips'
 import { DeckBrowseCard } from '@/components/deck/deck-browse-card'
 import { SortBar } from '@/components/deck/sort-bar'
 import { PaginationNav } from '@/components/ui/pagination-nav'
@@ -240,6 +241,7 @@ export default async function HomePage({
                               className="transition-transform duration-500 group-hover:scale-105"
                             />
                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                            <ColorPips colors={deck.color_identity} />
                             <div className="absolute inset-x-0 bottom-0 p-4">
                               <p className="truncate text-sm font-bold text-white drop-shadow-lg">
                                 {deck.name}
