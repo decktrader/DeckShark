@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { Deck } from '@/types'
 import { DeckArt } from '@/components/deck/deck-art'
 import { TradeToggle } from '@/components/deck/trade-toggle'
+import { ColorPips } from '@/components/deck/color-pips'
 
 function formatPrice(cents: number | null): string {
   if (cents === null || cents === 0) return '—'
@@ -25,6 +26,7 @@ export function DeckCardNew({ deck }: { deck: Deck }) {
             className="transition-transform duration-500 group-hover:scale-105"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          <ColorPips colors={deck.color_identity} />
           <div className="absolute inset-x-0 bottom-0 p-3">
             <p className="truncate text-sm font-bold text-white drop-shadow-lg">
               {deck.name}

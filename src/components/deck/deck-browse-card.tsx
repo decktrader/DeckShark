@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { DeckArt } from '@/components/deck/deck-art'
+import { ColorPips } from '@/components/deck/color-pips'
 import { Heart } from 'lucide-react'
 import type { PublicDeck } from '@/lib/services/decks.server'
 
@@ -47,15 +48,23 @@ export function DeckBrowseCard({
       {!listView && (
         <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[3%] p-2.5 transition-all hover:border-white/15 lg:hidden">
           <div className="flex gap-2.5">
-            {deck.commander_scryfall_id ? (
-              <img
-                src={`https://cards.scryfall.io/art_crop/front/${deck.commander_scryfall_id[0]}/${deck.commander_scryfall_id[1]}/${deck.commander_scryfall_id}.jpg`}
-                alt={deck.commander_name ?? ''}
-                className="h-14 w-14 shrink-0 rounded-lg border border-white/10 object-cover"
+            <div className="relative h-14 w-14 shrink-0">
+              {deck.commander_scryfall_id ? (
+                <img
+                  src={`https://cards.scryfall.io/art_crop/front/${deck.commander_scryfall_id[0]}/${deck.commander_scryfall_id[1]}/${deck.commander_scryfall_id}.jpg`}
+                  alt={deck.commander_name ?? ''}
+                  className="h-14 w-14 rounded-lg border border-white/10 object-cover"
+                />
+              ) : (
+                <div className="bg-muted h-14 w-14 rounded-lg" />
+              )}
+              <ColorPips
+                colors={deck.color_identity}
+                size={12}
+                overlap={3}
+                className="absolute -right-1 -bottom-1 z-10 flex"
               />
-            ) : (
-              <div className="bg-muted h-14 w-14 shrink-0 rounded-lg" />
-            )}
+            </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-bold">{deck.name}</p>
               {commanderLabel && (
@@ -88,15 +97,23 @@ export function DeckBrowseCard({
       {/* Mobile: compact list row */}
       {listView && (
         <div className="flex items-center gap-2 border-b border-white/[0.04] px-1 py-1.5 lg:hidden">
-          {deck.commander_scryfall_id ? (
-            <img
-              src={`https://cards.scryfall.io/art_crop/front/${deck.commander_scryfall_id[0]}/${deck.commander_scryfall_id[1]}/${deck.commander_scryfall_id}.jpg`}
-              alt={deck.commander_name ?? ''}
-              className="h-8 w-8 shrink-0 rounded object-cover"
+          <div className="relative h-8 w-8 shrink-0">
+            {deck.commander_scryfall_id ? (
+              <img
+                src={`https://cards.scryfall.io/art_crop/front/${deck.commander_scryfall_id[0]}/${deck.commander_scryfall_id[1]}/${deck.commander_scryfall_id}.jpg`}
+                alt={deck.commander_name ?? ''}
+                className="h-8 w-8 rounded object-cover"
+              />
+            ) : (
+              <div className="bg-muted h-8 w-8 rounded" />
+            )}
+            <ColorPips
+              colors={deck.color_identity}
+              size={10}
+              overlap={2}
+              className="absolute -right-1 -bottom-1 z-10 flex"
             />
-          ) : (
-            <div className="bg-muted h-8 w-8 shrink-0 rounded" />
-          )}
+          </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-1">
               <p className="truncate text-[12px] font-semibold">{deck.name}</p>
@@ -125,6 +142,7 @@ export function DeckBrowseCard({
             className="transition-transform duration-500 group-hover:scale-105"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          <ColorPips colors={deck.color_identity} />
           <div className="absolute inset-x-0 bottom-0 p-4">
             <p className="truncate text-sm font-bold text-white drop-shadow-lg">
               {deck.name}
