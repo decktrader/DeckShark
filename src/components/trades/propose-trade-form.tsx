@@ -87,8 +87,11 @@ export function ProposeTradeForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (selectedDeckIds.size === 0) {
-      setError('Select at least one of your decks to offer.')
+    const rawCentsCheck = cashDollars
+      ? Math.round(parseFloat(cashDollars) * 100)
+      : 0
+    if (selectedDeckIds.size === 0 && rawCentsCheck === 0) {
+      setError('Offer at least one deck or a cash amount.')
       return
     }
 
@@ -114,8 +117,8 @@ export function ProposeTradeForm({
       return
     }
 
-    // Fire-and-forget notification to the receiver
-    fetch('/api/notify/trade', {
+    // Await notification before navigating so the request isn't aborted
+    await fetch('/api/notify/trade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tradeId: data.id, event: 'proposed' }),
@@ -255,7 +258,7 @@ export function ProposeTradeForm({
                 <Input
                   type="number"
                   min="0"
-                  step="0.01"
+                  step="1"
                   placeholder="0.00"
                   className="pl-7"
                   value={cashDollars}
@@ -332,12 +335,7 @@ export function ProposeTradeForm({
             />
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading || selectedDeckIds.size === 0}
-            className="w-full"
-            size="lg"
-          >
+          <Button type="submit" disabled={loading} className="w-full" size="lg">
             {loading ? 'Sending proposal…' : 'Send trade proposal'}
           </Button>
         </div>

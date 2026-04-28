@@ -160,6 +160,10 @@ function ProfileTab({ user }: { user: User }) {
   const [city, setCity] = useState(user.city ?? '')
   const [province, setProvince] = useState(user.province ?? '')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatar_url)
+  const [discordUsername, setDiscordUsername] = useState(
+    user.discord_username ?? '',
+  )
+  const [phoneNumber, setPhoneNumber] = useState(user.phone_number ?? '')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -200,6 +204,8 @@ function ProfileTab({ user }: { user: User }) {
       city,
       province,
       avatar_url: avatarUrl,
+      discord_username: discordUsername || null,
+      phone_number: phoneNumber || null,
     })
 
     if (updateError) {
@@ -346,6 +352,35 @@ function ProfileTab({ user }: { user: User }) {
                   rows={3}
                   maxLength={300}
                 />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="discord">Discord username</Label>
+                  <Input
+                    id="discord"
+                    placeholder="e.g. player#1234"
+                    value={discordUsername}
+                    onChange={(e) => setDiscordUsername(e.target.value)}
+                    maxLength={50}
+                  />
+                  <p className="text-muted-foreground text-xs">
+                    Shared with trade partners for meetup coordination
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="e.g. 604-555-1234"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    maxLength={20}
+                  />
+                  <p className="text-muted-foreground text-xs">
+                    Shared with trade partners for meetup coordination
+                  </p>
+                </div>
               </div>
             </CardContent>
             <CardFooter>
@@ -756,8 +791,9 @@ function PrivacyTab() {
         <CardContent className="text-muted-foreground space-y-3 text-sm">
           <p>
             Your public profile (username, city, state/province, bio, and trade
-            history) is visible to all users. Your email address is only shared
-            with a trade partner after both parties accept a trade.
+            history) is visible to all users. Your email, Discord username, and
+            phone number are only shared with a trade partner after both parties
+            accept a trade and consent to share contact info.
           </p>
           <p>
             We do not sell your personal information to third parties. See our{' '}

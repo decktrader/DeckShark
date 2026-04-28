@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import type { Notification, NotificationType, ServiceResponse } from '@/types'
 
-/** Create an in-app notification */
+/** Create an in-app notification (uses service role to insert for any user) */
 export async function createNotification({
   userId,
   type,
@@ -15,7 +16,10 @@ export async function createNotification({
   body?: string
   link?: string
 }): Promise<ServiceResponse<Notification>> {
-  const supabase = await createClient()
+  const supabase = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
 
   const { data, error } = await supabase
     .from('notifications')
@@ -29,7 +33,14 @@ export async function createNotification({
     .select()
     .single()
 
-  if (error) return { data: null, error: error.message }
+  if (error) {
+    console.error('[createNotification] Insert failed:', error.message, {
+      userId,
+      type,
+      title,
+    })
+    return { data: null, error: error.message }
+  }
   return { data: data as Notification, error: null }
 }
 

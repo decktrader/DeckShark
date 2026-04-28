@@ -20,6 +20,8 @@ function makeUser(overrides: Partial<User> = {}): User {
       review_received: true,
       interest_threshold: true,
     },
+    discord_username: null,
+    phone_number: null,
     email_updates_opt_in: true,
     last_nudge_sent_at: null,
     is_admin: false,

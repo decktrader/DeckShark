@@ -108,13 +108,13 @@ function NotificationList({
                     {n.title}
                   </p>
                   {n.body && (
-                    <p className="text-muted-foreground mt-0.5 truncate text-[10px]">
+                    <p className="text-muted-foreground mt-0.5 truncate text-xs">
                       {n.body}
                     </p>
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
-                  <span className="text-muted-foreground text-[10px]">
+                  <span className="text-muted-foreground text-xs">
                     {timeAgo(n.created_at)}
                   </span>
                   {!n.read && (
@@ -158,11 +158,15 @@ export function NotificationBell({
     if (count !== null) setUnreadCount(count)
   }, [])
 
-  // Refresh on window focus (event handler, not effect-triggered setState)
+  // Refresh on window focus + poll every 30s
   useEffect(() => {
     const onFocus = () => void refreshData()
     window.addEventListener('focus', onFocus)
-    return () => window.removeEventListener('focus', onFocus)
+    const interval = setInterval(() => void refreshData(), 30_000)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      clearInterval(interval)
+    }
   }, [refreshData])
 
   // Close dropdown on outside click

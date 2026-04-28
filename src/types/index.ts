@@ -60,6 +60,8 @@ export interface User {
   completed_trades: number
   trade_rating: number
   notification_preferences: NotificationPreferences
+  discord_username: string | null
+  phone_number: string | null
   email_updates_opt_in: boolean
   last_nudge_sent_at: string | null
   is_admin: boolean

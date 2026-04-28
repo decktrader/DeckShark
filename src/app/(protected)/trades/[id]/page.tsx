@@ -54,6 +54,9 @@ export default async function TradeDetailPage({
 
   const isProposer = authUser.id === trade.proposer_id
   const themId = isProposer ? trade.receiver_id : trade.proposer_id
+  const myProfile = isProposer ? trade.proposer : trade.receiver
+  const theirProfile = isProposer ? trade.receiver : trade.proposer
+  const email = authUser.email ?? ''
 
   const needsDecks = ['proposed', 'countered'].includes(trade.status)
 
@@ -79,6 +82,12 @@ export default async function TradeDetailPage({
   const theirDecks = trade.trade_decks.filter(
     (td) => td.offered_by !== authUser.id,
   )
+
+  // Cash-only trade = proposer offered no decks
+  const proposerDecks = trade.trade_decks.filter(
+    (td) => td.offered_by === trade.proposer_id,
+  )
+  const isCashOnly = proposerDecks.length === 0
   const them = isProposer ? trade.receiver : trade.proposer
   const status = STATUS_LABELS[trade.status] ?? {
     label: trade.status,
@@ -147,72 +156,118 @@ export default async function TradeDetailPage({
       <div className="mb-4 space-y-3 sm:hidden">
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-widest uppercase">
+            <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
               You offer
             </p>
-            <div className="space-y-3">
-              {myDecks.map((td) => (
-                <div key={td.id} className="flex items-center gap-3">
-                  {td.deck?.commander_scryfall_id ? (
-                    <img
-                      src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                      alt={td.deck.commander_name ?? ''}
-                      className="aspect-[5/3] w-24 shrink-0 rounded-lg object-cover"
-                    />
-                  ) : (
-                    <div className="bg-muted aspect-[5/3] w-24 shrink-0 rounded-lg" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">
-                      {td.deck?.name ?? 'Unknown deck'}
-                    </p>
-                    {td.deck?.commander_name && (
-                      <p className="text-muted-foreground truncate text-xs">
-                        {td.deck.commander_name}
-                      </p>
+            {myDecks.length === 0 ? (
+              <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="shrink-0 text-emerald-400"
+                >
+                  <line x1="12" x2="12" y1="2" y2="22" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+                <p className="text-sm font-semibold text-emerald-400">
+                  Cash offer
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {myDecks.map((td) => (
+                  <div key={td.id} className="flex items-center gap-3">
+                    {td.deck?.commander_scryfall_id ? (
+                      <img
+                        src={scryfallArtUrl(td.deck.commander_scryfall_id)}
+                        alt={td.deck.commander_name ?? ''}
+                        className="aspect-[5/3] w-24 shrink-0 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="bg-muted aspect-[5/3] w-24 shrink-0 rounded-lg" />
                     )}
-                    <p className="text-primary mt-1 font-bold">
-                      {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                    </p>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        {td.deck?.name ?? 'Unknown deck'}
+                      </p>
+                      {td.deck?.commander_name && (
+                        <p className="text-muted-foreground truncate text-xs">
+                          {td.deck.commander_name}
+                        </p>
+                      )}
+                      <p className="text-primary mt-1 font-bold">
+                        {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-widest uppercase">
+            <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
               You receive
             </p>
-            <div className="space-y-3">
-              {theirDecks.map((td) => (
-                <div key={td.id} className="flex items-center gap-3">
-                  {td.deck?.commander_scryfall_id ? (
-                    <img
-                      src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                      alt={td.deck.commander_name ?? ''}
-                      className="aspect-[5/3] w-24 shrink-0 rounded-lg object-cover"
-                    />
-                  ) : (
-                    <div className="bg-muted aspect-[5/3] w-24 shrink-0 rounded-lg" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">
-                      {td.deck?.name ?? 'Unknown deck'}
-                    </p>
-                    {td.deck?.commander_name && (
-                      <p className="text-muted-foreground truncate text-xs">
-                        {td.deck.commander_name}
-                      </p>
+            {theirDecks.length === 0 ? (
+              <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="shrink-0 text-emerald-400"
+                >
+                  <line x1="12" x2="12" y1="2" y2="22" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+                <p className="text-sm font-semibold text-emerald-400">
+                  Cash offer
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {theirDecks.map((td) => (
+                  <div key={td.id} className="flex items-center gap-3">
+                    {td.deck?.commander_scryfall_id ? (
+                      <img
+                        src={scryfallArtUrl(td.deck.commander_scryfall_id)}
+                        alt={td.deck.commander_name ?? ''}
+                        className="aspect-[5/3] w-24 shrink-0 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="bg-muted aspect-[5/3] w-24 shrink-0 rounded-lg" />
                     )}
-                    <p className="text-primary mt-1 font-bold">
-                      {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                    </p>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        {td.deck?.name ?? 'Unknown deck'}
+                      </p>
+                      {td.deck?.commander_name && (
+                        <p className="text-muted-foreground truncate text-xs">
+                          {td.deck.commander_name}
+                        </p>
+                      )}
+                      <p className="text-primary mt-1 font-bold">
+                        {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -223,68 +278,114 @@ export default async function TradeDetailPage({
           <div className="grid grid-cols-2 divide-x divide-white/5">
             {/* Your side */}
             <div className="p-5">
-              <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-widest uppercase">
+              <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
                 You offer
               </p>
-              <div className="space-y-4">
-                {myDecks.map((td) => (
-                  <div key={td.id}>
-                    {td.deck?.commander_scryfall_id ? (
-                      <img
-                        src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                        alt={td.deck.commander_name ?? ''}
-                        className="mb-2 aspect-[5/3] w-full rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="bg-muted mb-2 aspect-[5/3] w-full rounded-lg" />
-                    )}
-                    <p className="text-sm font-semibold">
-                      {td.deck?.name ?? 'Unknown deck'}
-                    </p>
-                    {td.deck?.commander_name && (
-                      <p className="text-muted-foreground text-xs">
-                        {td.deck.commander_name}
+              {myDecks.length === 0 ? (
+                <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-emerald-400"
+                  >
+                    <line x1="12" x2="12" y1="2" y2="22" />
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                  <p className="text-sm font-semibold text-emerald-400">
+                    Cash offer
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {myDecks.map((td) => (
+                    <div key={td.id}>
+                      {td.deck?.commander_scryfall_id ? (
+                        <img
+                          src={scryfallArtUrl(td.deck.commander_scryfall_id)}
+                          alt={td.deck.commander_name ?? ''}
+                          className="mb-2 aspect-[5/3] w-full rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="bg-muted mb-2 aspect-[5/3] w-full rounded-lg" />
+                      )}
+                      <p className="text-sm font-semibold">
+                        {td.deck?.name ?? 'Unknown deck'}
                       </p>
-                    )}
-                    <p className="text-primary mt-1 font-bold">
-                      {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                      {td.deck?.commander_name && (
+                        <p className="text-muted-foreground text-xs">
+                          {td.deck.commander_name}
+                        </p>
+                      )}
+                      <p className="text-primary mt-1 font-bold">
+                        {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Their side */}
             <div className="p-5">
-              <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-widest uppercase">
+              <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
                 You receive
               </p>
-              <div className="space-y-4">
-                {theirDecks.map((td) => (
-                  <div key={td.id}>
-                    {td.deck?.commander_scryfall_id ? (
-                      <img
-                        src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                        alt={td.deck.commander_name ?? ''}
-                        className="mb-2 aspect-[5/3] w-full rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="bg-muted mb-2 aspect-[5/3] w-full rounded-lg" />
-                    )}
-                    <p className="text-sm font-semibold">
-                      {td.deck?.name ?? 'Unknown deck'}
-                    </p>
-                    {td.deck?.commander_name && (
-                      <p className="text-muted-foreground text-xs">
-                        {td.deck.commander_name}
+              {theirDecks.length === 0 ? (
+                <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-emerald-400"
+                  >
+                    <line x1="12" x2="12" y1="2" y2="22" />
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                  <p className="text-sm font-semibold text-emerald-400">
+                    Cash offer
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {theirDecks.map((td) => (
+                    <div key={td.id}>
+                      {td.deck?.commander_scryfall_id ? (
+                        <img
+                          src={scryfallArtUrl(td.deck.commander_scryfall_id)}
+                          alt={td.deck.commander_name ?? ''}
+                          className="mb-2 aspect-[5/3] w-full rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="bg-muted mb-2 aspect-[5/3] w-full rounded-lg" />
+                      )}
+                      <p className="text-sm font-semibold">
+                        {td.deck?.name ?? 'Unknown deck'}
                       </p>
-                    )}
-                    <p className="text-primary mt-1 font-bold">
-                      {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                      {td.deck?.commander_name && (
+                        <p className="text-muted-foreground text-xs">
+                          {td.deck.commander_name}
+                        </p>
+                      )}
+                      <p className="text-primary mt-1 font-bold">
+                        {formatPrice(td.deck?.estimated_value_cents ?? null)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
@@ -397,6 +498,10 @@ export default async function TradeDetailPage({
               theirAvailableDecks={theirAvailableDecks}
               currentMyDeckIds={myDecks.map((td) => td.deck_id)}
               currentTheirDeckIds={theirDecks.map((td) => td.deck_id)}
+              isCashOnly={isCashOnly}
+              myProfile={myProfile}
+              theirProfile={theirProfile}
+              email={email}
             />
           </div>
         </div>

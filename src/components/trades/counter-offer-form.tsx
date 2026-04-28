@@ -34,6 +34,7 @@ interface CounterOfferFormProps {
   theirDecks: Deck[]
   currentMyDeckIds: string[]
   currentTheirDeckIds: string[]
+  isCashOnly?: boolean
   onCancel: () => void
 }
 
@@ -45,6 +46,7 @@ export function CounterOfferForm({
   theirDecks,
   currentMyDeckIds,
   currentTheirDeckIds,
+  isCashOnly,
   onCancel,
 }: CounterOfferFormProps) {
   const router = useRouter()
@@ -59,7 +61,9 @@ export function CounterOfferForm({
       ? Math.abs(trade.cash_difference_cents / 100).toFixed(2)
       : '',
   )
-  const [iPayCash, setIPayCash] = useState(trade.cash_difference_cents > 0)
+  const [iPayCash, setIPayCash] = useState(
+    isCashOnly ? false : trade.cash_difference_cents > 0,
+  )
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -85,17 +89,29 @@ export function CounterOfferForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (selectedMyDeckIds.size === 0 && selectedTheirDeckIds.size === 0) {
-      setError('Select at least one deck on each side.')
-      return
-    }
-    if (selectedMyDeckIds.size === 0) {
-      setError('Select at least one of your decks to offer.')
-      return
-    }
-    if (selectedTheirDeckIds.size === 0) {
-      setError("Select at least one of their decks you'd like.")
-      return
+    const rawCentsCheck = cashDollars
+      ? Math.round(parseFloat(cashDollars) * 100)
+      : 0
+
+    if (isCashOnly) {
+      // Cash-only trade: counter can only adjust price
+      if (rawCentsCheck === 0) {
+        setError('Enter a cash amount for your counter-offer.')
+        return
+      }
+    } else {
+      if (selectedMyDeckIds.size === 0 && selectedTheirDeckIds.size === 0) {
+        setError('Select at least one deck on either side.')
+        return
+      }
+      if (selectedMyDeckIds.size === 0 && rawCentsCheck === 0) {
+        setError('Offer at least one deck or a cash amount.')
+        return
+      }
+      if (selectedTheirDeckIds.size === 0 && rawCentsCheck === 0) {
+        setError("Select at least one of their decks you'd like.")
+        return
+      }
     }
 
     setLoading(true)
@@ -131,8 +147,8 @@ export function CounterOfferForm({
       return
     }
 
-    // Notify the other party
-    fetch('/api/notify/trade', {
+    // Notify the other party — await before navigating so the request isn't aborted
+    await fetch('/api/notify/trade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tradeId: trade.id, event: 'countered' }),
@@ -145,103 +161,123 @@ export function CounterOfferForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <h3 className="text-lg font-semibold">Counter-offer</h3>
+      <h3 className="text-lg font-semibold">
+        {isCashOnly ? 'Counter with a different price' : 'Counter-offer'}
+      </h3>
 
       {error && <p className="text-destructive text-sm">{error}</p>}
 
-      {/* My decks to offer */}
-      <div>
-        <h4 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-          Your decks to offer
-        </h4>
-        {myDecks.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
-            You have no decks available for trade.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {myDecks.map((deck) => (
-              <label
-                key={deck.id}
-                className="hover:bg-accent/30 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
-              >
-                <Checkbox
-                  checked={selectedMyDeckIds.has(deck.id)}
-                  onCheckedChange={() => toggleMyDeck(deck.id)}
-                />
-                {deck.commander_scryfall_id && (
-                  <img
-                    src={scryfallArtUrl(deck.commander_scryfall_id)}
-                    alt={deck.commander_name ?? ''}
-                    className="h-10 w-14 rounded object-cover"
-                  />
-                )}
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{deck.name}</p>
-                  <p className="text-muted-foreground text-xs capitalize">
-                    {deck.format}
-                    {deck.commander_name && ` · ${deck.commander_name}`}
-                    {deck.estimated_value_cents
-                      ? ` · ${formatPrice(deck.estimated_value_cents)}`
-                      : ''}
-                  </p>
-                </div>
-              </label>
-            ))}
+      {isCashOnly && (
+        <p className="text-muted-foreground text-sm">
+          {userId === trade.proposer_id
+            ? 'Adjust how much you\u2019re willing to pay.'
+            : 'Set the price you want for your deck.'}
+        </p>
+      )}
+
+      {/* Deck selection — hidden for cash-only trades */}
+      {!isCashOnly && (
+        <>
+          <div>
+            <h4 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
+              Your decks to offer
+            </h4>
+            {myDecks.length === 0 ? (
+              <p className="text-muted-foreground text-sm">
+                You have no decks available for trade.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {myDecks.map((deck) => (
+                  <label
+                    key={deck.id}
+                    className="hover:bg-accent/30 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
+                  >
+                    <Checkbox
+                      checked={selectedMyDeckIds.has(deck.id)}
+                      onCheckedChange={() => toggleMyDeck(deck.id)}
+                    />
+                    {deck.commander_scryfall_id && (
+                      <img
+                        src={scryfallArtUrl(deck.commander_scryfall_id)}
+                        alt={deck.commander_name ?? ''}
+                        className="h-10 w-14 rounded object-cover"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{deck.name}</p>
+                      <p className="text-muted-foreground text-xs capitalize">
+                        {deck.format}
+                        {deck.commander_name && ` · ${deck.commander_name}`}
+                        {deck.estimated_value_cents
+                          ? ` · ${formatPrice(deck.estimated_value_cents)}`
+                          : ''}
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      <Separator />
+          <Separator />
 
-      {/* Their decks to request */}
-      <div>
-        <h4 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-          Decks you&apos;d like from them
-        </h4>
-        {theirDecks.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
-            They have no decks available for trade.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {theirDecks.map((deck) => (
-              <label
-                key={deck.id}
-                className="hover:bg-accent/30 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
-              >
-                <Checkbox
-                  checked={selectedTheirDeckIds.has(deck.id)}
-                  onCheckedChange={() => toggleTheirDeck(deck.id)}
-                />
-                {deck.commander_scryfall_id && (
-                  <img
-                    src={scryfallArtUrl(deck.commander_scryfall_id)}
-                    alt={deck.commander_name ?? ''}
-                    className="h-10 w-14 rounded object-cover"
-                  />
-                )}
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{deck.name}</p>
-                  <p className="text-muted-foreground text-xs capitalize">
-                    {deck.format}
-                    {deck.commander_name && ` · ${deck.commander_name}`}
-                    {deck.estimated_value_cents
-                      ? ` · ${formatPrice(deck.estimated_value_cents)}`
-                      : ''}
-                  </p>
-                </div>
-              </label>
-            ))}
+          {/* Their decks to request */}
+          <div>
+            <h4 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
+              Decks you&apos;d like from them
+            </h4>
+            {theirDecks.length === 0 ? (
+              <p className="text-muted-foreground text-sm">
+                They have no decks available for trade.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {theirDecks.map((deck) => (
+                  <label
+                    key={deck.id}
+                    className="hover:bg-accent/30 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
+                  >
+                    <Checkbox
+                      checked={selectedTheirDeckIds.has(deck.id)}
+                      onCheckedChange={() => toggleTheirDeck(deck.id)}
+                    />
+                    {deck.commander_scryfall_id && (
+                      <img
+                        src={scryfallArtUrl(deck.commander_scryfall_id)}
+                        alt={deck.commander_name ?? ''}
+                        className="h-10 w-14 rounded object-cover"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{deck.name}</p>
+                      <p className="text-muted-foreground text-xs capitalize">
+                        {deck.format}
+                        {deck.commander_name && ` · ${deck.commander_name}`}
+                        {deck.estimated_value_cents
+                          ? ` · ${formatPrice(deck.estimated_value_cents)}`
+                          : ''}
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      <Separator />
+          <Separator />
+        </>
+      )}
 
       {/* Cash difference */}
       <div className="space-y-3">
-        <Label>Cash difference (optional)</Label>
+        <Label>
+          {isCashOnly
+            ? userId === trade.proposer_id
+              ? 'My cash offer'
+              : 'My asking price'
+            : 'Cash difference (optional)'}
+        </Label>
         <div className="flex items-center gap-3">
           <div className="relative w-36">
             <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-sm">
@@ -250,39 +286,41 @@ export function CounterOfferForm({
             <Input
               type="number"
               min="0"
-              step="0.01"
+              step="1"
               placeholder="0.00"
               className="pl-7"
               value={cashDollars}
               onChange={(e) => setCashDollars(e.target.value)}
             />
           </div>
-          <button
-            type="button"
-            onClick={() => setIPayCash(!iPayCash)}
-            className="bg-muted relative inline-flex h-9 w-[180px] shrink-0 items-center rounded-full border p-1 transition-colors"
-            aria-label={iPayCash ? 'You pay cash' : 'They pay cash'}
-          >
-            <span
-              className={`bg-primary absolute h-7 w-[84px] rounded-full shadow-sm transition-all duration-200 ${
-                iPayCash ? 'translate-x-[88px]' : 'translate-x-0'
-              }`}
-            />
-            <span
-              className={`relative z-10 w-[88px] text-center text-xs font-semibold transition-colors ${
-                !iPayCash ? 'text-white' : 'text-muted-foreground'
-              }`}
+          {!isCashOnly && (
+            <button
+              type="button"
+              onClick={() => setIPayCash(!iPayCash)}
+              className="bg-muted relative inline-flex h-9 w-[180px] shrink-0 items-center rounded-full border p-1 transition-colors"
+              aria-label={iPayCash ? 'You pay cash' : 'They pay cash'}
             >
-              They pay
-            </span>
-            <span
-              className={`relative z-10 w-[88px] text-center text-xs font-semibold transition-colors ${
-                iPayCash ? 'text-white' : 'text-muted-foreground'
-              }`}
-            >
-              You pay
-            </span>
-          </button>
+              <span
+                className={`bg-primary absolute h-7 w-[84px] rounded-full shadow-sm transition-all duration-200 ${
+                  iPayCash ? 'translate-x-[88px]' : 'translate-x-0'
+                }`}
+              />
+              <span
+                className={`relative z-10 w-[88px] text-center text-xs font-semibold transition-colors ${
+                  !iPayCash ? 'text-white' : 'text-muted-foreground'
+                }`}
+              >
+                They pay
+              </span>
+              <span
+                className={`relative z-10 w-[88px] text-center text-xs font-semibold transition-colors ${
+                  iPayCash ? 'text-white' : 'text-muted-foreground'
+                }`}
+              >
+                You pay
+              </span>
+            </button>
+          )}
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>

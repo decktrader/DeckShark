@@ -2,8 +2,24 @@ import { createClient } from '@/lib/supabase/server'
 import type { Trade, TradeDeck, ServiceResponse, Deck, User } from '@/types'
 
 export interface TradeWithDecks extends Trade {
-  proposer: Pick<User, 'id' | 'username' | 'city' | 'province'>
-  receiver: Pick<User, 'id' | 'username' | 'city' | 'province'>
+  proposer: Pick<
+    User,
+    | 'id'
+    | 'username'
+    | 'city'
+    | 'province'
+    | 'discord_username'
+    | 'phone_number'
+  >
+  receiver: Pick<
+    User,
+    | 'id'
+    | 'username'
+    | 'city'
+    | 'province'
+    | 'discord_username'
+    | 'phone_number'
+  >
   trade_decks: (TradeDeck & { deck: Deck })[]
 }
 
@@ -15,8 +31,8 @@ export async function getTrade(
     .from('trades')
     .select(
       `*,
-      proposer:users!proposer_id(id, username, city, province),
-      receiver:users!receiver_id(id, username, city, province),
+      proposer:users!proposer_id(id, username, city, province, discord_username, phone_number),
+      receiver:users!receiver_id(id, username, city, province, discord_username, phone_number),
       trade_decks(*, deck:decks(*))`,
     )
     .eq('id', id)
@@ -34,8 +50,8 @@ export async function getUserTrades(
     .from('trades')
     .select(
       `*,
-      proposer:users!proposer_id(id, username, city, province),
-      receiver:users!receiver_id(id, username, city, province),
+      proposer:users!proposer_id(id, username, city, province, discord_username, phone_number),
+      receiver:users!receiver_id(id, username, city, province, discord_username, phone_number),
       trade_decks(*, deck:decks(*))`,
     )
     .or(`proposer_id.eq.${userId},receiver_id.eq.${userId}`)

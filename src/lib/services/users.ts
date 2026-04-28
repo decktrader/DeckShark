@@ -38,6 +38,8 @@ export async function updateUser(
       | 'city'
       | 'province'
       | 'avatar_url'
+      | 'discord_username'
+      | 'phone_number'
       | 'notification_preferences'
       | 'email_updates_opt_in'
     >
