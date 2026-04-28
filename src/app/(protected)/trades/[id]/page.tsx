@@ -202,7 +202,7 @@ export default async function TradeDetailPage({
                           {td.deck.commander_name}
                         </p>
                       )}
-                      <p className="text-primary mt-1 font-bold">
+                      <p className="mt-1 font-bold text-emerald-400">
                         {formatPrice(td.deck?.estimated_value_cents ?? null)}
                       </p>
                     </div>
@@ -260,7 +260,7 @@ export default async function TradeDetailPage({
                           {td.deck.commander_name}
                         </p>
                       )}
-                      <p className="text-primary mt-1 font-bold">
+                      <p className="mt-1 font-bold text-emerald-400">
                         {formatPrice(td.deck?.estimated_value_cents ?? null)}
                       </p>
                     </div>
@@ -323,7 +323,7 @@ export default async function TradeDetailPage({
                           {td.deck.commander_name}
                         </p>
                       )}
-                      <p className="text-primary mt-1 font-bold">
+                      <p className="mt-1 font-bold text-emerald-400">
                         {formatPrice(td.deck?.estimated_value_cents ?? null)}
                       </p>
                     </div>
@@ -379,7 +379,7 @@ export default async function TradeDetailPage({
                           {td.deck.commander_name}
                         </p>
                       )}
-                      <p className="text-primary mt-1 font-bold">
+                      <p className="mt-1 font-bold text-emerald-400">
                         {formatPrice(td.deck?.estimated_value_cents ?? null)}
                       </p>
                     </div>

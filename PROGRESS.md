@@ -3,7 +3,7 @@
 ## Current Focus
 
 **Milestone:** Between M26 and M27
-**Status:** M26 complete and deployed. Browse UX polish done — inline sort bar, accordion filters, color count categories.
+**Status:** Contact methods, cash-for-deck trades, meetup suggestions, and notification fixes shipped.
 **Next step:** M27 (Support DeckShark) → M28 (Seed Content).
 **Blocked:** Nothing.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
@@ -50,6 +50,24 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-04-27 — Trade flow upgrades: contact methods, cash trades, notifications
+
+**Contact methods:** Added Discord username and phone number fields to user profiles (migration 032). Settings profile form updated. During trade contact sharing, inline form lets users add Discord/phone before sharing — no need to navigate to Settings mid-trade. Green contact card shows all shared methods when both parties consent.
+
+**Meetup suggestions:** "Where to meet up?" section with LGS and coffee shop cards (A4 centered layout) shown after contact exchange. Plants seed for future LGS partnership feature.
+
+**Cash-for-deck trades:** Proposer can now offer cash with no decks (buy a deck outright). Cash-only counter-offers show simplified price negotiation — no deck swapping, toggle hidden, perspective-aware labels ("My cash offer" for buyer, "My asking price" for seller). Trade detail page shows emerald "Cash offer" badge when a side has no decks.
+
+**Notification fixes:** Fixed notifications never being inserted — RLS was blocking cross-user inserts, switched to service role client. Fixed notify fetch being aborted by immediate navigation — all notify calls now awaited before router.push. Added 30s polling to notification bell for near-realtime badge updates.
+
+**Font consistency:** Bumped notification dropdown text, trade detail labels, and settings helper text to match site-wide `text-xs`/`text-sm` tiers. Trade deck prices now use `text-emerald-400` matching browse page.
+
+### 2026-04-27 — Color pips & alpha badge
+
+**Mana color pips:** Added overlapping MTG mana icons (Plains, Island, Swamp, Mountain, Forest) to all deck card surfaces — dashboard, browse (desktop + mobile), homepage featured cards, and list view. Reusable `ColorPips` component with configurable size, overlap, and positioning. Icons stored in `public/icons/mana/`. Mobile cards show pips on the thumbnail corner to avoid crowding text.
+
+**Alpha badge:** Added purple gradient "Alpha" pill badge to header beside "DeckShark.gg" logo text.
 
 ### 2026-04-21 — Browse UX polish
 
