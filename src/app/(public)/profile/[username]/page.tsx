@@ -7,12 +7,13 @@ import type { PublicDeck } from '@/lib/services/decks.server'
 import { getReviewsForUser } from '@/lib/services/reviews.server'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DeckArt } from '@/components/deck/deck-art'
+import { ColorPips } from '@/components/deck/color-pips'
 import { Button } from '@/components/ui/button'
 import { ReportButton } from '@/components/report-button'
 
 function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(0)}`
+  if (cents === null || cents === 0) return '\u2014'
+  return `$${(cents / 100).toFixed(2)}`
 }
 
 function DeckMiniCard({ deck }: { deck: PublicDeck }) {
@@ -22,7 +23,7 @@ function DeckMiniCard({ deck }: { deck: PublicDeck }) {
 
   return (
     <Link href={`/decks/${deck.id}`} className="group block">
-      <div className="overflow-hidden rounded-xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
+      <div className="overflow-hidden rounded-2xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
         <div className="relative">
           <DeckArt
             commanderScryfallId={deck.commander_scryfall_id}
@@ -30,7 +31,8 @@ function DeckMiniCard({ deck }: { deck: PublicDeck }) {
             className="transition-transform duration-500 group-hover:scale-105"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-3">
+          <ColorPips colors={deck.color_identity} />
+          <div className="absolute inset-x-0 bottom-0 p-4">
             <p className="truncate text-sm font-bold text-white drop-shadow-lg">
               {deck.name}
             </p>
@@ -39,11 +41,11 @@ function DeckMiniCard({ deck }: { deck: PublicDeck }) {
             )}
           </div>
         </div>
-        <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-3 py-2">
+        <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
           <span className="text-muted-foreground text-xs capitalize">
             {deck.format}
           </span>
-          <span className="text-primary text-sm font-bold">
+          <span className="text-lg font-bold text-emerald-400">
             {formatPrice(deck.estimated_value_cents)}
           </span>
         </div>
