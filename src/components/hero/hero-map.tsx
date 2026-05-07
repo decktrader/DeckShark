@@ -506,16 +506,22 @@ export function HeroMap({ cities }: HeroMapProps) {
           <div className="mt-0.5 text-sm font-bold text-white">
             {active.name}
           </div>
-          <div className="mt-1 flex gap-3 text-[11px]">
-            <div>
-              <span className="font-bold text-white">{active.decks}</span>
-              <span className="text-white/50"> decks</span>
+          {active.decks > 0 ? (
+            <div className="mt-1 flex gap-3 text-[11px]">
+              <div>
+                <span className="font-bold text-white">{active.decks}</span>
+                <span className="text-white/50"> decks</span>
+              </div>
+              <div>
+                <span className="font-bold text-white">{active.traders}</span>
+                <span className="text-white/50"> traders</span>
+              </div>
             </div>
-            <div>
-              <span className="font-bold text-white">{active.traders}</span>
-              <span className="text-white/50"> traders</span>
+          ) : (
+            <div className="mt-1 text-[11px] text-emerald-400">
+              Be the first trader here!
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
