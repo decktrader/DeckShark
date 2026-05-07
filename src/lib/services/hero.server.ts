@@ -39,6 +39,7 @@ const CITY_COORDS: Record<string, { x: number; y: number }> = {
   // Canada
   Vancouver: { x: 130, y: 200 },
   Calgary: { x: 215, y: 195 },
+  Saskatoon: { x: 285, y: 175 },
   Edmonton: { x: 215, y: 165 },
   Winnipeg: { x: 355, y: 210 },
   Toronto: { x: 555, y: 240 },
@@ -110,17 +111,49 @@ export async function getHeroCities(): Promise<ServiceResponse<HeroCity[]>> {
     cityMap.set(city, existing)
   }
 
+  // Start with all known cities as static pins (0 decks/traders)
+  // so the map looks full even at low data volumes
+  const COUNTRY_FOR_CITY: Record<string, string> = {
+    Vancouver: 'CA',
+    Calgary: 'CA',
+    Saskatoon: 'CA',
+    Edmonton: 'CA',
+    Winnipeg: 'CA',
+    Toronto: 'CA',
+    Ottawa: 'CA',
+    Montreal: 'CA',
+    Halifax: 'CA',
+    Seattle: 'US',
+    Portland: 'US',
+    'San Francisco': 'US',
+    'Los Angeles': 'US',
+    'Las Vegas': 'US',
+    Phoenix: 'US',
+    Denver: 'US',
+    Austin: 'US',
+    Houston: 'US',
+    Dallas: 'US',
+    Chicago: 'US',
+    Minneapolis: 'US',
+    Nashville: 'US',
+    Atlanta: 'US',
+    Miami: 'US',
+    'New York': 'US',
+    Boston: 'US',
+    Philadelphia: 'US',
+    DC: 'US',
+  }
+
   const cities: HeroCity[] = []
-  for (const [name, info] of cityMap) {
-    const coords = CITY_COORDS[name]
-    if (!coords) continue // Only show cities we have map coordinates for
+  for (const [name, coords] of Object.entries(CITY_COORDS)) {
+    const dbInfo = cityMap.get(name)
     cities.push({
       name,
-      country: info.country,
+      country: dbInfo?.country ?? COUNTRY_FOR_CITY[name] ?? 'US',
       x: coords.x,
       y: coords.y,
-      decks: info.decks,
-      traders: info.traders.size,
+      decks: dbInfo?.decks ?? 0,
+      traders: dbInfo?.traders.size ?? 0,
     })
   }
 

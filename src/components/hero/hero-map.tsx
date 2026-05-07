@@ -263,6 +263,21 @@ function nearestHex(city: { x: number; y: number }): number {
   return best
 }
 
+// Cities that always show their label regardless of deck count
+const ALWAYS_LABEL_CITIES = new Set([
+  'Toronto',
+  'Montreal',
+  'San Francisco',
+  'Los Angeles',
+  'Austin',
+  'New York',
+  'Miami',
+  'Chicago',
+  'Las Vegas',
+  'Denver',
+  'Saskatoon',
+])
+
 // ===== Component =====
 interface HeroMapProps {
   cities: HeroCity[]
@@ -443,7 +458,8 @@ export function HeroMap({ cities }: HeroMapProps) {
           const h = HEXES[cityHexIdx[i]]
           if (!h) return null
           const isActive = activeIdx === i
-          if (!isActive && c.decks < 10) return null
+          if (!isActive && !ALWAYS_LABEL_CITIES.has(c.name) && c.decks < 10)
+            return null
           return (
             <text
               key={`label-${i}`}
