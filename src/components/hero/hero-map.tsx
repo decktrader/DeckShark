@@ -497,14 +497,16 @@ export function HeroMap({ cities }: HeroMapProps) {
       {/* Active city panel */}
       {active && (
         <div
-          className="absolute bottom-4 left-4 rounded-[10px] border border-violet-400/30 p-3 px-4 backdrop-blur-[10px]"
-          style={{ background: 'rgba(15, 8, 32, 0.92)', minWidth: 180 }}
+          className="absolute right-4 bottom-4 rounded-[10px] border border-violet-400/30 p-2.5 px-3.5 backdrop-blur-[10px]"
+          style={{ background: 'rgba(15, 8, 32, 0.92)' }}
         >
-          <div className="text-[11px] tracking-wider text-violet-300/70 uppercase">
+          <div className="text-[10px] tracking-wider text-violet-300/70 uppercase">
             Active city
           </div>
-          <div className="mt-1 text-lg font-bold text-white">{active.name}</div>
-          <div className="mt-2 flex gap-4 text-xs">
+          <div className="mt-0.5 text-sm font-bold text-white">
+            {active.name}
+          </div>
+          <div className="mt-1 flex gap-3 text-[11px]">
             <div>
               <span className="font-bold text-white">{active.decks}</span>
               <span className="text-white/50"> decks</span>
