@@ -142,6 +142,14 @@ export function DeckBrowseCard({
             className="transition-transform duration-500 group-hover:scale-105"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          {interestCount > 0 && (
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-black/50 px-2 py-0.5 backdrop-blur-sm">
+              <Heart className="h-3 w-3 text-pink-400" />
+              <span className="text-[10px] font-medium text-white/90">
+                {interestCount}
+              </span>
+            </div>
+          )}
           <ColorPips colors={deck.color_identity} />
           <div className="absolute inset-x-0 bottom-0 p-4">
             <p className="truncate text-sm font-bold text-white drop-shadow-lg">
@@ -153,36 +161,19 @@ export function DeckBrowseCard({
           </div>
         </div>
         <div className="border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
-          <div className="flex items-center gap-2">
-            {avatar}
-            <div className="min-w-0">
-              <p className="truncate text-xs font-medium">
-                {deck.owner.username}
-              </p>
-              <p className="text-muted-foreground truncate text-[10px]">
-                {deck.owner.city && deck.owner.province
-                  ? `${deck.owner.city}, ${deck.owner.province}`
-                  : (deck.owner.province ?? '')}
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex min-w-0 items-center gap-2">
+              {avatar}
+              <span className="truncate text-xs">
+                @{deck.owner.username}
+                {location ? ` \u00b7 ${location}` : ''}
+              </span>
             </div>
-          </div>
-          <div className="mt-1 flex items-baseline justify-between">
-            <p className="text-lg font-bold text-emerald-400">
+            <p className="shrink-0 text-lg font-bold text-emerald-400">
               {formatPrice(deck.estimated_value_cents)}
-            </p>
-            <p className="text-muted-foreground text-[10px] capitalize">
-              {deck.format}
             </p>
           </div>
         </div>
-        {interestCount > 0 && (
-          <div className="flex items-center gap-1 border-t border-white/5 bg-white/[2%] px-4 py-1.5">
-            <Heart className="h-3 w-3 text-pink-400" />
-            <span className="text-[10px] text-pink-400/80">
-              {interestCount} interested
-            </span>
-          </div>
-        )}
       </div>
     </Link>
   )
