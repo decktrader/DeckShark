@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import type { HeroCity } from '@/lib/services/hero.server'
 
 // ===== Region polygons (CA provinces + US state clusters) =====
@@ -299,7 +300,23 @@ export function HeroMap({ cities }: HeroMapProps) {
     return () => clearInterval(id)
   }, [isHovering, cities.length])
 
+  const router = useRouter()
+
   const handleHover = useCallback((i: number) => setActiveIdx(i), [])
+
+  const handleClick = useCallback(
+    (i: number) => {
+      const city = cities[i]
+      if (!city) return
+      router.push(`/?city=${encodeURIComponent(city.name)}#browse`)
+      setTimeout(() => {
+        document
+          .getElementById('browse')
+          ?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    },
+    [cities, router],
+  )
 
   // Map each city to its nearest hex index
   const cityHexIdx = useMemo(() => cities.map((c) => nearestHex(c)), [cities])
@@ -398,6 +415,7 @@ export function HeroMap({ cities }: HeroMapProps) {
               <g
                 key={i}
                 onMouseEnter={() => handleHover(i)}
+                onClick={() => handleClick(i)}
                 style={{ cursor: 'pointer' }}
               >
                 {isActive && (
