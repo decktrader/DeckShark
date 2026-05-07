@@ -27,8 +27,19 @@ export default function RootLayout({
       <body>
         <Header />
         {children}
-        <footer className="border-t border-white/5 py-6 text-center">
+        <footer
+          id="feedback"
+          className="border-t border-white/5 py-6 text-center"
+        >
           <FeedbackForm />
+          <p className="text-muted-foreground mt-3 text-xs">
+            <a
+              href="/about"
+              className="hover:text-foreground transition-colors"
+            >
+              About DeckShark
+            </a>
+          </p>
         </footer>
         <Analytics />
         <SpeedInsights />

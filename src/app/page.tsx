@@ -1,19 +1,15 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getPublicDecks } from '@/lib/services/decks.server'
-import type { PublicDeck } from '@/lib/services/decks.server'
 import { getUserById } from '@/lib/services/users.server'
 import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
-import { DeckArt } from '@/components/deck/deck-art'
-import { ColorPips } from '@/components/deck/color-pips'
 import { DeckBrowseCard } from '@/components/deck/deck-browse-card'
 import { SortBar } from '@/components/deck/sort-bar'
 import { PaginationNav } from '@/components/ui/pagination-nav'
-import { Button } from '@/components/ui/button'
 import { getInterestCountsForDecks } from '@/lib/services/deck-interests.server'
+import { HeroSection } from '@/components/hero/hero-section'
 
 export const metadata: Metadata = {
   title: 'DeckShark — Trade MTG Decks Near You',
@@ -28,15 +24,6 @@ export const metadata: Metadata = {
 }
 
 const PAGE_SIZE = 24
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '\u2014'
-  return `$${(cents / 100).toFixed(2)}`
-}
-
-function scryfallArtUrl(scryfallId: string): string {
-  return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
-}
 
 export default async function HomePage({
   searchParams,
@@ -108,19 +95,6 @@ export default async function HomePage({
     params.archetype ||
     params.sortBy
 
-  // Pick 2 random featured decks (that have commander art), rotating daily
-  const halfDay = Math.floor(Date.now() / (1000 * 60 * 60 * 12))
-  const withArt = pageDecks.filter((d) => d.commander_scryfall_id)
-  const featured: PublicDeck[] = []
-  if (withArt.length > 0) {
-    const i1 = halfDay % withArt.length
-    featured.push(withArt[i1])
-    if (withArt.length > 1) {
-      const i2 = (halfDay + 1) % withArt.length
-      featured.push(withArt[i2 === i1 ? (i2 + 1) % withArt.length : i2])
-    }
-  }
-
   function buildUrl(p: number) {
     const qs = new URLSearchParams()
     if (params.format) qs.set('format', params.format)
@@ -140,162 +114,8 @@ export default async function HomePage({
 
   return (
     <main>
-      {/* Hero — steps left, two featured decks right, blurred art background */}
-      <section className="relative overflow-hidden border-b border-white/5">
-        {featured[0]?.commander_scryfall_id && (
-          <>
-            <div
-              className="absolute inset-0 scale-110 bg-cover bg-center blur-3xl"
-              style={{
-                backgroundImage: `url(${scryfallArtUrl(featured[0].commander_scryfall_id)})`,
-              }}
-            />
-            <div className="absolute inset-0 bg-black/75" />
-          </>
-        )}
-
-        <div className="relative container mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:py-16 lg:grid-cols-2 lg:items-center">
-          <div>
-            <h1 className="text-3xl leading-tight font-black tracking-tight sm:text-4xl lg:text-5xl">
-              Your next deck
-              <br />
-              <span className="text-primary">is already listed</span>
-            </h1>
-            <p className="text-muted-foreground mt-4 max-w-md text-sm leading-relaxed sm:text-base">
-              DeckShark connects MTG players for local deck trades. Browse
-              what&apos;s available, propose a swap, and meet up.
-            </p>
-
-            <div className="mt-8 space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-500/15 text-sm font-black text-purple-400">
-                  1
-                </div>
-                <div>
-                  <p className="font-semibold">Browse decks near you</p>
-                  <p className="text-muted-foreground text-sm">
-                    Filter by format, commander, city, and price range
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-500/15 text-sm font-black text-sky-400">
-                  2
-                </div>
-                <div>
-                  <p className="font-semibold">Propose a trade</p>
-                  <p className="text-muted-foreground text-sm">
-                    Offer your decks, add cash to balance value, send a message
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-sm font-black text-emerald-400">
-                  3
-                </div>
-                <div>
-                  <p className="font-semibold">Meet up and trade</p>
-                  <p className="text-muted-foreground text-sm">
-                    Share contact info, meet locally, and swap decks in person
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 flex gap-3">
-              <Button asChild size="lg" className="h-14 px-8 text-lg">
-                <Link href="#browse">Browse decks now</Link>
-              </Button>
-              {!isLoggedIn && (
-                <Button
-                  asChild
-                  size="lg"
-                  variant="ghost"
-                  className="h-14 px-8 text-lg"
-                >
-                  <Link href="/register">Sign up</Link>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Two featured decks — desktop only */}
-          {featured.length > 0 && (
-            <div className="hidden lg:block">
-              <div className="grid grid-cols-2 gap-4">
-                {featured.map(
-                  (deck) =>
-                    deck.commander_scryfall_id && (
-                      <Link
-                        key={deck.id}
-                        href={`/decks/${deck.id}`}
-                        className="group block"
-                      >
-                        <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-purple-500/10 transition-all hover:border-white/20">
-                          <div className="relative">
-                            <DeckArt
-                              commanderScryfallId={deck.commander_scryfall_id}
-                              partnerScryfallId={
-                                deck.partner_commander_scryfall_id
-                              }
-                              className="transition-transform duration-500 group-hover:scale-105"
-                            />
-                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                            <ColorPips colors={deck.color_identity} />
-                            <div className="absolute inset-x-0 bottom-0 p-4">
-                              <p className="truncate text-sm font-bold text-white drop-shadow-lg">
-                                {deck.name}
-                              </p>
-                              <p className="truncate text-xs text-white/60">
-                                {[
-                                  deck.commander_name,
-                                  deck.partner_commander_name,
-                                ]
-                                  .filter(Boolean)
-                                  .join(' / ')}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between border-t border-white/5 bg-white/[4%] px-4 py-2.5 backdrop-blur-md">
-                            <div className="flex items-center gap-2">
-                              {deck.owner.avatar_url ? (
-                                <Image
-                                  src={deck.owner.avatar_url}
-                                  alt=""
-                                  width={28}
-                                  height={28}
-                                  className="h-7 w-7 rounded-full object-cover"
-                                />
-                              ) : (
-                                <div className="bg-primary/40 flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-white">
-                                  {deck.owner.username.charAt(0).toUpperCase()}
-                                </div>
-                              )}
-                              <div className="min-w-0">
-                                <p className="truncate text-xs font-medium">
-                                  {deck.owner.username}
-                                </p>
-                                <p className="text-muted-foreground truncate text-[10px]">
-                                  {deck.owner.city}, {deck.owner.province}
-                                </p>
-                              </div>
-                            </div>
-                            <p className="text-lg font-bold text-emerald-400">
-                              {formatPrice(deck.estimated_value_cents)}
-                            </p>
-                          </div>
-                        </div>
-                      </Link>
-                    ),
-                )}
-              </div>
-              <p className="text-muted-foreground mt-3 text-center text-xs">
-                Featured decks · {totalDecks} total available
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Hero — map, stats, featured, ticker */}
+      <HeroSection />
 
       {/* Browse grid with sidebar */}
       <section id="browse" className="container mx-auto max-w-7xl px-4 py-8">
