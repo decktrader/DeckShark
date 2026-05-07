@@ -209,7 +209,11 @@ function ProfileTab({ user }: { user: User }) {
     })
 
     if (updateError) {
-      setError(updateError)
+      setError(
+        updateError.includes('schema cache')
+          ? 'Something went wrong. Please try again in a moment.'
+          : updateError,
+      )
       setLoading(false)
       return
     }
