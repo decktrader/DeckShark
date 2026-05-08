@@ -185,6 +185,9 @@ const REGIONS: Array<{
   },
 ]
 
+// Lakes — empty per final handoff (user removed all lakes). Keep logic for future edits.
+const LAKES: Array<{ poly: number[][] }> = []
+
 // ===== Geometry helpers =====
 function pointInPoly(p: number[], poly: number[][]): boolean {
   let inside = false
@@ -199,6 +202,11 @@ function pointInPoly(p: number[], poly: number[][]): boolean {
     if (intersect) inside = !inside
   }
   return inside
+}
+
+function pointInLake(p: number[]): boolean {
+  for (const l of LAKES) if (pointInPoly(p, l.poly)) return true
+  return false
 }
 
 function regionForPoint(p: number[]): (typeof REGIONS)[number] | null {
@@ -240,21 +248,111 @@ function buildGrid(): Hex[] {
       if (cx < -w || cx > 900 + w || cy < -h || cy > 480 + h) continue
       const reg = regionForPoint([cx, cy])
       if (!reg) continue
+      if (pointInLake([cx, cy])) continue
       out.push({ key: `${r}-${c}`, cx, cy, country: reg.country })
     }
   }
   return out
 }
 
-// Pre-compute the hex grid once (static — doesn't depend on props)
 const HEXES = buildGrid()
+
+// ===== Hex edits from Map Editor — verbatim from handoff =====
+const HEX_EDITS: {
+  added: Hex[]
+  removed: string[]
+  recolored: Record<string, 'CA' | 'US'>
+} = {
+  added: [
+    { key: '19-9', cx: 180.99930939094767, cy: 313.5, country: 'US' },
+    { key: '21-9', cx: 180.99930939094767, cy: 346.5, country: 'US' },
+    { key: '23-9', cx: 180.99930939094767, cy: 379.5, country: 'US' },
+    { key: '13-11', cx: 219.10442715746296, cy: 214.5, country: 'CA' },
+    { key: '12-12', cx: 228.6307065990918, cy: 198, country: 'CA' },
+    { key: '12-13', cx: 247.68326548234944, cy: 198, country: 'CA' },
+    { key: '13-12', cx: 238.15698604072062, cy: 214.5, country: 'CA' },
+    { key: '13-13', cx: 257.2095449239783, cy: 214.5, country: 'CA' },
+    { key: '13-14', cx: 276.2621038072359, cy: 214.5, country: 'CA' },
+    { key: '12-18', cx: 342.9460598986377, cy: 198, country: 'CA' },
+    { key: '11-18', cx: 352.47233934026656, cy: 181.5, country: 'CA' },
+    { key: '13-19', cx: 371.5248982235242, cy: 214.5, country: 'CA' },
+    { key: '13-20', cx: 390.5774571067818, cy: 214.5, country: 'CA' },
+    { key: '14-31', cx: 590.6293253809871, cy: 231, country: 'US' },
+    { key: '14-32', cx: 609.6818842642448, cy: 231, country: 'US' },
+    { key: '13-31', cx: 600.1556048226159, cy: 214.5, country: 'CA' },
+    { key: '13-30', cx: 581.1030459393584, cy: 214.5, country: 'CA' },
+    { key: '12-31', cx: 590.6293253809871, cy: 198, country: 'CA' },
+    { key: '11-31', cx: 600.1556048226159, cy: 181.5, country: 'CA' },
+    { key: '14-36', cx: 685.8921197972754, cy: 231, country: 'CA' },
+    { key: '15-36', cx: 695.4183992389043, cy: 247.5, country: 'CA' },
+    { key: '14-37', cx: 704.944678680533, cy: 231, country: 'CA' },
+    { key: '28-33', cx: 628.7344431475025, cy: 462, country: 'US' },
+    { key: '28-32', cx: 609.6818842642448, cy: 462, country: 'US' },
+    { key: '29-33', cx: 638.2607225891313, cy: 478.5, country: 'US' },
+    { key: '26-17', cx: 323.89350101538, cy: 429, country: 'US' },
+    { key: '25-17', cx: 333.41978045700887, cy: 412.5, country: 'US' },
+    { key: '28-20', cx: 381.051177665153, cy: 462, country: 'US' },
+    { key: '28-21', cx: 400.10373654841067, cy: 462, country: 'US' },
+    { key: '28-22', cx: 419.1562954316683, cy: 462, country: 'US' },
+    { key: '28-23', cx: 438.20885431492593, cy: 462, country: 'US' },
+  ],
+  removed: [
+    '16-6',
+    '23-7',
+    '24-8',
+    '25-8',
+    '11-20',
+    '10-20',
+    '14-38',
+    '13-35',
+    '13-37',
+    '12-38',
+    '12-40',
+    '14-39',
+    '15-38',
+    '16-29',
+    '16-28',
+    '14-27',
+    '16-26',
+    '17-25',
+    '13-25',
+    '13-24',
+    '15-30',
+    '19-12',
+    '27-24',
+    '27-25',
+    '11-39',
+  ],
+  recolored: {
+    '14-24': 'CA',
+    '15-27': 'CA',
+    '14-28': 'CA',
+    '14-29': 'CA',
+    '15-29': 'CA',
+    '15-28': 'CA',
+    '14-30': 'CA',
+  },
+}
+
+// Apply edits: remove, recolor, then add (deduped)
+const HEXES_HEAT: Hex[] = (() => {
+  const removed = new Set(HEX_EDITS.removed)
+  const baseKeys = new Set(HEXES.map((h) => h.key))
+  const base = HEXES.filter((h) => !removed.has(h.key)).map((h) =>
+    HEX_EDITS.recolored[h.key]
+      ? { ...h, country: HEX_EDITS.recolored[h.key] }
+      : h,
+  )
+  const added = HEX_EDITS.added.filter((h) => !baseKeys.has(h.key))
+  return [...base, ...added]
+})()
 
 function nearestHex(city: { x: number; y: number }): number {
   let best = -1,
     bestD = Infinity
-  for (let i = 0; i < HEXES.length; i++) {
-    const dx = HEXES[i].cx - city.x,
-      dy = HEXES[i].cy - city.y
+  for (let i = 0; i < HEXES_HEAT.length; i++) {
+    const dx = HEXES_HEAT[i].cx - city.x,
+      dy = HEXES_HEAT[i].cy - city.y
     const d = dx * dx + dy * dy
     if (d < bestD) {
       bestD = d
@@ -264,7 +362,7 @@ function nearestHex(city: { x: number; y: number }): number {
   return best
 }
 
-// Cities that always show their label regardless of deck count
+// Cities that always show their label
 const ALWAYS_LABEL_CITIES = new Set([
   'Toronto',
   'Montreal',
@@ -287,10 +385,9 @@ interface HeroMapProps {
 export function HeroMap({ cities }: HeroMapProps) {
   const [activeIdx, setActiveIdx] = useState(0)
   const [isHovering, setIsHovering] = useState(false)
-
   const active = cities[activeIdx] ?? cities[0]
+  const router = useRouter()
 
-  // Auto-cycle through cities
   useEffect(() => {
     if (isHovering || cities.length === 0) return
     const id = setInterval(
@@ -299,8 +396,6 @@ export function HeroMap({ cities }: HeroMapProps) {
     )
     return () => clearInterval(id)
   }, [isHovering, cities.length])
-
-  const router = useRouter()
 
   const handleHover = useCallback((i: number) => setActiveIdx(i), [])
 
@@ -318,22 +413,19 @@ export function HeroMap({ cities }: HeroMapProps) {
     [cities, router],
   )
 
-  // Map each city to its nearest hex index
   const cityHexIdx = useMemo(() => cities.map((c) => nearestHex(c)), [cities])
 
-  // Set of hex indices that are city pins (so we skip them in the base layer)
   const hexToCity = useMemo(() => {
     const m = new Map<number, number>()
     cityHexIdx.forEach((idx, ci) => m.set(idx, ci))
     return m
   }, [cityHexIdx])
 
-  // Heat per hex: weighted sum of nearby cities' deck counts
   const heatByHex = useMemo(() => {
-    const arr = new Array(HEXES.length).fill(0) as number[]
+    const arr = new Array(HEXES_HEAT.length).fill(0) as number[]
     const SIGMA2 = 90 * 90
-    for (let i = 0; i < HEXES.length; i++) {
-      const h = HEXES[i]
+    for (let i = 0; i < HEXES_HEAT.length; i++) {
+      const h = HEXES_HEAT[i]
       let sum = 0
       for (const c of cities) {
         const dx = h.cx - c.x,
@@ -346,7 +438,6 @@ export function HeroMap({ cities }: HeroMapProps) {
     return arr.map((v) => v / max)
   }, [cities])
 
-  // Sort city indices so active renders last (on top)
   const sortedCityIndices = useMemo(() => {
     return [...cities.keys()].sort(
       (a, b) => (a === activeIdx ? 1 : 0) - (b === activeIdx ? 1 : 0),
@@ -370,23 +461,21 @@ export function HeroMap({ cities }: HeroMapProps) {
       <svg viewBox="0 0 900 480" className="block h-full w-full">
         <defs>
           <radialGradient id="hex-bg" cx="50%" cy="50%" r="75%">
-            <stop offset="0%" stopColor="#1a0f3a" />
-            <stop offset="100%" stopColor="#0b0418" />
+            <stop offset="0%" stopColor="#1b0f3a" />
+            <stop offset="100%" stopColor="#0a0418" />
           </radialGradient>
           <filter id="hex-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation={4} />
           </filter>
         </defs>
 
-        {/* Background */}
         <rect width={900} height={480} fill="url(#hex-bg)" />
 
         {/* Heat-colored hex grid */}
         <g>
-          {HEXES.map((h, i) => {
+          {HEXES_HEAT.map((h, i) => {
             if (hexToCity.has(i)) return null
             const t = heatByHex[i]
-            // CA: violet ramp; US: teal/emerald ramp
             const fill =
               h.country === 'CA'
                 ? `rgba(${Math.round(120 + 80 * t)}, ${Math.round(95 + 55 * t)}, ${Math.round(200 + 50 * t)}, ${(0.55 + 0.4 * t).toFixed(2)})`
@@ -408,7 +497,7 @@ export function HeroMap({ cities }: HeroMapProps) {
           {sortedCityIndices.map((i) => {
             const c = cities[i]
             const hIdx = cityHexIdx[i]
-            const h = HEXES[hIdx]
+            const h = HEXES_HEAT[hIdx]
             if (!h) return null
             const isActive = activeIdx === i
             return (
@@ -443,10 +532,10 @@ export function HeroMap({ cities }: HeroMapProps) {
         </g>
 
         {/* Active city pulse */}
-        {activeIdx >= 0 && HEXES[cityHexIdx[activeIdx]] && (
+        {activeIdx >= 0 && HEXES_HEAT[cityHexIdx[activeIdx]] && (
           <circle
-            cx={HEXES[cityHexIdx[activeIdx]].cx}
-            cy={HEXES[cityHexIdx[activeIdx]].cy}
+            cx={HEXES_HEAT[cityHexIdx[activeIdx]].cx}
+            cy={HEXES_HEAT[cityHexIdx[activeIdx]].cy}
             r={4}
             fill="none"
             stroke="#fff"
@@ -473,7 +562,7 @@ export function HeroMap({ cities }: HeroMapProps) {
         {/* City labels */}
         {sortedCityIndices.map((i) => {
           const c = cities[i]
-          const h = HEXES[cityHexIdx[i]]
+          const h = HEXES_HEAT[cityHexIdx[i]]
           if (!h) return null
           const isActive = activeIdx === i
           if (!isActive && !ALWAYS_LABEL_CITIES.has(c.name) && c.decks < 10)
