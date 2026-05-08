@@ -181,7 +181,7 @@ export default async function WantListsPage({
 
                       <div className="flex shrink-0 items-center gap-2">
                         {priceRange(wl) && (
-                          <span className="text-primary text-xl font-black">
+                          <span className="text-xl font-black text-emerald-400">
                             {priceRange(wl)}
                           </span>
                         )}

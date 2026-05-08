@@ -208,7 +208,7 @@ export default async function PublicWantListPage({
                       {deck.owner.city &&
                         ` · ${deck.owner.city}, ${deck.owner.province}`}
                     </div>
-                    <div className="text-primary text-sm font-bold">
+                    <div className="text-sm font-bold text-emerald-400">
                       {formatPrice(deck.estimated_value_cents)}
                     </div>
                   </div>
