@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Milestone:** Between M26 and M27
-**Status:** Contact methods, cash-for-deck trades, meetup suggestions, and notification fixes shipped.
-**Next step:** M27 (Support DeckShark) → M28 (Seed Content).
+**Milestone:** Landing page redesign (pre-M27)
+**Status:** Hero redesign, hex heat map (final handoff), /about page, browse refinements, want list + profile price fixes all shipped to production.
+**Next step:** Signed-in hero variants (B/C/D), then M27 (Support DeckShark).
 **Blocked:** Nothing.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
 
@@ -58,6 +58,20 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-05-07 — Landing page redesign: hero, hex map, /about, browse refinements
+
+- Replaced 3-step explainer hero with new design: gradient bg, hex pattern, glow blob, "Trade decks. Not cards." headline, live DB stats, CTAs, founder candor strip
+- Interactive hex-tile heat density map (violet CA / teal US, city pins, auto-cycling, click-to-filter)
+- Featured deck strip (4 trending decks with Scryfall art) and live activity ticker
+- Browse cards: interest badge moved to top-left overlay
+- New /about page (single founder GreatWhite, Phase 2 shipping mention, feedback button)
+- "About DeckShark" link in site footer
+- Static city pins so map looks full at low data volumes; 11 key cities always labeled
+- Click city on map filters browse to that city
+- Sanitized schema cache errors on settings page
+- Installed missing @radix-ui/react-tabs dependency
+- **Next:** Signed-in hero variants (B/C/D), then M27
 
 ### 2026-04-27 — Trade flow upgrades: contact methods, cash trades, notifications
 
