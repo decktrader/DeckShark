@@ -2,11 +2,7 @@
 
 import { useState, createContext, useContext } from 'react'
 import type { DeckCard } from '@/types'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null) return '—'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 function scryfallCardUrl(scryfallId: string): string {
   return `https://cards.scryfall.io/normal/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`

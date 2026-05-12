@@ -1,9 +1,5 @@
 import type { Deck, DeckCard } from '@/types'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 export function DeckStats({ deck, cards }: { deck: Deck; cards: DeckCard[] }) {
   const totalCards = cards.reduce((sum, c) => sum + c.quantity, 0)
@@ -31,7 +27,7 @@ export function DeckStats({ deck, cards }: { deck: Deck; cards: DeckCard[] }) {
         </div>
       )}
       <div>
-        <span className="text-muted-foreground">Estimated value</span>
+        <span className="text-muted-foreground">Value</span>
         <p className="font-medium">{formatPrice(deck.estimated_value_cents)}</p>
       </div>
     </div>

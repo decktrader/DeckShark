@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { searchCards } from '@/lib/services/cards'
 import type { CardCache } from '@/types'
 import { Input } from '@/components/ui/input'
+import { formatPrice } from '@/lib/utils'
 
 interface CardAutocompleteProps {
   onSelect: (card: CardCache) => void
@@ -98,11 +99,6 @@ export function CardAutocomplete({
     } else if (e.key === 'Escape') {
       setIsOpen(false)
     }
-  }
-
-  function formatPrice(cents: number | null): string {
-    if (cents === null) return ''
-    return `$${(cents / 100).toFixed(2)}`
   }
 
   return (

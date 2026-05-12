@@ -5,11 +5,7 @@ import type { Deck } from '@/types'
 import { DeckArt } from '@/components/deck/deck-art'
 import { TradeToggle } from '@/components/deck/trade-toggle'
 import { ColorPips } from '@/components/deck/color-pips'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(0)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 export function DeckCardNew({ deck }: { deck: Deck }) {
   const commanderLabel = [deck.commander_name, deck.partner_commander_name]
@@ -42,7 +38,7 @@ export function DeckCardNew({ deck }: { deck: Deck }) {
         >
           <div className="flex items-center justify-between">
             <span className="text-lg font-bold text-emerald-400">
-              {formatPrice(deck.estimated_value_cents)}
+              {formatPrice(deck.estimated_value_cents, { decimals: false })}
             </span>
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/60 capitalize">
               {deck.format}

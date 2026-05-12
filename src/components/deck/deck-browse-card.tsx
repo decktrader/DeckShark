@@ -4,11 +4,7 @@ import { DeckArt } from '@/components/deck/deck-art'
 import { ColorPips } from '@/components/deck/color-pips'
 import { Heart } from 'lucide-react'
 import type { PublicDeck } from '@/lib/services/decks.server'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '\u2014'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 export function DeckBrowseCard({
   deck,

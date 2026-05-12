@@ -16,11 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 function scryfallArtUrl(scryfallId: string): string {
   return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`

@@ -2,11 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUserTrades } from '@/lib/services/trades.server'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()

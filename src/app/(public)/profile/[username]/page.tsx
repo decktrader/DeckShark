@@ -10,11 +10,7 @@ import { DeckArt } from '@/components/deck/deck-art'
 import { ColorPips } from '@/components/deck/color-pips'
 import { Button } from '@/components/ui/button'
 import { ReportButton } from '@/components/report-button'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '\u2014'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 function DeckMiniCard({ deck }: { deck: PublicDeck }) {
   const commanderLabel = [deck.commander_name, deck.partner_commander_name]

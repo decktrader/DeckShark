@@ -1,11 +1,7 @@
 import Link from 'next/link'
 import type { Deck } from '@/types'
 import { Button } from '@/components/ui/button'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return ''
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 export function DeckHeader({
   deck,
@@ -14,8 +10,6 @@ export function DeckHeader({
   deck: Deck
   isOwner: boolean
 }) {
-  const value = formatPrice(deck.estimated_value_cents)
-
   return (
     <div className="flex items-start justify-between">
       <div>
@@ -23,11 +17,12 @@ export function DeckHeader({
         {deck.description && (
           <p className="text-muted-foreground mt-1">{deck.description}</p>
         )}
-        {value && (
-          <p className="text-muted-foreground mt-1 text-sm">
-            Estimated value: {value}
-          </p>
-        )}
+        {deck.estimated_value_cents != null &&
+          deck.estimated_value_cents > 0 && (
+            <p className="text-muted-foreground mt-1 text-sm">
+              Value: {formatPrice(deck.estimated_value_cents)}
+            </p>
+          )}
       </div>
       {isOwner && (
         <Button asChild variant="outline" size="sm">

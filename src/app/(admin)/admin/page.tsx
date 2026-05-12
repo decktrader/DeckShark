@@ -7,10 +7,7 @@ import {
 } from '@/lib/services/admin.server'
 import type { ActivityItem } from '@/lib/services/admin.server'
 import { getInterestByCityPair } from '@/lib/services/deck-interests.server'
-
-function formatPrice(cents: number): string {
-  return `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
-}
+import { formatPrice } from '@/lib/utils'
 
 function StatCard({
   label,
@@ -98,7 +95,7 @@ export default async function AdminDashboardPage() {
         />
         <StatCard
           label="Total trade value"
-          value={formatPrice(s.total_trade_value_cents)}
+          value={formatPrice(s.total_trade_value_cents, { decimals: false })}
           accent="from-emerald-500/80"
         />
         <StatCard

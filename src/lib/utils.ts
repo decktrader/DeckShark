@@ -11,3 +11,14 @@ const UUID_RE =
 export function isValidUUID(value: string): boolean {
   return UUID_RE.test(value)
 }
+
+export function formatPrice(
+  cents: number | null,
+  options?: { decimals?: boolean },
+): string {
+  if (cents === null || cents === 0) return '—'
+  const decimals = options?.decimals ?? true
+  return decimals
+    ? `$${(cents / 100).toFixed(2)}`
+    : `$${Math.round(cents / 100).toLocaleString()}`
+}

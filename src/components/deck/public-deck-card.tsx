@@ -2,11 +2,7 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DeckArt } from '@/components/deck/deck-art'
 import type { PublicDeck } from '@/lib/services/decks.server'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 export function PublicDeckCard({ deck }: { deck: PublicDeck }) {
   return (

@@ -7,11 +7,7 @@ import { getPowerLevelLabel } from '@/lib/constants'
 import { DeckArt } from '@/components/deck/deck-art'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '\u2014'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 function CriteriaPill({ label, value }: { label: string; value: string }) {
   return (

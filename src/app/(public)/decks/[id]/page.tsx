@@ -27,6 +27,7 @@ import {
   getInterestCount,
   hasUserInterest,
 } from '@/lib/services/deck-interests.server'
+import { formatPrice } from '@/lib/utils'
 
 const FORMAT_COLORS: Record<string, string> = {
   commander: 'border-violet-500/40 text-violet-300',
@@ -54,11 +55,6 @@ export async function generateMetadata({
     description,
     openGraph: { title, description, type: 'website' },
   }
-}
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(2)}`
 }
 
 export default async function PublicDeckPage({
@@ -247,6 +243,10 @@ export default async function PublicDeckPage({
                 </div>
               ))}
             </div>
+
+            <p className="text-muted-foreground text-xs">
+              All values in USD via TCGPlayer market data
+            </p>
 
             {deck.condition_notes && (
               <div className="rounded-lg border border-white/5 p-4">

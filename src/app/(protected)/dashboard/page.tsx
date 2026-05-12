@@ -14,21 +14,19 @@ import {
 } from '@/lib/services/deck-interests.server'
 import { Heart, MapPin } from 'lucide-react'
 import type { WantList } from '@/types'
+import { formatPrice } from '@/lib/utils'
 
 function scryfallArtUrl(id: string) {
   return `https://cards.scryfall.io/art_crop/front/${id[0]}/${id[1]}/${id}.jpg`
 }
 
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(0)}`
-}
-
 function priceRange(wl: WantList): string {
+  const opts = { decimals: false } as const
   if (!wl.min_value_cents && !wl.max_value_cents) return ''
-  if (!wl.min_value_cents) return `Up to ${formatPrice(wl.max_value_cents)}`
-  if (!wl.max_value_cents) return `${formatPrice(wl.min_value_cents)}+`
-  return `${formatPrice(wl.min_value_cents)} – ${formatPrice(wl.max_value_cents)}`
+  if (!wl.min_value_cents)
+    return `Up to ${formatPrice(wl.max_value_cents, opts)}`
+  if (!wl.max_value_cents) return `${formatPrice(wl.min_value_cents, opts)}+`
+  return `${formatPrice(wl.min_value_cents, opts)} – ${formatPrice(wl.max_value_cents, opts)}`
 }
 
 const FORMAT_COLORS: Record<string, string> = {
@@ -268,9 +266,7 @@ export default async function DashboardPage() {
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="text-lg font-bold text-emerald-400">
-                    {d.estimated_value_cents
-                      ? `$${(d.estimated_value_cents / 100).toFixed(0)}`
-                      : '—'}
+                    {formatPrice(d.estimated_value_cents, { decimals: false })}
                   </p>
                   <p className="text-muted-foreground text-[10px] capitalize">
                     {d.format}

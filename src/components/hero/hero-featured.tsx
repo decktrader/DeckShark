@@ -2,14 +2,10 @@
 
 import Link from 'next/link'
 import type { FeaturedDeck } from '@/lib/services/hero.server'
+import { formatPrice } from '@/lib/utils'
 
 function scryfallArtUrl(scryfallId: string): string {
   return `https://cards.scryfall.io/art_crop/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
-}
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '\u2014'
-  return `$${Math.round(cents / 100).toLocaleString()}`
 }
 
 interface HeroFeaturedProps {
@@ -67,7 +63,7 @@ export function HeroFeatured({ decks }: HeroFeaturedProps) {
                     {d.ownerProvince ? `, ${d.ownerProvince}` : ''}
                   </span>
                   <span className="shrink-0 font-bold text-emerald-400">
-                    {formatPrice(d.estimated_value_cents)}
+                    {formatPrice(d.estimated_value_cents, { decimals: false })}
                   </span>
                 </div>
               </div>

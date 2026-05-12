@@ -3,11 +3,7 @@ import type { Deck } from '@/types'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { DeckArt } from '@/components/deck/deck-art'
 import { TradeToggle } from '@/components/deck/trade-toggle'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 export function DeckGrid({
   decks,

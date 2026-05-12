@@ -8,11 +8,7 @@ import { getTradeReview } from '@/lib/services/reviews.server'
 import { TradeActions } from '@/components/trades/trade-actions'
 import { ReviewForm } from '@/components/reviews/review-form'
 import { Card, CardContent } from '@/components/ui/card'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(2)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 function scryfallArtUrl(id: string) {
   return `https://cards.scryfall.io/art_crop/front/${id[0]}/${id[1]}/${id}.jpg`

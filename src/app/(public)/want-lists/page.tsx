@@ -4,17 +4,15 @@ import { getPublicWantLists } from '@/lib/services/wantlists.server'
 import type { WantListWithOwner } from '@/lib/services/wantlists.server'
 import { Button } from '@/components/ui/button'
 import { PaginationNav } from '@/components/ui/pagination-nav'
-
-function formatPrice(cents: number | null): string {
-  if (cents === null || cents === 0) return '—'
-  return `$${(cents / 100).toFixed(0)}`
-}
+import { formatPrice } from '@/lib/utils'
 
 function priceRange(wl: WantListWithOwner): string {
+  const opts = { decimals: false } as const
   if (!wl.min_value_cents && !wl.max_value_cents) return ''
-  if (!wl.min_value_cents) return `Up to ${formatPrice(wl.max_value_cents)}`
-  if (!wl.max_value_cents) return `${formatPrice(wl.min_value_cents)}+`
-  return `${formatPrice(wl.min_value_cents)} – ${formatPrice(wl.max_value_cents)}`
+  if (!wl.min_value_cents)
+    return `Up to ${formatPrice(wl.max_value_cents, opts)}`
+  if (!wl.max_value_cents) return `${formatPrice(wl.min_value_cents, opts)}+`
+  return `${formatPrice(wl.min_value_cents, opts)} – ${formatPrice(wl.max_value_cents, opts)}`
 }
 
 const COLOR_MAP: Record<string, string> = {
