@@ -20,7 +20,6 @@ import {
 import { Info, ChevronDown, ChevronUp } from 'lucide-react'
 import { ColorIdentitySelector } from '@/components/ui/color-identity-selector'
 import { CommanderAutocomplete } from '@/components/deck/commander-autocomplete'
-import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -54,60 +53,12 @@ export function DeckForm({ userId }: { userId: string }) {
   const [description, setDescription] = useState('')
   const [conditionNotes, setConditionNotes] = useState('')
   const [decklistText, setDecklistText] = useState('')
-  const [importUrl, setImportUrl] = useState('')
-  const [fetchingUrl, setFetchingUrl] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [parseErrors, setParseErrors] = useState<string[]>([])
   const [includesSleeves, setIncludesSleeves] = useState(false)
   const [includesDeckbox, setIncludesDeckbox] = useState(false)
   const [listForTrade, setListForTrade] = useState(true)
   const [loading, setLoading] = useState(false)
-
-  async function handleFetchUrl() {
-    if (!importUrl.trim()) return
-    setFetchingUrl(true)
-    setError(null)
-
-    const res = await fetch('/api/import/url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: importUrl.trim() }),
-    })
-    const data = await res.json()
-
-    if (!res.ok) {
-      setError(data.error ?? 'Failed to import from URL.')
-      setFetchingUrl(false)
-      return
-    }
-
-    if (data.errors?.length) setParseErrors(data.errors)
-    if (data.cards?.length > 0) {
-      // Convert parsed cards to text so the existing submit flow can use them
-      // Include (SET) collector format so the text parser preserves printing info
-      const lines = data.cards.map(
-        (c: {
-          name: string
-          quantity: number
-          isCommander: boolean
-          setCode?: string
-          collectorNumber?: string
-        }) => {
-          const setInfo = c.setCode
-            ? ` (${c.setCode})${c.collectorNumber ? ` ${c.collectorNumber}` : ''}`
-            : ''
-          return c.isCommander
-            ? `COMMANDER: ${c.name}${setInfo}`
-            : `${c.quantity}x ${c.name}${setInfo}`
-        },
-      )
-      setDecklistText(lines.join('\n'))
-      setImportUrl('')
-    } else {
-      setError('No cards found at that URL.')
-    }
-    setFetchingUrl(false)
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -444,47 +395,25 @@ export function DeckForm({ userId }: { userId: string }) {
       id: 'decklist',
       num: 3,
       title: 'Decklist',
-      subtitle: 'Paste your decklist or import from a URL',
+      subtitle: 'Paste your decklist',
       required: true,
       content: (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="import-url">
-              Import from Moxfield or Archidekt
-            </Label>
-            <div className="flex gap-2">
-              <Input
-                id="import-url"
-                placeholder="https://www.moxfield.com/decks/..."
-                value={importUrl}
-                onChange={(e) => setImportUrl(e.target.value)}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleFetchUrl}
-                disabled={fetchingUrl || !importUrl.trim()}
-              >
-                {fetchingUrl ? 'Fetching...' : 'Fetch'}
-              </Button>
-            </div>
-          </div>
-          <div className="relative flex items-center">
-            <Separator className="flex-1" />
-            <span className="text-muted-foreground bg-card px-3 text-xs">
-              or paste below
-            </span>
-            <Separator className="flex-1" />
-          </div>
-          <div className="space-y-2">
             <textarea
               id="decklist"
               className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[200px] w-full rounded-md border px-3 py-2 font-mono text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder={`COMMANDER: Atraxa, Praetors' Voice\n1x Sol Ring\n1x Arcane Signet\n4x Lightning Bolt`}
+              placeholder={`COMMANDER: Atraxa, Praetors' Voice (ONE) 429\n1 Sol Ring (LCC) 298\n1 Arcane Signet (LCC) 299\n4 Lightning Bolt (STA) 42`}
               value={decklistText}
               onChange={(e) => setDecklistText(e.target.value)}
               required
             />
+            <p className="text-muted-foreground text-xs">
+              Include set codes and collector numbers for accurate printings and
+              values, e.g.{' '}
+              <span className="font-mono">1 Sol Ring (LCC) 298</span>. You can
+              export this format from Moxfield or Archidekt.
+            </p>
           </div>
           {parseErrors.length > 0 && (
             <div className="rounded border border-yellow-600/30 bg-yellow-500/10 p-3 text-sm">
@@ -570,7 +499,7 @@ export function DeckForm({ userId }: { userId: string }) {
               type="submit"
               className="w-full"
               size="lg"
-              disabled={loading || !name || (!decklistText && !fetchingUrl)}
+              disabled={loading || !name || !decklistText}
             >
               {loading
                 ? 'Creating deck...'
