@@ -37,23 +37,17 @@ export async function Header() {
   return (
     <header className="relative z-50 border-b border-white/5 bg-white/[2%] backdrop-blur-md">
       <div className="container mx-auto flex h-[72px] items-center gap-8 px-4">
-        <Link
-          href="/"
-          className="flex shrink-0 items-center gap-2.5 text-2xl font-bold"
-        >
+        <Link href="/" className="flex shrink-0 items-center gap-2">
           <Image
             src="/logo.png"
-            alt="DeckShark logo"
-            width={36}
-            height={36}
-            className="h-9 w-auto"
+            alt="DeckShark.gg"
+            width={160}
+            height={38}
+            className="h-[38px] w-auto"
             priority
           />
-          <span className="whitespace-nowrap">
-            DeckShark<span className="text-primary">.gg</span>
-            <span className="ml-2 inline-flex items-center rounded-full bg-gradient-to-r from-purple-500 to-violet-600 px-2 py-0.5 align-middle text-[9px] leading-none font-bold tracking-wide text-white uppercase">
-              Alpha
-            </span>
+          <span className="inline-flex items-center rounded border border-purple-500/50 bg-purple-500/15 px-1.5 py-0.5 text-[8px] leading-none font-semibold tracking-widest text-purple-400 uppercase">
+            Alpha
           </span>
         </Link>
 
