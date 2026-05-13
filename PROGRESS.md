@@ -3,9 +3,9 @@
 ## Current Focus
 
 **Milestone:** Landing page redesign (pre-M27)
-**Status:** Hero redesign, hex heat map (final handoff), /about page, browse refinements, want list + profile price fixes all shipped to production.
+**Status:** Hero redesign, hex heat map (final handoff), /about page, browse refinements, want list + profile price fixes, USD labeling, formatPrice consolidation, URL import removal all shipped to production.
 **Next step:** Signed-in hero variants (B/C/D), then M27 (Support DeckShark).
-**Blocked:** Nothing.
+**Blocked:** Moxfield API access (need to apply for developer program). URL import removed until approved.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
 
 ---
@@ -17,7 +17,7 @@
 | M0: Project Scaffolding                 | Complete |                                                                                                                                                    |
 | M1: Auth & User Profiles                | Complete | Google OAuth deferred to M9                                                                                                                        |
 | M2: Card Data Infrastructure            | Complete |                                                                                                                                                    |
-| M3: Deck Management (Phase A)           | Complete | Text import only, URL importers in M4                                                                                                              |
+| M3: Deck Management (Phase A)           | Complete | Text import only. URL importers removed (Moxfield API requires approval).                                                                          |
 | M4: Public Browsing                     | Complete |                                                                                                                                                    |
 | M5: Trading (Phase B)                   | Complete | Realtime updates optional polish                                                                                                                   |
 | M6: Reviews & Reputation                | Complete |                                                                                                                                                    |
@@ -58,6 +58,17 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-05-13 — Price/value cleanup, URL import removal, decklist hints
+
+- Consolidated 20 duplicated `formatPrice` functions into single shared utility in `src/lib/utils.ts`
+- Added "All values in USD via TCGPlayer market data" info line on deck detail page
+- Renamed "Estimated value" labels to "Value" for brevity (trading context, not sale prices)
+- Removed broken Moxfield/Archidekt URL import (API returns 403 — need developer approval)
+- Deleted importers (moxfield.ts, archidekt.ts), API route (/api/import/url), and all URL input UI
+- Added set code/collector number hint to decklist textarea in both create and edit forms
+- Added note that printings can be changed manually after creation
+- **Next:** Signed-in hero variants (B/C/D), then M27. Apply for Moxfield API access to restore URL import later.
 
 ### 2026-05-07 — Landing page redesign: hero, hex map, /about, browse refinements
 
