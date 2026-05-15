@@ -4,7 +4,7 @@
 
 **Milestone:** Landing page redesign (pre-M27)
 **Status:** Hero redesign, hex heat map (final handoff), /about page, browse refinements, want list + profile price fixes, USD labeling, formatPrice consolidation, URL import removal all shipped to production.
-**Next step:** Verify signed-in hero variants on dev server, then M27a (Launch Readiness — scale prep before marketing push).
+**Next step:** Apply migrations 033-035 to production Supabase, then M27a (Launch Readiness — scale prep before marketing push).
 **Blocked:** Moxfield API access (need to apply for developer program). URL import removed until approved.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
 
@@ -60,17 +60,33 @@
 
 <!-- Newest entries at the top. One entry per work session. -->
 
-### 2026-05-15 — Signed-in hero variants (B/C/D)
+### 2026-05-15 — Signed-in hero variants, trade integrity fixes, UI polish
 
-- Implemented 3 personalized hero states from design handoff (design_handoff_landing_page/)
-- **B (New user):** Green welcome badge, "Let's get your first trade" headline, 4-step onboarding checklist (account created, list deck, add want list, set city) with live completion status and CTA pills
-- **C (Active user):** Violet welcome badge, want list match cards (up to 3, linked to deck detail), personal stats strip (decks/wants/unread), "See all matches" CTA
-- **D (Power user):** Gold "Founding Member" badge with trade count, inbox feed from recent notifications with avatar initials and unread dots, "Open inbox" CTA
-- Detection logic: new (0 decks + 0 want lists), active (has decks or wants, <10 decks), power (10+ decks or 20+ trades)
-- Added `getHeroUserData()` server function — fetches user stats, want list matches, and notifications in parallel
-- Hero left column swaps based on auth state; right column (map), featured strip, and ticker stay the same
-- Type-check and lint clean
-- **Next:** Verify on dev server, then M27a (Launch Readiness).
+**Hero variants (B/C/D):**
+
+- 3 personalized hero states from design handoff (design_handoff_landing_page/)
+- B (New user): green welcome badge, onboarding checklist with live completion
+- C (Active user): violet badge, want list match cards, personal stats strip
+- D (Power user): gold "Founding Member" badge, notification inbox feed
+- Detection: new (0 decks+wants), active (has content), power (3+ decks AND trade activity)
+- `getHeroUserData()` server function fetches stats, matches, notifications in parallel
+
+**Bug fixes (found via beta testing):**
+
+- Trade status transitions: added valid transition map in service layer + DB trigger (034) — terminal states (completed/declined/cancelled) can never change. Prevents completed→cancelled, proposed→completed skips.
+- Trigger bypass: internal SECURITY DEFINER triggers can now update protected columns via `app.internal_update` GUC flag (033). Fixes "Cannot modify completed_trades directly" error on trade completion.
+- FK cascade: fixed 4 NO ACTION FKs that blocked user deletion — last_counter_by, resolved_by, suspended_by, lifted_by now SET NULL (035)
+
+**UI polish:**
+
+- Search bar: "Search commanders, cities, players…"
+- Deck detail: value price color → emerald-400 (was purple)
+- Footer: feedback + about links on same horizontal line
+- Browse filters: reordered (Commander → Color identity → Power level → Archetype → Format). Commander, color identity, power level open by default. Accordion icon → emerald.
+- Color identity picker: mana pip icons on each option, removed redundant WUBRG codes, separators between groups
+
+**Production needs:** Apply migrations 033-035 to production Supabase.
+**Next:** M27a (Launch Readiness).
 
 ### 2026-05-13 — Price/value cleanup, URL import removal, decklist hints
 
