@@ -23,7 +23,7 @@ const MANA_ICONS: Record<string, string> = {
   G: '/icons/mana/Forest-icon.png',
 }
 
-function ManaPips({ colors }: { colors: string[] }) {
+function ManaPips({ colors }: { colors: readonly string[] }) {
   return (
     <span className="inline-flex items-center">
       {colors.map((c, i) => {

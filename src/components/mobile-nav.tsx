@@ -1,11 +1,19 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 
-export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
+export function MobileNav({
+  isLoggedIn,
+  username,
+}: {
+  isLoggedIn: boolean
+  username?: string | null
+}) {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [pendingTradeCount, setPendingTradeCount] = useState(0)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -132,15 +140,47 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
                   Dashboard
                 </Link>
               )}
-              <div className="my-1 border-t" />
-              {isLoggedIn ? (
+              {isLoggedIn && username && (
                 <Link
-                  href="/settings"
+                  href={`/profile/${username}`}
                   onClick={() => setOpen(false)}
                   className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
                 >
-                  Settings
+                  Profile
                 </Link>
+              )}
+              {isLoggedIn && (
+                <Link
+                  href="/notifications"
+                  onClick={() => setOpen(false)}
+                  className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
+                >
+                  Notifications
+                </Link>
+              )}
+              <div className="my-1 border-t" />
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href="/settings"
+                    onClick={() => setOpen(false)}
+                    className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      setOpen(false)
+                      const supabase = createClient()
+                      await supabase.auth.signOut()
+                      router.push('/')
+                      router.refresh()
+                    }}
+                    className="hover:bg-accent rounded-md px-3 py-3 text-left text-sm font-medium text-red-400"
+                  >
+                    Sign out
+                  </button>
+                </>
               ) : (
                 <div className="flex gap-2 px-3 py-2">
                   <Button asChild className="flex-1">

@@ -157,7 +157,7 @@ export async function Header() {
 
         {/* Mobile nav */}
         <div className="sm:hidden">
-          <MobileNav isLoggedIn={!!profile} />
+          <MobileNav isLoggedIn={!!profile} username={profile?.username} />
         </div>
       </div>
     </header>
