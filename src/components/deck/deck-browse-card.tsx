@@ -160,12 +160,14 @@ export function DeckBrowseCard({
           <div className="flex items-center justify-between">
             <div className="flex min-w-0 items-center gap-2">
               {avatar}
-              <span className="truncate text-xs">
-                @{deck.owner.username}
-                {location ? ` \u00b7 ${location}` : ''}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-xs">
+                  @{deck.owner.username}
+                  {location ? ` \u00b7 ${location}` : ''}
+                </span>
               </span>
             </div>
-            <p className="shrink-0 text-lg font-bold text-emerald-400">
+            <p className="shrink-0 pl-2 text-sm font-bold text-emerald-400">
               {formatPrice(deck.estimated_value_cents)}
             </p>
           </div>

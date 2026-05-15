@@ -31,6 +31,17 @@ export function FeedbackForm() {
       user_agent: navigator.userAgent,
     })
 
+    // Send email notification (fire and forget)
+    fetch('/api/notify/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        category,
+        message,
+        pageUrl: window.location.href,
+      }),
+    }).catch(() => {})
+
     setSubmitting(false)
     setDone(true)
     setTimeout(() => {
