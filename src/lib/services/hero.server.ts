@@ -389,6 +389,7 @@ export interface HeroUserData {
   wantListCount: number
   unreadCount: number
   completedTrades: number
+  isFoundingMember: boolean
   hasCitySet: boolean
   matches: HeroMatch[]
   inboxItems: HeroInboxItem[]
@@ -453,6 +454,13 @@ export async function getHeroUserData(
   const completedTrades = user.completed_trades ?? 0
   const hasTradeActivity =
     (tradesAsProposerRes.count ?? 0) + (tradesAsReceiverRes.count ?? 0) > 0
+
+  // Founding member: first 100 users by signup date
+  const { count: usersBeforeMe } = await supabase
+    .from('users')
+    .select('id', { count: 'exact', head: true })
+    .lt('created_at', user.created_at)
+  const isFoundingMember = (usersBeforeMe ?? 0) < 100
 
   // Determine user state
   // Power: 3+ decks AND has been involved in at least one trade (proposed or received)
@@ -543,6 +551,7 @@ export async function getHeroUserData(
       wantListCount,
       unreadCount,
       completedTrades,
+      isFoundingMember,
       hasCitySet: !!user.city,
       matches,
       inboxItems,

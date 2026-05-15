@@ -357,19 +357,25 @@ function InboxRow({ item, isLast }: { item: HeroInboxItem; isLast: boolean }) {
 function HeroPower({ data }: { data: HeroUserData }) {
   return (
     <>
-      {/* Gold founding member badge */}
+      {/* Badge */}
       <div className="mb-[22px] flex items-center gap-2">
-        <div
-          className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold"
-          style={{
-            background:
-              'linear-gradient(90deg, rgba(251,191,36,0.18), rgba(244,114,182,0.18))',
-            borderColor: 'rgba(251,191,36,0.4)',
-            color: '#fbbf24',
-          }}
-        >
-          ★ Founding Member &middot; {data.completedTrades} trades
-        </div>
+        {data.isFoundingMember ? (
+          <div
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold"
+            style={{
+              background:
+                'linear-gradient(90deg, rgba(251,191,36,0.18), rgba(244,114,182,0.18))',
+              borderColor: 'rgba(251,191,36,0.4)',
+              color: '#fbbf24',
+            }}
+          >
+            ★ Founding Member &middot; {data.completedTrades} trades
+          </div>
+        ) : (
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/[0.12] px-3 py-1.5 text-xs text-violet-300">
+            Welcome back, {data.username} &middot; {data.completedTrades} trades
+          </div>
+        )}
       </div>
 
       {/* Headline */}
