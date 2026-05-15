@@ -2,6 +2,13 @@
 
 <!-- Newest entries at the top. Check items off as they're completed. -->
 
+### 2026-05-15 — Beta testing follow-ups
+
+- [ ] Build `/beta-test` command/skill that runs common user flows (trade lifecycle, account deletion, reviews, cron endpoints) and reports errors
+- [ ] Add UI for terminal trade states (completed/declined/cancelled show blank — should show status message + review prompt or "start new trade" link)
+- [ ] Power user hero (state D): fall back to recent trade activity when notification inbox is empty (currently shows "No recent activity")
+- [ ] Graceful error handling on `/api/cron/sync-cards` (currently 500s on Scryfall timeout)
+
 ### 2026-04-17 — Future settings enhancements
 
 - [ ] Appearance tab — dark/light/system theme toggle (requires building light theme)

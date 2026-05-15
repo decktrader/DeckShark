@@ -165,4 +165,6 @@ Before ending a work session, review `.claude/settings.local.json`:
 - Use Supabase Auth (email + Google OAuth)
 - Storage for deck photos (`deck-photos` bucket)
 - `is_admin` flag on `users` table is trigger-protected — to set it, temporarily disable the `check_user_update_columns_trigger`, UPDATE, then re-enable. Must use service role or SQL Editor.
+- **Protected columns:** `check_user_update_columns_trigger` blocks direct user updates to `trade_rating`, `completed_trades`, `reputation_score`, and `is_admin`. Internal triggers (e.g., `handle_trade_completed`, `handle_review_created`) bypass this by setting `app.internal_update` GUC flag (see migration 033). Any new trigger that updates protected columns must follow this pattern.
+- **Trade status transitions:** Enforced by DB trigger (`check_trade_status_transition`, migration 034) and service layer (`VALID_TRANSITIONS` map in `trades.ts`). Terminal states (completed, declined, cancelled) cannot transition. Valid paths: proposed→accepted/declined/countered/cancelled, countered→same, accepted→completed/cancelled.
 - Admin access: middleware checks `is_admin` on every `/admin/*` request and redirects non-admins to `/dashboard`
