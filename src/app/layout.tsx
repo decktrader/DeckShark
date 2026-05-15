@@ -31,15 +31,16 @@ export default function RootLayout({
           id="feedback"
           className="border-t border-white/5 py-6 text-center"
         >
-          <FeedbackForm />
-          <p className="text-muted-foreground mt-3 text-xs">
+          <div className="text-muted-foreground flex items-center justify-center gap-3 text-xs">
+            <FeedbackForm />
+            <span className="text-white/20">|</span>
             <a
               href="/about"
               className="hover:text-foreground transition-colors"
             >
               About DeckShark
             </a>
-          </p>
+          </div>
         </footer>
         <Analytics />
         <SpeedInsights />

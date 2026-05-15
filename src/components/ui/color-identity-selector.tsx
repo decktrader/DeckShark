@@ -6,6 +6,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -13,6 +14,51 @@ import { COLOR_IDENTITY_OPTIONS } from '@/lib/constants'
 
 // WUBRG canonical order for normalising incoming arrays
 const WUBRG = ['W', 'U', 'B', 'R', 'G']
+
+const MANA_ICONS: Record<string, string> = {
+  W: '/icons/mana/Plains-icon.png',
+  U: '/icons/mana/Island-icon.png',
+  B: '/icons/mana/Swamp-icon.png',
+  R: '/icons/mana/Mountain-icon.png',
+  G: '/icons/mana/Forest-icon.png',
+}
+
+function ManaPips({ colors }: { colors: string[] }) {
+  return (
+    <span className="inline-flex items-center">
+      {colors.map((c, i) => {
+        const src = MANA_ICONS[c]
+        if (!src) return null
+        return (
+          <img
+            key={c}
+            src={src}
+            alt={c}
+            className="rounded-full"
+            style={{
+              width: 16,
+              height: 16,
+              marginLeft: i > 0 ? -3 : 0,
+            }}
+          />
+        )
+      })}
+    </span>
+  )
+}
+
+function ColorOption({
+  option,
+}: {
+  option: (typeof COLOR_IDENTITY_OPTIONS)[number]
+}) {
+  return (
+    <span className="flex items-center gap-2">
+      <ManaPips colors={option.colors} />
+      <span>{option.label}</span>
+    </span>
+  )
+}
 
 function toKey(colors: string[]): string {
   return [...colors]
@@ -61,6 +107,7 @@ export function ColorIdentitySelector({
       </SelectTrigger>
       <SelectContent className="max-h-80">
         <SelectItem value="none">Any color identity</SelectItem>
+        <SelectSeparator />
 
         <SelectGroup>
           <SelectLabel>By count</SelectLabel>
@@ -69,48 +116,53 @@ export function ColorIdentitySelector({
           <SelectItem value="_tri">Any three-color</SelectItem>
           <SelectItem value="_four">Any four-color</SelectItem>
         </SelectGroup>
+        <SelectSeparator />
 
         <SelectGroup>
           <SelectLabel>Mono</SelectLabel>
           {COLOR_IDENTITY_OPTIONS.slice(0, 5).map((o) => (
             <SelectItem key={o.value} value={o.value}>
-              {o.label}
+              <ColorOption option={o} />
             </SelectItem>
           ))}
         </SelectGroup>
+        <SelectSeparator />
 
         <SelectGroup>
           <SelectLabel>Dual</SelectLabel>
           {COLOR_IDENTITY_OPTIONS.slice(5, 15).map((o) => (
             <SelectItem key={o.value} value={o.value}>
-              {o.label}
+              <ColorOption option={o} />
             </SelectItem>
           ))}
         </SelectGroup>
+        <SelectSeparator />
 
         <SelectGroup>
           <SelectLabel>Tri</SelectLabel>
           {COLOR_IDENTITY_OPTIONS.slice(15, 25).map((o) => (
             <SelectItem key={o.value} value={o.value}>
-              {o.label}
+              <ColorOption option={o} />
             </SelectItem>
           ))}
         </SelectGroup>
+        <SelectSeparator />
 
         <SelectGroup>
           <SelectLabel>Four-color</SelectLabel>
           {COLOR_IDENTITY_OPTIONS.slice(25, 30).map((o) => (
             <SelectItem key={o.value} value={o.value}>
-              {o.label}
+              <ColorOption option={o} />
             </SelectItem>
           ))}
         </SelectGroup>
+        <SelectSeparator />
 
         <SelectGroup>
           <SelectLabel>Five-color</SelectLabel>
           {COLOR_IDENTITY_OPTIONS.slice(30).map((o) => (
             <SelectItem key={o.value} value={o.value}>
-              {o.label}
+              <ColorOption option={o} />
             </SelectItem>
           ))}
         </SelectGroup>

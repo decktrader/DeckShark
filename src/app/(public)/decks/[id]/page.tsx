@@ -234,7 +234,7 @@ export default async function PublicDeckPage({
                   />
                   <div className="px-5 py-3 text-center">
                     <p
-                      className={`text-lg font-bold capitalize ${s.highlight ? 'text-primary' : ''}`}
+                      className={`text-lg font-bold capitalize ${s.highlight ? 'text-emerald-400' : ''}`}
                     >
                       {s.value}
                     </p>

@@ -83,7 +83,7 @@ function AccordionSection({
           className={cn(
             'flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-[3px]',
             open
-              ? 'bg-primary/15 text-primary'
+              ? 'bg-emerald-400/15 text-emerald-400'
               : 'bg-white/[0.06] text-white/30',
           )}
         >
@@ -180,9 +180,9 @@ function FilterContent({
     price: true,
     location: true,
     format: false,
-    commander: false,
-    power: false,
-    colors: false,
+    commander: true,
+    power: true,
+    colors: true,
     archetype: false,
   })
 
@@ -316,32 +316,6 @@ function FilterContent({
       </AccordionSection>
 
       <AccordionSection
-        label="Format"
-        preview={formatPreview}
-        open={openSections.format || hasFormat}
-        onToggle={() => toggle('format')}
-      >
-        <Select
-          value={format || 'all'}
-          onValueChange={(v) =>
-            updateFilter({ format: v === 'all' ? null : v })
-          }
-        >
-          <SelectTrigger className={triggerClass}>
-            <SelectValue placeholder="All formats" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All formats</SelectItem>
-            {FORMATS.map((f) => (
-              <SelectItem key={f.value} value={f.value}>
-                {f.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </AccordionSection>
-
-      <AccordionSection
         label="Commander"
         preview={hasCommander ? commander : null}
         open={openSections.commander || hasCommander}
@@ -352,6 +326,20 @@ function FilterContent({
           defaultValue={commander}
           onCommit={(v) => updateFilter({ commander: v || null })}
           placeholder="e.g. Atraxa"
+        />
+      </AccordionSection>
+
+      <AccordionSection
+        label="Color identity"
+        preview={colorPreview}
+        open={openSections.colors || hasColors}
+        onToggle={() => toggle('colors')}
+      >
+        <ColorIdentitySelector
+          value={colorIdentity}
+          onChange={(colors) =>
+            updateFilter({ colorIdentity: colors.length ? colors : null })
+          }
         />
       </AccordionSection>
 
@@ -382,20 +370,6 @@ function FilterContent({
       </AccordionSection>
 
       <AccordionSection
-        label="Color identity"
-        preview={colorPreview}
-        open={openSections.colors || hasColors}
-        onToggle={() => toggle('colors')}
-      >
-        <ColorIdentitySelector
-          value={colorIdentity}
-          onChange={(colors) =>
-            updateFilter({ colorIdentity: colors.length ? colors : null })
-          }
-        />
-      </AccordionSection>
-
-      <AccordionSection
         label="Archetype"
         preview={hasArchetype ? archetype : null}
         open={openSections.archetype || hasArchetype}
@@ -415,6 +389,32 @@ function FilterContent({
             {ARCHETYPES.map((a) => (
               <SelectItem key={a} value={a}>
                 {a}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </AccordionSection>
+
+      <AccordionSection
+        label="Format"
+        preview={formatPreview}
+        open={openSections.format || hasFormat}
+        onToggle={() => toggle('format')}
+      >
+        <Select
+          value={format || 'all'}
+          onValueChange={(v) =>
+            updateFilter({ format: v === 'all' ? null : v })
+          }
+        >
+          <SelectTrigger className={triggerClass}>
+            <SelectValue placeholder="All formats" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All formats</SelectItem>
+            {FORMATS.map((f) => (
+              <SelectItem key={f.value} value={f.value}>
+                {f.label}
               </SelectItem>
             ))}
           </SelectContent>

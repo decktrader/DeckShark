@@ -43,7 +43,7 @@ export function FeedbackForm() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-muted-foreground hover:text-foreground text-xs underline"
+        className="text-muted-foreground hover:text-foreground text-xs transition-colors"
       >
         Send feedback
       </button>

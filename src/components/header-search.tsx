@@ -93,7 +93,7 @@ export function HeaderSearch() {
           value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Search decks, commanders, players…"
+          placeholder="Search commanders, cities, players…"
           autoComplete="off"
           aria-autocomplete="list"
           aria-expanded={open}
