@@ -85,7 +85,7 @@
 - Browse filters: reordered (Commander → Color identity → Power level → Archetype → Format). Commander, color identity, power level open by default. Accordion icon → emerald.
 - Color identity picker: mana pip icons on each option, removed redundant WUBRG codes, separators between groups
 
-**Production needs:** Apply migrations 033-035 to production Supabase.
+**Production needs:** Set `FEEDBACK_EMAIL` env var on Vercel (defaults to feedback@deckshark.gg).
 **Next:** M27a (Launch Readiness).
 
 ### 2026-05-13 — Price/value cleanup, URL import removal, decklist hints
