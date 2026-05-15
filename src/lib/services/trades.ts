@@ -170,11 +170,40 @@ export async function counterTrade(
 
 // ─── Status transitions ──────────────────────────────────────────────────────
 
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  proposed: ['accepted', 'declined', 'countered', 'cancelled'],
+  countered: ['accepted', 'declined', 'countered', 'cancelled'],
+  accepted: ['completed', 'cancelled'],
+  // Terminal states — no transitions allowed
+  completed: [],
+  declined: [],
+  cancelled: [],
+  disputed: [],
+}
+
 export async function updateTradeStatus(
   tradeId: string,
   status: Trade['status'],
 ): Promise<ServiceResponse<Trade>> {
   const supabase = createClient()
+
+  // Fetch current status first
+  const { data: current, error: fetchError } = await supabase
+    .from('trades')
+    .select('status')
+    .eq('id', tradeId)
+    .single()
+
+  if (fetchError) return { data: null, error: fetchError.message }
+
+  const allowed = VALID_TRANSITIONS[current.status] ?? []
+  if (!allowed.includes(status)) {
+    return {
+      data: null,
+      error: `Cannot change trade from "${current.status}" to "${status}"`,
+    }
+  }
+
   const { data, error } = await supabase
     .from('trades')
     .update({ status })

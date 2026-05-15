@@ -10,6 +10,8 @@ import { SortBar } from '@/components/deck/sort-bar'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 import { getInterestCountsForDecks } from '@/lib/services/deck-interests.server'
 import { HeroSection } from '@/components/hero/hero-section'
+import { getHeroUserData } from '@/lib/services/hero.server'
+import type { HeroUserData } from '@/lib/services/hero.server'
 
 export const metadata: Metadata = {
   title: 'DeckShark — Trade MTG Decks Near You',
@@ -36,6 +38,7 @@ export default async function HomePage({
   let defaultCity: string | null = null
   let defaultProvince: string | null = null
   let isLoggedIn = false
+  let heroUserData: HeroUserData | null = null
   try {
     const supabase = await createClient()
     const {
@@ -43,9 +46,13 @@ export default async function HomePage({
     } = await supabase.auth.getUser()
     if (authUser) {
       isLoggedIn = true
-      const { data: profile } = await getUserById(authUser.id)
+      const [{ data: profile }, { data: heroData }] = await Promise.all([
+        getUserById(authUser.id),
+        getHeroUserData(authUser.id),
+      ])
       defaultCity = profile?.city ?? null
       defaultProvince = profile?.province ?? null
+      heroUserData = heroData
     }
   } catch {
     /* non-critical */
@@ -115,7 +122,7 @@ export default async function HomePage({
   return (
     <main>
       {/* Hero — map, stats, featured, ticker */}
-      <HeroSection />
+      <HeroSection userData={heroUserData} />
 
       {/* Browse grid with sidebar */}
       <section id="browse" className="container mx-auto max-w-7xl px-4 py-8">

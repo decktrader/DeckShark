@@ -4,7 +4,7 @@
 
 **Milestone:** Landing page redesign (pre-M27)
 **Status:** Hero redesign, hex heat map (final handoff), /about page, browse refinements, want list + profile price fixes, USD labeling, formatPrice consolidation, URL import removal all shipped to production.
-**Next step:** Signed-in hero variants (B/C/D), then M27 (Support DeckShark).
+**Next step:** Verify signed-in hero variants on dev server, then M27a (Launch Readiness — scale prep before marketing push).
 **Blocked:** Moxfield API access (need to apply for developer program). URL import removed until approved.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
 
@@ -12,52 +12,65 @@
 
 ## Milestone Status
 
-| Milestone                               | Status   | Notes                                                                                                                                              |
-| --------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| M0: Project Scaffolding                 | Complete |                                                                                                                                                    |
-| M1: Auth & User Profiles                | Complete | Google OAuth deferred to M9                                                                                                                        |
-| M2: Card Data Infrastructure            | Complete |                                                                                                                                                    |
-| M3: Deck Management (Phase A)           | Complete | Text import only. URL importers removed (Moxfield API requires approval).                                                                          |
-| M4: Public Browsing                     | Complete |                                                                                                                                                    |
-| M5: Trading (Phase B)                   | Complete | Realtime updates optional polish                                                                                                                   |
-| M6: Reviews & Reputation                | Complete |                                                                                                                                                    |
-| M7: Want Lists                          | Complete |                                                                                                                                                    |
-| M8: Email Notifications                 | Complete |                                                                                                                                                    |
-| M9: Onboarding & Landing Page           | Complete | Google OAuth deferred                                                                                                                              |
-| M10: Polish & Mobile                    | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA                               |
-| M11: Browse Filters                     | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand                        |
-| M12: Production Deploy                  | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                                                  |
-| M13: Counter-Offers                     | Complete | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                                            |
-| M14: Color Identity Filter              | Complete | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                                           |
-| M15: Disputes                           | Deferred | Build when user base warrants                                                                                                                      |
-| **M16: Security Hardening**             | Complete | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged.               |
-| **M17: Rate Limiting**                  | Complete | Upstash Redis (@upstash/ratelimit) on all routes. 4 tiers: search/mutation/notify/auth. Graceful fallback without Redis.                           |
-| **M18: Performance & Caching**          | Complete | DB pagination (.range()), browse indexes (027), Scryfall fetch timeouts, next/image, ISR on want-lists                                             |
-| **M19: Admin Portal**                   | Complete | Stats dashboard, user mgmt, trade oversight, reports queue, feedback inbox, suspension system, report/feedback public components                   |
-| **M20: UX Overhaul**                    | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt                    |
-| **M21: Remote Interest Signal**         | Complete | "Want this shipped?" vote on non-local decks, interest badges, dashboard wanted list, threshold emails, admin city-pair analytics                  |
-| **M22: Notification System**            | Complete | Centralized bell dropdown + /notifications page, in-app notifications on all events, per-type email preferences, server-rendered initial data      |
-| **M23: Observability**                  | Complete | Sentry, /api/health, Vercel Analytics + Speed Insights, post-deploy smoke test. Needs Sentry DSN + Analytics enabled in prod.                      |
-| **M24: Email Polish**                   | Complete | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                                    |
-| **M25: Mobile Polish & QA**             | Complete | V4D browse cards, filter sheet, list/grid toggle, sticky deck detail bar, stacked trade cards, notification sheet, responsive grids, touch targets |
-| **M26: Settings Overhaul**              | Complete | Tabbed settings (profile, notifications, account, privacy & data). Country/state support (CA+US). Password change, forgot password, data export.   |
-| **M27: Support DeckShark**              | Planned  | Stripe tips ($3/$5/$10/$25/custom), supporter badge, post-trade nudge, /support page, admin stats. Stripe foundation for future shipping fees.     |
-| ~~M28: Seed Content & Empty States~~    | Dropped  | Not needed — 23+ real decks listed from local players                                                                                              |
-| ~~M29: Regional Launch Strategy~~       | Dropped  | Marketing strategy handled outside the codebase                                                                                                    |
-| ~~M30: Game Store Partnerships~~        | Dropped  | Marketing strategy handled outside the codebase                                                                                                    |
-| Branch Protection                       | Planned  | Protect main branch — require PRs, no direct pushes to production                                                                                  |
-| **--- Phase 2: Shipping & Escrow ---**  |          |                                                                                                                                                    |
-| **M31: Address Management**             | Planned  | Shipping address collection (encrypted), address validation, PIPEDA-compliant storage, address book for repeat traders                             |
-| **M32: Escrow & Payment Hold**          | Planned  | Stripe escrow/hold flow — buyer funds held on trade acceptance, released on delivery confirmation, refund on dispute. Both sides must confirm.     |
-| **M33: Shipping Labels & Tracking**     | Planned  | Generate shipping labels (Canada Post, USPS), calculate rates by weight/distance, tracking numbers, in-app tracking status updates                 |
-| **M34: Shipping Instructions & UX**     | Planned  | Step-by-step packing guide (double-sleeve, toploader, bubble mailer), printable packing slip, condition photo upload before shipping               |
-| **M35: Delivery Confirmation**          | Planned  | Both sides confirm receipt + condition, photo verification, auto-release escrow after confirmation window, dispute flow if damaged/missing         |
-| **M36: Shipping Disputes & Protection** | Planned  | Dispute resolution flow, photo evidence review, admin arbitration panel, partial refunds, insurance claims for lost/damaged shipments              |
-| **M37: Shipping Fees & Pricing**        | Planned  | Rate calculator in trade flow, split/buyer-pays/seller-pays options, flat-rate vs calculated shipping, free shipping threshold                     |
+| Milestone                               | Status   | Notes                                                                                                                                                      |
+| --------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0: Project Scaffolding                 | Complete |                                                                                                                                                            |
+| M1: Auth & User Profiles                | Complete | Google OAuth deferred to M9                                                                                                                                |
+| M2: Card Data Infrastructure            | Complete |                                                                                                                                                            |
+| M3: Deck Management (Phase A)           | Complete | Text import only. URL importers removed (Moxfield API requires approval).                                                                                  |
+| M4: Public Browsing                     | Complete |                                                                                                                                                            |
+| M5: Trading (Phase B)                   | Complete | Realtime updates optional polish                                                                                                                           |
+| M6: Reviews & Reputation                | Complete |                                                                                                                                                            |
+| M7: Want Lists                          | Complete |                                                                                                                                                            |
+| M8: Email Notifications                 | Complete |                                                                                                                                                            |
+| M9: Onboarding & Landing Page           | Complete | Google OAuth deferred                                                                                                                                      |
+| M10: Polish & Mobile                    | Complete | Sleeves/deckbox, skeletons, error boundaries, pagination, rate-limit, account deletion/export, mobile nav, a11y, PWA                                       |
+| M11: Browse Filters                     | Complete | Power level, color identity, archetype, sort, collapsible panel, city autocomplete, profile city default, DeckShark rebrand                                |
+| M12: Production Deploy                  | Complete | deckshark.gg live on Vercel, Google OAuth, production Supabase migrations applied                                                                          |
+| M13: Counter-Offers                     | Complete | Counter-offer form, cash slider, trade badge, enhanced trades list, email notifications                                                                    |
+| M14: Color Identity Filter              | Complete | Implemented in M11 — ColorIdentitySelector, browse filter, server query with .contains()                                                                   |
+| M15: Disputes                           | Deferred | Build when user base warrants                                                                                                                              |
+| **M16: Security Hardening**             | Complete | RLS column restrictions, security headers, account deletion confirmation, UUID validation, auth error generification. PR #13 merged.                       |
+| **M17: Rate Limiting**                  | Complete | Upstash Redis (@upstash/ratelimit) on all routes. 4 tiers: search/mutation/notify/auth. Graceful fallback without Redis.                                   |
+| **M18: Performance & Caching**          | Complete | DB pagination (.range()), browse indexes (027), Scryfall fetch timeouts, next/image, ISR on want-lists                                                     |
+| **M19: Admin Portal**                   | Complete | Stats dashboard, user mgmt, trade oversight, reports queue, feedback inbox, suspension system, report/feedback public components                           |
+| **M20: UX Overhaul**                    | Complete | Browse-first landing page, onboarding redirects to /decks, city autocomplete on forms, public want-list detail with auth prompt                            |
+| **M21: Remote Interest Signal**         | Complete | "Want this shipped?" vote on non-local decks, interest badges, dashboard wanted list, threshold emails, admin city-pair analytics                          |
+| **M22: Notification System**            | Complete | Centralized bell dropdown + /notifications page, in-app notifications on all events, per-type email preferences, server-rendered initial data              |
+| **M23: Observability**                  | Complete | Sentry, /api/health, Vercel Analytics + Speed Insights, post-deploy smoke test. Needs Sentry DSN + Analytics enabled in prod.                              |
+| **M24: Email Polish**                   | Complete | Branded auth emails, re-engagement cron, HMAC unsubscribe, data export (PIPEDA)                                                                            |
+| **M25: Mobile Polish & QA**             | Complete | V4D browse cards, filter sheet, list/grid toggle, sticky deck detail bar, stacked trade cards, notification sheet, responsive grids, touch targets         |
+| **M26: Settings Overhaul**              | Complete | Tabbed settings (profile, notifications, account, privacy & data). Country/state support (CA+US). Password change, forgot password, data export.           |
+| **M27a: Launch Readiness**              | Planned  | Upgrade Vercel/Supabase/Resend/Upstash to paid tiers, email resilience, connection pooling, ISR review, load testing, spend alerts. Pre-marketing blocker. |
+| **M27: Support DeckShark**              | Planned  | Stripe tips ($3/$5/$10/$25/custom), supporter badge, post-trade nudge, /support page, admin stats. Stripe foundation for future shipping fees.             |
+| ~~M28: Seed Content & Empty States~~    | Dropped  | Not needed — 23+ real decks listed from local players                                                                                                      |
+| ~~M29: Regional Launch Strategy~~       | Dropped  | Marketing strategy handled outside the codebase                                                                                                            |
+| ~~M30: Game Store Partnerships~~        | Dropped  | Marketing strategy handled outside the codebase                                                                                                            |
+| Branch Protection                       | Planned  | Protect main branch — require PRs, no direct pushes to production                                                                                          |
+| **--- Phase 2: Shipping & Escrow ---**  |          |                                                                                                                                                            |
+| **M31: Address Management**             | Planned  | Shipping address collection (encrypted), address validation, PIPEDA-compliant storage, address book for repeat traders                                     |
+| **M32: Escrow & Payment Hold**          | Planned  | Stripe escrow/hold flow — buyer funds held on trade acceptance, released on delivery confirmation, refund on dispute. Both sides must confirm.             |
+| **M33: Shipping Labels & Tracking**     | Planned  | Generate shipping labels (Canada Post, USPS), calculate rates by weight/distance, tracking numbers, in-app tracking status updates                         |
+| **M34: Shipping Instructions & UX**     | Planned  | Step-by-step packing guide (double-sleeve, toploader, bubble mailer), printable packing slip, condition photo upload before shipping                       |
+| **M35: Delivery Confirmation**          | Planned  | Both sides confirm receipt + condition, photo verification, auto-release escrow after confirmation window, dispute flow if damaged/missing                 |
+| **M36: Shipping Disputes & Protection** | Planned  | Dispute resolution flow, photo evidence review, admin arbitration panel, partial refunds, insurance claims for lost/damaged shipments                      |
+| **M37: Shipping Fees & Pricing**        | Planned  | Rate calculator in trade flow, split/buyer-pays/seller-pays options, flat-rate vs calculated shipping, free shipping threshold                             |
 
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-05-15 — Signed-in hero variants (B/C/D)
+
+- Implemented 3 personalized hero states from design handoff (design_handoff_landing_page/)
+- **B (New user):** Green welcome badge, "Let's get your first trade" headline, 4-step onboarding checklist (account created, list deck, add want list, set city) with live completion status and CTA pills
+- **C (Active user):** Violet welcome badge, want list match cards (up to 3, linked to deck detail), personal stats strip (decks/wants/unread), "See all matches" CTA
+- **D (Power user):** Gold "Founding Member" badge with trade count, inbox feed from recent notifications with avatar initials and unread dots, "Open inbox" CTA
+- Detection logic: new (0 decks + 0 want lists), active (has decks or wants, <10 decks), power (10+ decks or 20+ trades)
+- Added `getHeroUserData()` server function — fetches user stats, want list matches, and notifications in parallel
+- Hero left column swaps based on auth state; right column (map), featured strip, and ticker stay the same
+- Type-check and lint clean
+- **Next:** Verify on dev server, then M27a (Launch Readiness).
 
 ### 2026-05-13 — Price/value cleanup, URL import removal, decklist hints
 

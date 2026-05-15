@@ -353,3 +353,200 @@ export async function getTickerItems(): Promise<ServiceResponse<TickerItem[]>> {
 
   return { data: items.slice(0, 20), error: null }
 }
+
+// --- Signed-in hero data ---
+
+export type HeroUserState =
+  | 'logged-out'
+  | 'signed-in-new'
+  | 'signed-in-active'
+  | 'signed-in-power'
+
+export interface HeroMatch {
+  deckId: string
+  deckName: string
+  matchReason: string
+  sellerUsername: string
+  sellerCity: string
+  priceCents: number | null
+}
+
+export interface HeroInboxItem {
+  id: string
+  who: string
+  initial: string
+  action: string
+  when: string
+  unread: boolean
+  link: string | null
+}
+
+export interface HeroUserData {
+  state: HeroUserState
+  username: string
+  city: string | null
+  deckCount: number
+  wantListCount: number
+  unreadCount: number
+  completedTrades: number
+  hasCitySet: boolean
+  matches: HeroMatch[]
+  inboxItems: HeroInboxItem[]
+}
+
+export async function getHeroUserData(
+  userId: string,
+): Promise<ServiceResponse<HeroUserData>> {
+  const supabase = await createClient()
+
+  // Fetch user profile, deck count, want list count, trade involvement, unread notifications in parallel
+  const [
+    userRes,
+    decksRes,
+    wantListsRes,
+    tradesAsProposerRes,
+    tradesAsReceiverRes,
+    unreadRes,
+    notificationsRes,
+  ] = await Promise.all([
+    supabase.from('users').select('*').eq('id', userId).single(),
+    supabase
+      .from('decks')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('status', 'active'),
+    supabase
+      .from('want_lists')
+      .select(
+        'id, format, commander_name, min_value_cents, max_value_cents, archetype, user_id',
+        { count: 'exact' },
+      )
+      .eq('user_id', userId)
+      .eq('status', 'active'),
+    supabase
+      .from('trades')
+      .select('id', { count: 'exact', head: true })
+      .eq('proposer_id', userId),
+    supabase
+      .from('trades')
+      .select('id', { count: 'exact', head: true })
+      .eq('receiver_id', userId),
+    supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('read', false),
+    supabase
+      .from('notifications')
+      .select('id, type, title, body, link, read, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5),
+  ])
+
+  if (userRes.error) return { data: null, error: userRes.error.message }
+
+  const user = userRes.data
+  const deckCount = decksRes.count ?? 0
+  const wantListCount = wantListsRes.count ?? 0
+  const unreadCount = unreadRes.count ?? 0
+  const completedTrades = user.completed_trades ?? 0
+  const hasTradeActivity =
+    (tradesAsProposerRes.count ?? 0) + (tradesAsReceiverRes.count ?? 0) > 0
+
+  // Determine user state
+  // Power: 3+ decks AND has been involved in at least one trade (proposed or received)
+  let state: HeroUserState = 'signed-in-new'
+  if (deckCount >= 3 && hasTradeActivity) {
+    state = 'signed-in-power'
+  } else if (deckCount > 0 || wantListCount > 0) {
+    state = 'signed-in-active'
+  }
+
+  // For active users: get want list matches (top 3)
+  const matches: HeroMatch[] = []
+  if (state === 'signed-in-active' && wantListsRes.data?.length) {
+    // Get matching decks for the first few want lists
+    for (const wl of wantListsRes.data.slice(0, 3)) {
+      let query = supabase
+        .from('decks')
+        .select(
+          'id, name, estimated_value_cents, owner:users!user_id(username, city)',
+        )
+        .eq('available_for_trade', true)
+        .eq('status', 'active')
+        .neq('user_id', userId)
+
+      if (wl.format) query = query.eq('format', wl.format)
+      if (wl.commander_name)
+        query = query.ilike('commander_name', `%${wl.commander_name}%`)
+      if (wl.min_value_cents)
+        query = query.gte('estimated_value_cents', wl.min_value_cents)
+      if (wl.max_value_cents)
+        query = query.lte('estimated_value_cents', wl.max_value_cents)
+
+      const { data: matchData } = await query
+        .order('updated_at', { ascending: false })
+        .limit(3)
+
+      if (matchData) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const d of matchData as any[]) {
+          if (matches.length >= 3) break
+          if (matches.some((m) => m.deckId === d.id)) continue
+          const owner = Array.isArray(d.owner) ? d.owner[0] : d.owner
+          const reasons: string[] = []
+          if (wl.commander_name) reasons.push(wl.commander_name)
+          if (wl.format) reasons.push(wl.format)
+          matches.push({
+            deckId: d.id,
+            deckName: d.name,
+            matchReason: reasons.length
+              ? `Matches: ${reasons.join(', ')}`
+              : 'Matches your want list',
+            sellerUsername: owner?.username ?? 'Unknown',
+            sellerCity: owner?.city ?? 'Unknown',
+            priceCents: d.estimated_value_cents,
+          })
+        }
+      }
+      if (matches.length >= 3) break
+    }
+  }
+
+  // For power users: build inbox items from recent notifications
+  const inboxItems: HeroInboxItem[] = []
+  if (state === 'signed-in-power' && notificationsRes.data) {
+    for (const n of notificationsRes.data) {
+      // Extract username from notification body/title
+      const whoMatch =
+        n.title?.match(/@(\w[\w.]*)/) ?? n.body?.match(/@(\w[\w.]*)/)
+      const who = whoMatch ? whoMatch[1] : 'Someone'
+      inboxItems.push({
+        id: n.id,
+        who,
+        initial: who[0]?.toUpperCase() ?? '?',
+        action: n.body ?? n.title ?? '',
+        when: relativeTime(n.created_at),
+        unread: !n.read,
+        link: n.link,
+      })
+    }
+  }
+
+  return {
+    data: {
+      state,
+      username: user.username ?? 'trader',
+      city: user.city,
+      deckCount,
+      wantListCount,
+      unreadCount,
+      completedTrades,
+      hasCitySet: !!user.city,
+      matches,
+      inboxItems,
+    },
+    error: null,
+  }
+}
