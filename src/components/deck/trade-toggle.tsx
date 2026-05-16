@@ -22,8 +22,13 @@ export function TradeToggle({
       if (error) {
         setAvailable(!next) // revert on failure
       } else if (next) {
-        // Deck just listed — check for want list matches
+        // Deck just listed — check for want list matches and trade matches
         fetch('/api/notify/want-list-match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deckId }),
+        }).catch(() => {})
+        fetch('/api/notify/trade-match', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deckId }),

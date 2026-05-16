@@ -25,9 +25,16 @@ function genericAuthError(error: AuthError, context: string): string {
 export async function signUp(
   email: string,
   password: string,
+  options?: { referralSource?: string },
 ): Promise<ServiceResponse<AuthUser>> {
   const supabase = createClient()
-  const { data, error } = await supabase.auth.signUp({ email, password })
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: options?.referralSource
+      ? { data: { referral_source: options.referralSource } }
+      : undefined,
+  })
 
   if (error) return { data: null, error: genericAuthError(error, 'signUp') }
   return { data: data.user, error: null }
@@ -47,13 +54,16 @@ export async function signIn(
   return { data: data.user, error: null }
 }
 
-export async function signInWithGoogle(): Promise<ServiceResponse<null>> {
+export async function signInWithGoogle(options?: {
+  referralSource?: string
+}): Promise<ServiceResponse<null>> {
   const supabase = createClient()
+  const redirectTo = options?.referralSource
+    ? `${window.location.origin}/auth/callback?ref=${encodeURIComponent(options.referralSource)}`
+    : `${window.location.origin}/auth/callback`
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-    },
+    options: { redirectTo },
   })
 
   if (error)

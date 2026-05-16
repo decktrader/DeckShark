@@ -168,6 +168,20 @@ export function DeckForm({ userId }: { userId: string }) {
     // Calculate deck value
     await calculateDeckValue(deck.id)
 
+    // Trigger trade matching and want list notifications if listed for trade
+    if (listForTrade) {
+      fetch('/api/notify/want-list-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deckId: deck.id }),
+      }).catch(() => {})
+      fetch('/api/notify/trade-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deckId: deck.id }),
+      }).catch(() => {})
+    }
+
     router.push('/dashboard')
     router.refresh()
   }
@@ -412,8 +426,7 @@ export function DeckForm({ userId }: { userId: string }) {
               Include set codes and collector numbers for accurate printings and
               values, e.g.{' '}
               <span className="font-mono">1 Sol Ring (LCC) 298</span>. You can
-              export this format from Moxfield or Archidekt. Printings can also
-              be changed manually after deck creation.
+              Printings can also be changed manually after deck creation.
             </p>
           </div>
           {parseErrors.length > 0 && (

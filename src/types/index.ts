@@ -36,6 +36,7 @@ export type NotificationType =
   | 'want_list_match'
   | 'review_received'
   | 'interest_threshold'
+  | 'trade_match'
 
 export interface Notification {
   id: string
@@ -64,6 +65,7 @@ export interface User {
   phone_number: string | null
   email_updates_opt_in: boolean
   last_nudge_sent_at: string | null
+  referral_source: string | null
   is_admin: boolean
   created_at: string
   updated_at: string
@@ -88,6 +90,7 @@ export interface Deck {
   includes_deckbox: boolean
   power_level: string | null
   color_identity: string[]
+  previous_value_cents: number | null
   created_at: string
   updated_at: string
 }
@@ -108,6 +111,25 @@ export interface DeckPhoto {
   storage_path: string
   is_primary: boolean
   created_at: string
+}
+
+export interface TradeMatch {
+  id: string
+  user_id: string
+  user_deck_id: string
+  matched_deck_id: string
+  matched_user_id: string
+  match_score: number
+  value_diff_cents: number
+  status: 'active' | 'dismissed' | 'traded'
+  created_at: string
+}
+
+export interface DeckValueSnapshot {
+  id: string
+  deck_id: string
+  value_cents: number
+  snapped_at: string
 }
 
 export interface Trade {

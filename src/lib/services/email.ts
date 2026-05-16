@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import * as Sentry from '@sentry/nextjs'
 import { unsubscribeUrl } from '@/lib/hmac'
 
 type DeckSummary = {
@@ -15,9 +16,13 @@ const FROM = process.env.RESEND_FROM ?? 'DeckShark <noreply@deckshark.gg>'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
+const MAX_RETRIES = 2
+const RETRY_DELAY_MS = 1000
+
 /**
  * Send an email with List-Unsubscribe headers for deliverability.
- * Pass userId to generate HMAC-signed unsubscribe links.
+ * Retries transient failures (5xx, network errors) up to MAX_RETRIES times.
+ * Never throws — logs errors to Sentry so callers are never blocked.
  */
 async function send(
   to: string,
@@ -29,16 +34,35 @@ async function send(
     console.log(`[EMAIL] To: ${to} | Subject: ${subject}`)
     return
   }
-  try {
-    const headers: Record<string, string> = {}
-    if (userId) {
-      const unsub = unsubscribeUrl(userId)
-      headers['List-Unsubscribe'] = `<${unsub}>`
-      headers['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click'
+
+  const headers: Record<string, string> = {}
+  if (userId) {
+    const unsub = unsubscribeUrl(userId)
+    headers['List-Unsubscribe'] = `<${unsub}>`
+    headers['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click'
+  }
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await resend.emails.send({ from: FROM, to, subject, html, headers })
+      return
+    } catch (err) {
+      const isLast = attempt === MAX_RETRIES
+      if (isLast) {
+        console.error(`[EMAIL] Failed after ${MAX_RETRIES + 1} attempts:`, err)
+        Sentry.captureException(err, {
+          tags: { service: 'email' },
+          extra: { to, subject, attempts: attempt + 1 },
+        })
+        return
+      }
+      // Retry on transient errors with exponential backoff
+      const delay = RETRY_DELAY_MS * 2 ** attempt
+      console.warn(
+        `[EMAIL] Attempt ${attempt + 1} failed, retrying in ${delay}ms`,
+      )
+      await new Promise((r) => setTimeout(r, delay))
     }
-    await resend.emails.send({ from: FROM, to, subject, html, headers })
-  } catch (err) {
-    console.error('[EMAIL] Failed to send:', err)
   }
 }
 
@@ -424,4 +448,131 @@ export async function sendInterestThresholdEmail({
     userId,
   )
   await send(to, `${interestCount} traders want your ${deckName}`, html, userId)
+}
+
+// ─── Trade Match ──────────────────────────────────────────────────────────────
+
+export async function sendTradeMatchEmail({
+  to,
+  userId,
+  username,
+  yourDeckName,
+  matchedDeckName,
+  matchedDeckOwner,
+  matchScore,
+  valueDiff,
+  matchedDeckId,
+}: {
+  to: string
+  userId: string
+  username: string
+  yourDeckName: string
+  matchedDeckName: string
+  matchedDeckOwner: string
+  matchScore: number
+  valueDiff: number
+  matchedDeckId: string
+}) {
+  const diffText =
+    valueDiff > 0
+      ? `Value difference: $${Math.round(valueDiff / 100)} (can be balanced with cash)`
+      : 'Values are closely matched'
+  const html = emailWrapper(
+    `
+    <p style="font-size:20px;font-weight:700;margin:0 0 8px">Trade match found</p>
+    <p style="color:#555;margin:0 0 8px">Hi ${username},</p>
+    <p style="color:#555;margin:0 0 16px">
+      We found a <strong>${matchScore}% match</strong> for your deck <strong>${yourDeckName}</strong>:
+    </p>
+    <div style="background:#f4f4f5;border-radius:8px;padding:16px;margin:0 0 16px">
+      <p style="margin:0;font-weight:700;font-size:16px">${matchedDeckName}</p>
+      <p style="margin:4px 0 0;font-size:14px;color:#555">by ${matchedDeckOwner}</p>
+      <p style="margin:8px 0 0;font-size:13px;color:#888">${diffText}</p>
+    </div>
+    ${ctaButton(`${APP_URL}/decks/${matchedDeckId}`, 'View deck & propose trade')}
+  `,
+    userId,
+  )
+  await send(
+    to,
+    `Trade match: ${matchedDeckName} for your ${yourDeckName}`,
+    html,
+    userId,
+  )
+}
+
+// ─── Value Update (Weekly Portfolio) ──────────────────────────────────────────
+
+export async function sendValueUpdateEmail({
+  to,
+  userId,
+  username,
+  totalValue,
+  totalChange,
+  deckSummaries,
+}: {
+  to: string
+  userId: string
+  username: string
+  totalValue: number
+  totalChange: number
+  deckSummaries: Array<{
+    name: string
+    value: number
+    change: number
+    id: string
+  }>
+}) {
+  const changeText =
+    totalChange > 0
+      ? `<span style="color:#22c55e">+$${Math.round(totalChange / 100)}</span>`
+      : totalChange < 0
+        ? `<span style="color:#ef4444">-$${Math.round(Math.abs(totalChange) / 100)}</span>`
+        : '<span style="color:#888">No change</span>'
+
+  const deckRows = deckSummaries
+    .slice(0, 5)
+    .map((d) => {
+      const ch =
+        d.change > 0
+          ? `<span style="color:#22c55e">+$${Math.round(d.change / 100)}</span>`
+          : d.change < 0
+            ? `<span style="color:#ef4444">-$${Math.round(Math.abs(d.change) / 100)}</span>`
+            : ''
+      return `<tr>
+        <td style="padding:6px 0;font-size:14px"><a href="${APP_URL}/decks/${d.id}" style="color:#7c3aed;text-decoration:none">${d.name}</a></td>
+        <td style="padding:6px 8px;font-size:14px;text-align:right">$${Math.round(d.value / 100)}</td>
+        <td style="padding:6px 0;font-size:13px;text-align:right">${ch}</td>
+      </tr>`
+    })
+    .join('')
+
+  const html = emailWrapper(
+    `
+    <p style="font-size:20px;font-weight:700;margin:0 0 8px">Your collection value</p>
+    <p style="color:#555;margin:0 0 16px">Hi ${username},</p>
+    <div style="background:#18181b;border-radius:12px;padding:20px;margin:0 0 16px;text-align:center">
+      <p style="font-size:32px;font-weight:800;color:#fff;margin:0">$${Math.round(totalValue / 100)}</p>
+      <p style="font-size:14px;color:#a1a1aa;margin:4px 0 0">Collection value ${changeText} this week</p>
+    </div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:1px solid #e5e5e5">
+          <th style="padding:6px 0;font-size:12px;color:#888;text-align:left">Deck</th>
+          <th style="padding:6px 8px;font-size:12px;color:#888;text-align:right">Value</th>
+          <th style="padding:6px 0;font-size:12px;color:#888;text-align:right">Change</th>
+        </tr>
+      </thead>
+      <tbody>${deckRows}</tbody>
+    </table>
+    ${ctaButton(`${APP_URL}/dashboard`, 'View dashboard')}
+  `,
+    userId,
+  )
+  await send(
+    to,
+    `Your decks are worth $${Math.round(totalValue / 100)}`,
+    html,
+    userId,
+  )
 }

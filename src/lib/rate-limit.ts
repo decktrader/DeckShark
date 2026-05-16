@@ -10,11 +10,11 @@ const redis = hasRedis ? Redis.fromEnv() : undefined
 
 // --- Pre-built limiters for different route tiers ---
 
-/** Public search endpoints — generous but bounded */
+/** Public search/browse endpoints — high limit for viral traffic */
 export const searchLimiter = hasRedis
   ? new Ratelimit({
       redis: redis!,
-      limiter: Ratelimit.slidingWindow(30, '60 s'),
+      limiter: Ratelimit.slidingWindow(60, '60 s'),
       prefix: 'rl:search',
     })
   : null
@@ -23,7 +23,7 @@ export const searchLimiter = hasRedis
 export const mutationLimiter = hasRedis
   ? new Ratelimit({
       redis: redis!,
-      limiter: Ratelimit.slidingWindow(10, '60 s'),
+      limiter: Ratelimit.slidingWindow(20, '60 s'),
       prefix: 'rl:mutation',
     })
   : null
@@ -46,6 +46,15 @@ export const notifyLimiter = hasRedis
     })
   : null
 
+/** Feedback submission — moderate */
+export const feedbackLimiter = hasRedis
+  ? new Ratelimit({
+      redis: redis!,
+      limiter: Ratelimit.slidingWindow(5, '60 s'),
+      prefix: 'rl:feedback',
+    })
+  : null
+
 // --- Helpers ---
 
 /** Extract IP from request for use as rate-limit identifier. */
@@ -57,7 +66,8 @@ export function getIp(request: Request): string {
 
 /**
  * Check rate limit. Returns { success, remaining }.
- * When Upstash isn't configured (local dev), always allows.
+ * When Upstash isn't configured or Redis is down, allows the request through
+ * (fail-open) so user actions are never blocked by infrastructure issues.
  */
 export async function checkRateLimit(
   limiter: Ratelimit | null,
@@ -65,6 +75,11 @@ export async function checkRateLimit(
 ): Promise<{ success: boolean; remaining: number }> {
   if (!limiter) return { success: true, remaining: 999 }
 
-  const result = await limiter.limit(identifier)
-  return { success: result.success, remaining: result.remaining }
+  try {
+    const result = await limiter.limit(identifier)
+    return { success: result.success, remaining: result.remaining }
+  } catch (err) {
+    console.error('[RATE-LIMIT] Redis error, failing open:', err)
+    return { success: true, remaining: 999 }
+  }
 }

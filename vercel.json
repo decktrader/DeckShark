@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/nudge-inactive",
       "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/cron/snapshot-values",
+      "schedule": "0 12 * * 1"
     }
   ],
   "functions": {

@@ -11,6 +11,7 @@ import {
   Star,
   Package,
   Search,
+  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { markAsRead, markAllRead } from '@/lib/services/notifications'
@@ -28,6 +29,7 @@ const NOTIF_ICONS: Record<
   want_list_match: { icon: Search, color: 'text-violet-400' },
   review_received: { icon: Star, color: 'text-yellow-400' },
   interest_threshold: { icon: Package, color: 'text-pink-400' },
+  trade_match: { icon: Sparkles, color: 'text-violet-400' },
 }
 
 function timeAgo(dateStr: string): string {

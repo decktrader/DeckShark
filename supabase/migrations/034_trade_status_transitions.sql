@@ -34,6 +34,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS enforce_trade_status_transition ON public.trades;
 CREATE TRIGGER enforce_trade_status_transition
   BEFORE UPDATE OF status ON public.trades
   FOR EACH ROW

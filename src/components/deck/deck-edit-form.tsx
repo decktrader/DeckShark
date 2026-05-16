@@ -824,8 +824,7 @@ export function DeckEditForm({
                 Include set codes and collector numbers for accurate printings
                 and values, e.g.{' '}
                 <span className="font-mono">1 Sol Ring (LCC) 298</span>. You can
-                export this format from Moxfield or Archidekt. Printings can
-                also be changed manually after import.
+                Printings can also be changed manually after import.
               </p>
               <Button
                 variant="outline"

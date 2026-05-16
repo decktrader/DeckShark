@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@/lib/supabase/server'
+import { feedbackLimiter, checkRateLimit, getIp } from '@/lib/rate-limit'
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -11,6 +12,14 @@ const FEEDBACK_EMAIL = process.env.FEEDBACK_EMAIL ?? 'feedback@deckshark.gg'
 
 export async function POST(request: Request) {
   try {
+    const { success } = await checkRateLimit(feedbackLimiter, getIp(request))
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait a moment.' },
+        { status: 429 },
+      )
+    }
+
     const { category, message, pageUrl } = await request.json()
 
     // Get username from auth session

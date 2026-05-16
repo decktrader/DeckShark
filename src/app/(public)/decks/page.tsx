@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Suspense } from 'react'
 import { getPublicDecks } from '@/lib/services/decks.server'
 import { getUserById } from '@/lib/services/users.server'
@@ -131,9 +132,59 @@ export default async function BrowseDecksPage({
             </Suspense>
           </div>
           {pageDecks.length === 0 ? (
-            <p className="text-muted-foreground py-20 text-center text-lg">
-              No decks match your filters. Try broadening your search.
-            </p>
+            <div className="py-16 text-center">
+              {params.city || params.province ? (
+                <>
+                  <div className="bg-muted/50 mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-muted-foreground h-8 w-8"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="mb-2 text-xl font-bold">
+                    Be the first trader in {params.city || params.province}
+                  </h3>
+                  <p className="text-muted-foreground mx-auto mb-6 max-w-md text-sm">
+                    No decks listed here yet. List yours and we&apos;ll notify
+                    local players when they join. Early listers get the most
+                    visibility.
+                  </p>
+                  <div className="flex justify-center gap-3">
+                    <Link
+                      href="/decks/new"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center rounded-md px-4 py-2 text-sm font-medium"
+                    >
+                      List a deck
+                    </Link>
+                    <Link
+                      href="/decks"
+                      className="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium"
+                    >
+                      Browse all cities
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <p className="text-muted-foreground text-lg">
+                  No decks match your filters. Try broadening your search.
+                </p>
+              )}
+            </div>
           ) : (
             <>
               <div

@@ -8,10 +8,10 @@ import { getUserTrades } from '@/lib/services/trades.server'
 import { isOnboardingComplete } from '@/lib/services/users'
 import { DeckCardNew } from '@/components/deck/deck-card-new'
 import { Button } from '@/components/ui/button'
-import {
-  getTotalInterestForUser,
-  getUserInterestedDecks,
-} from '@/lib/services/deck-interests.server'
+import { getUserInterestedDecks } from '@/lib/services/deck-interests.server'
+import { getUserTradeMatches } from '@/lib/services/trade-matches.server'
+import { PortfolioValue } from '@/components/dashboard/portfolio-value'
+import { TradeMatches } from '@/components/dashboard/trade-matches'
 import { Heart, MapPin } from 'lucide-react'
 import type { WantList } from '@/types'
 import { formatPrice } from '@/lib/utils'
@@ -56,14 +56,14 @@ export default async function DashboardPage() {
     { data: decks },
     { data: wantLists },
     { data: trades },
-    { data: totalInterest },
     { data: wantedDecks },
+    { data: tradeMatches },
   ] = await Promise.all([
     getUserDecks(authUser.id),
     getUserWantLists(authUser.id),
     getUserTrades(authUser.id),
-    getTotalInterestForUser(authUser.id),
     getUserInterestedDecks(authUser.id),
+    getUserTradeMatches(authUser.id),
   ])
 
   const deckList = decks ?? []
@@ -71,6 +71,18 @@ export default async function DashboardPage() {
   const activeTrades = (trades ?? []).filter((t) =>
     ['proposed', 'countered', 'accepted'].includes(t.status),
   ).length
+
+  // Portfolio value calculations
+  const totalValue = deckList.reduce(
+    (sum, d) => sum + (d.estimated_value_cents ?? 0),
+    0,
+  )
+  const totalChange = deckList.reduce((sum, d) => {
+    const current = d.estimated_value_cents ?? 0
+    const previous = d.previous_value_cents ?? current
+    return sum + (current - previous)
+  }, 0)
+  const tradingCount = deckList.filter((d) => d.available_for_trade).length
 
   return (
     <main className="container mx-auto max-w-5xl px-4 py-8">
@@ -90,50 +102,24 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Stat boxes */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <div className="overflow-hidden rounded-xl border border-white/5">
-          <div className="h-1 w-full bg-gradient-to-r from-violet-500/80 via-violet-500/30 to-transparent" />
-          <div className="p-4 text-center">
-            <p className="text-2xl font-black sm:text-3xl">{deckList.length}</p>
-            <p className="text-muted-foreground text-xs">Decks</p>
-          </div>
-        </div>
-        <div className="overflow-hidden rounded-xl border border-white/5">
-          <div className="h-1 w-full bg-gradient-to-r from-sky-500/80 via-sky-500/30 to-transparent" />
-          <div className="p-4 text-center">
-            <p className="text-2xl font-black sm:text-3xl">{activeTrades}</p>
-            <p className="text-muted-foreground text-xs">Active trades</p>
-          </div>
-        </div>
-        <div className="overflow-hidden rounded-xl border border-white/5">
-          <div className="h-1 w-full bg-gradient-to-r from-emerald-500/80 via-emerald-500/30 to-transparent" />
-          <div className="p-4 text-center">
-            <p className="text-2xl font-black sm:text-3xl">
-              {profile.completed_trades}
-            </p>
-            <p className="text-muted-foreground text-xs">Completed</p>
-          </div>
-        </div>
-        <div className="overflow-hidden rounded-xl border border-white/5">
-          <div className="h-1 w-full bg-gradient-to-r from-amber-500/80 via-amber-500/30 to-transparent" />
-          <div className="p-4 text-center">
-            <p className="text-2xl font-black sm:text-3xl">
-              {wlList.filter((w) => w.status === 'active').length}
-            </p>
-            <p className="text-muted-foreground text-xs">Want lists</p>
-          </div>
-        </div>
-        <div className="overflow-hidden rounded-xl border border-white/5">
-          <div className="h-1 w-full bg-gradient-to-r from-pink-500/80 via-pink-500/30 to-transparent" />
-          <div className="p-4 text-center">
-            <p className="text-2xl font-black sm:text-3xl">
-              {totalInterest ?? 0}
-            </p>
-            <p className="text-muted-foreground text-xs">Interested</p>
-          </div>
-        </div>
+      {/* Collection value */}
+      <div className="mb-8">
+        <PortfolioValue
+          totalValue={totalValue}
+          totalChange={totalChange}
+          deckCount={deckList.length}
+          tradingCount={tradingCount}
+          activeTrades={activeTrades}
+          completedTrades={profile.completed_trades}
+        />
       </div>
+
+      {/* Trade matches */}
+      {(tradeMatches ?? []).length > 0 && (
+        <div className="mb-6">
+          <TradeMatches initialMatches={tradeMatches!} />
+        </div>
+      )}
 
       {/* Decks section */}
       <section className="overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-white/[2%] to-transparent">

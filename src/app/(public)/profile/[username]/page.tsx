@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button'
 import { ReportButton } from '@/components/report-button'
 import { formatPrice } from '@/lib/utils'
 
+export const revalidate = 600 // 10 min ISR — no auth dependency
+
 function DeckMiniCard({ deck }: { deck: PublicDeck }) {
   const commanderLabel = [deck.commander_name, deck.partner_commander_name]
     .filter(Boolean)

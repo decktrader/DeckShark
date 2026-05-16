@@ -1,3 +1,5 @@
+export const revalidate = 86400 // 1 day — static content
+
 export default function PrivacyPage() {
   return (
     <main className="container mx-auto max-w-3xl px-4 py-8">

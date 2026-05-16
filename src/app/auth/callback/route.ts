@@ -15,8 +15,17 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { error, data } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      // Save referral source for Google OAuth signups
+      const ref = searchParams.get('ref')
+      if (ref && data.user) {
+        await supabase
+          .from('users')
+          .update({ referral_source: ref })
+          .eq('id', data.user.id)
+          .is('referral_source', null) // Only set if not already set
+      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

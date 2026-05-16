@@ -90,7 +90,7 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 - Create deck (`/(protected)/decks/new/`) — form + import tabs
 - Edit deck (`/(protected)/decks/[id]/edit/`)
 - `src/lib/services/decks.ts` — full CRUD + `calculateDeckValue()`
-- Importer: `src/lib/importers/text.ts` (paste text — Moxfield/Archidekt URL importers deferred to M4)
+- Importer: `src/lib/importers/text.ts` (paste text)
 - Deck display components: `deck-card-grid.tsx`, `deck-card-list.tsx`, `deck-stats.tsx`, `deck-header.tsx`
 - Photo upload via Supabase Storage (`deck-photos` bucket)
 - `src/lib/services/storage.ts`
@@ -113,7 +113,6 @@ We have a complete technical spec (SPEC.md) for a greenfield MTG deck trading ma
 - Filters: color identity, value range, city/province, format, commander search
 - "Mark as available for trade" toggle on dashboard
 - Enhanced public profile with trade-available decks
-- URL importers: `src/lib/importers/moxfield.ts`, `archidekt.ts` (deferred from M3)
 
 **Dev split:** Dev A → browse page with filters, deck grid. Dev B → deck detail page, owner profile snippet.
 
@@ -583,6 +582,37 @@ End-to-end smoke test for full MVP:
 - **Linked accounts section** — show connected Google account, option to link/unlink
 
 **Depends on:** M24 (email polish sets up the unsubscribe/opt-in infrastructure that notification preferences build on)
+
+---
+
+## Milestone 27a: Launch Readiness — Scaling & Load Prep (pre-marketing blocker)
+
+**Goal:** Ensure DeckShark can survive a viral moment (100K visitors, 5K signups in a day) without going down. Upgrade free-tier services, add resilience, and verify the platform holds under load.
+
+**Service Upgrades:**
+
+- **Vercel Pro** ($20/mo) — 1TB bandwidth, 1M function invocations, auto-scaling, spend protection
+- **Supabase Pro** ($25/mo) — 8GB DB, 100K auth users, dedicated connection pooling, daily backups
+- **Resend paid tier** ($20/mo) — 50K emails/month (free tier caps at 100/day — first 100 signups would exhaust it)
+- **Upstash Pay-as-you-go** — ~$0.20/100K commands (free tier caps at 500K/month — a single viral day exhausts it)
+
+**Build:**
+
+- **Email resilience** — ensure signup/trade flows don't break when email sending fails. Log email failures to Sentry, don't block user actions on email delivery. Add retry logic or queue for transient Resend failures.
+- **Rate limit tuning** — review current rate limits for viral traffic patterns. Adjust search/browse limits upward (100K visitors = lots of browsing). Keep auth/mutation limits tight.
+- **Database connection pooling** — verify Supabase connection pooler is enabled and configured (pgBouncer). Free tier has ~50 concurrent connections; Pro gives dedicated pooling.
+- **Edge caching review** — verify ISR revalidation times are set on all public pages (browse, deck detail, want lists, profiles, landing page). Reduce Supabase load by serving stale-while-revalidate content during spikes.
+- **Static asset optimization** — verify next/image is used everywhere, fonts are preloaded, JS bundle is reasonable. Run Lighthouse audit and fix any red flags.
+- **Error budget** — set up Sentry alerts for error rate spikes. Add a simple status indicator or maintenance page that can be toggled if services degrade.
+- **Load test (manual)** — use `hey` or `k6` to simulate concurrent requests against key endpoints (homepage, /decks, /decks/[id], /api/cards/search) and verify response times stay under 2s at 100 concurrent users.
+- **Spend alerts** — set up billing alerts on Vercel, Supabase, and Upstash to catch runaway costs before they become a problem.
+- **Graceful degradation checklist:**
+  - Upstash down → rate limiter passes through (already implemented)
+  - Resend down → user actions still succeed, emails silently fail
+  - Sentry down → app unaffected (already fire-and-forget)
+  - Supabase degraded → ISR serves cached pages, mutations show user-friendly error
+
+**Depends on:** Nothing — highest priority before any marketing push.
 
 ---
 

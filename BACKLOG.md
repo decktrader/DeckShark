@@ -2,6 +2,19 @@
 
 <!-- Newest entries at the top. Check items off as they're completed. -->
 
+### 2026-05-15 — M27a Launch Readiness: manual tasks
+
+- [ ] Set `FEEDBACK_EMAIL` env var on Vercel (defaults to feedback@deckshark.gg)
+- [ ] Upgrade Vercel to Pro ($20/mo) — 1TB bandwidth, 1M function invocations, spend protection
+- [ ] Upgrade Supabase to Pro ($25/mo) — 8GB DB, 100K auth users, dedicated connection pooling, daily backups
+- [ ] Upgrade Resend to paid tier ($20/mo) — 50K emails/month (free tier caps at 100/day)
+- [ ] Upgrade Upstash to Pay-as-you-go — free tier caps at 500K commands/month
+- [ ] Enable Supabase connection pooler (pgBouncer) in Supabase dashboard → Settings → Database
+- [ ] Set spend alerts on Vercel (Settings → Billing → Spend Management)
+- [ ] Set spend alerts on Supabase (Settings → Billing → Cost Control)
+- [ ] Apply migrations 033-035 to production Supabase
+- [ ] Run load test with `hey` or `k6` against key endpoints (homepage, /decks, /decks/[id], /api/cards/search) — target 100 concurrent users under 2s response
+
 ### 2026-05-15 — Beta testing follow-ups
 
 - [ ] Build `/beta-test` command/skill that runs common user flows (trade lifecycle, account deletion, reviews, cron endpoints) and reports errors

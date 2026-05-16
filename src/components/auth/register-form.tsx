@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-export function RegisterForm() {
+export function RegisterForm({ referralSource }: { referralSource?: string }) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -29,7 +29,9 @@ export function RegisterForm() {
     setError(null)
     setLoading(true)
 
-    const { error } = await signUp(email, password)
+    const { error } = await signUp(email, password, {
+      referralSource: referralSource,
+    })
 
     if (error) {
       setError(error)
@@ -58,7 +60,9 @@ export function RegisterForm() {
             onClick={async () => {
               setGoogleLoading(true)
               setError(null)
-              const { error } = await signInWithGoogle()
+              const { error } = await signInWithGoogle({
+                referralSource,
+              })
               if (error) {
                 setError(error)
                 setGoogleLoading(false)
