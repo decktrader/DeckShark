@@ -207,7 +207,16 @@ export async function findAndStoreMatches(deckId: string): Promise<{
   const topMatches = matches.slice(0, 10)
 
   let matched = 0
-  let notified = 0
+
+  // Group matches by the OTHER user so we send one notification + one email per person
+  const matchesByUser = new Map<
+    string,
+    {
+      username: string
+      notification_preferences: { trade_updates: boolean } | null
+      items: typeof topMatches
+    }
+  >()
 
   for (const m of topMatches) {
     const candOwner = m.candidateDeck.deck_owner as {
@@ -217,7 +226,7 @@ export async function findAndStoreMatches(deckId: string): Promise<{
     }
 
     // Upsert match for the deck owner (your deck → their deck)
-    const { error: e1 } = await admin.from('trade_matches').upsert(
+    await admin.from('trade_matches').upsert(
       {
         user_id: deck.user_id,
         user_deck_id: deck.id,
@@ -244,37 +253,55 @@ export async function findAndStoreMatches(deckId: string): Promise<{
       { onConflict: 'user_deck_id,matched_deck_id' },
     )
 
-    if (!e1 && !e2) matched++
-
-    // Notify the other user about the match
     if (!e2) {
-      await createNotification({
-        userId: candOwner.id,
-        type: 'trade_match',
-        title: 'Trade match found',
-        body: `${owner.username}'s ${deck.name} (${formatValue(deck.estimated_value_cents)}) matches your ${m.candidateDeck.name} (${formatValue(m.candidateDeck.estimated_value_cents)}) — ${m.score}% match`,
-        link: `/decks/${deck.id}`,
-      })
-      notified++
+      matched++
+      const existing = matchesByUser.get(candOwner.id)
+      if (existing) {
+        existing.items.push(m)
+      } else {
+        matchesByUser.set(candOwner.id, {
+          username: candOwner.username,
+          notification_preferences: candOwner.notification_preferences,
+          items: [m],
+        })
+      }
+    }
+  }
 
-      // Send email if opted in
-      if (candOwner.notification_preferences?.trade_updates !== false) {
-        const { data: authData } = await admin.auth.admin.getUserById(
-          candOwner.id,
-        )
-        if (authData?.user?.email) {
-          await sendTradeMatchEmail({
-            to: authData.user.email,
-            userId: candOwner.id,
-            username: candOwner.username,
-            yourDeckName: m.candidateDeck.name,
-            matchedDeckName: deck.name,
-            matchedDeckOwner: owner.username,
-            matchScore: m.score,
-            valueDiff: m.valueDiff,
-            matchedDeckId: deck.id,
-          })
-        }
+  // Send ONE notification + ONE email per affected user
+  let notified = 0
+  for (const [userId, group] of matchesByUser) {
+    const bestMatch = group.items[0] // highest score
+    const count = group.items.length
+
+    // One in-app notification summarizing all matches
+    await createNotification({
+      userId,
+      type: 'trade_match',
+      title: count === 1 ? 'Trade match found' : `${count} trade matches found`,
+      body:
+        count === 1
+          ? `${owner.username}'s ${deck.name} (${formatValue(deck.estimated_value_cents)}) matches your ${bestMatch.candidateDeck.name} (${formatValue(bestMatch.candidateDeck.estimated_value_cents)}) — ${bestMatch.score}% match`
+          : `${owner.username} listed ${deck.name} — it matches ${count} of your decks. Best match: ${bestMatch.score}%`,
+      link: `/dashboard`,
+    })
+    notified++
+
+    // One email with the best match (not one per match)
+    if (group.notification_preferences?.trade_updates !== false) {
+      const { data: authData } = await admin.auth.admin.getUserById(userId)
+      if (authData?.user?.email) {
+        await sendTradeMatchEmail({
+          to: authData.user.email,
+          userId,
+          username: group.username,
+          yourDeckName: bestMatch.candidateDeck.name,
+          matchedDeckName: deck.name,
+          matchedDeckOwner: owner.username,
+          matchScore: bestMatch.score,
+          valueDiff: bestMatch.valueDiff,
+          matchedDeckId: deck.id,
+        })
       }
     }
   }
