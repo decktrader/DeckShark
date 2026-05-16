@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { createNotification } from '@/lib/services/notifications.server'
-import { sendTradeMatchEmail } from '@/lib/services/email'
 import type { ServiceResponse, TradeMatch } from '@/types'
 
 function adminClient() {
@@ -211,11 +210,7 @@ export async function findAndStoreMatches(deckId: string): Promise<{
   // Group matches by the OTHER user so we send one notification + one email per person
   const matchesByUser = new Map<
     string,
-    {
-      username: string
-      notification_preferences: { trade_updates: boolean } | null
-      items: typeof topMatches
-    }
+    { username: string; items: typeof topMatches }
   >()
 
   for (const m of topMatches) {
@@ -261,7 +256,6 @@ export async function findAndStoreMatches(deckId: string): Promise<{
       } else {
         matchesByUser.set(candOwner.id, {
           username: candOwner.username,
-          notification_preferences: candOwner.notification_preferences,
           items: [m],
         })
       }
@@ -287,23 +281,8 @@ export async function findAndStoreMatches(deckId: string): Promise<{
     })
     notified++
 
-    // One email with the best match (not one per match)
-    if (group.notification_preferences?.trade_updates !== false) {
-      const { data: authData } = await admin.auth.admin.getUserById(userId)
-      if (authData?.user?.email) {
-        await sendTradeMatchEmail({
-          to: authData.user.email,
-          userId,
-          username: group.username,
-          yourDeckName: bestMatch.candidateDeck.name,
-          matchedDeckName: deck.name,
-          matchedDeckOwner: owner.username,
-          matchScore: bestMatch.score,
-          valueDiff: bestMatch.valueDiff,
-          matchedDeckId: deck.id,
-        })
-      }
-    }
+    // No email for trade matches — in-app notification only.
+    // Users check matches on their dashboard.
   }
 
   return { matched, notified }
