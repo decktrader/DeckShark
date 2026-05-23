@@ -10,6 +10,7 @@ export interface TradeWithDecks extends Trade {
     | 'province'
     | 'discord_username'
     | 'phone_number'
+    | 'avatar_url'
   >
   receiver: Pick<
     User,
@@ -19,6 +20,7 @@ export interface TradeWithDecks extends Trade {
     | 'province'
     | 'discord_username'
     | 'phone_number'
+    | 'avatar_url'
   >
   trade_decks: (TradeDeck & { deck: Deck })[]
 }
@@ -31,8 +33,8 @@ export async function getTrade(
     .from('trades')
     .select(
       `*,
-      proposer:users!proposer_id(id, username, city, province, discord_username, phone_number),
-      receiver:users!receiver_id(id, username, city, province, discord_username, phone_number),
+      proposer:users!proposer_id(id, username, city, province, discord_username, phone_number, avatar_url),
+      receiver:users!receiver_id(id, username, city, province, discord_username, phone_number, avatar_url),
       trade_decks(*, deck:decks(*))`,
     )
     .eq('id', id)
@@ -50,8 +52,8 @@ export async function getUserTrades(
     .from('trades')
     .select(
       `*,
-      proposer:users!proposer_id(id, username, city, province, discord_username, phone_number),
-      receiver:users!receiver_id(id, username, city, province, discord_username, phone_number),
+      proposer:users!proposer_id(id, username, city, province, discord_username, phone_number, avatar_url),
+      receiver:users!receiver_id(id, username, city, province, discord_username, phone_number, avatar_url),
       trade_decks(*, deck:decks(*))`,
     )
     .or(`proposer_id.eq.${userId},receiver_id.eq.${userId}`)

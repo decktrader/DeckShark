@@ -122,9 +122,17 @@ export default async function TradeDetailPage({
       {/* Compact header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/20 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white">
-            {them.username.charAt(0).toUpperCase()}
-          </div>
+          {them.avatar_url ? (
+            <img
+              src={them.avatar_url}
+              alt={them.username}
+              className="h-10 w-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="bg-primary/20 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white">
+              {them.username.charAt(0).toUpperCase()}
+            </div>
+          )}
           <div>
             <h1 className="text-lg font-bold">
               Trade with{' '}
@@ -414,9 +422,17 @@ export default async function TradeDetailPage({
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-start gap-3">
-                <div className="bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
-                  {trade.proposer.username.charAt(0).toUpperCase()}
-                </div>
+                {trade.proposer.avatar_url ? (
+                  <img
+                    src={trade.proposer.avatar_url}
+                    alt={trade.proposer.username}
+                    className="h-8 w-8 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
+                    {trade.proposer.username.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <p className="text-xs font-semibold">
                     {trade.proposer.username}
@@ -434,9 +450,17 @@ export default async function TradeDetailPage({
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-start gap-3">
-                <div className="bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
-                  {trade.receiver.username.charAt(0).toUpperCase()}
-                </div>
+                {trade.receiver.avatar_url ? (
+                  <img
+                    src={trade.receiver.avatar_url}
+                    alt={trade.receiver.username}
+                    className="h-8 w-8 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
+                    {trade.receiver.username.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <p className="text-xs font-semibold">
                     {trade.receiver.username}

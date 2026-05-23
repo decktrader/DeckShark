@@ -54,7 +54,7 @@ export function CounterOfferForm({
   )
   const [cashDollars, setCashDollars] = useState(
     trade.cash_difference_cents
-      ? Math.abs(trade.cash_difference_cents / 100).toFixed(2)
+      ? String(Math.round(Math.abs(trade.cash_difference_cents) / 100))
       : '',
   )
   const [iPayCash, setIPayCash] = useState(
@@ -283,7 +283,7 @@ export function CounterOfferForm({
               type="number"
               min="0"
               step="1"
-              placeholder="0.00"
+              placeholder="0"
               className="pl-7"
               value={cashDollars}
               onChange={(e) => setCashDollars(e.target.value)}

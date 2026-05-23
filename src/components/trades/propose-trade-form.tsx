@@ -70,10 +70,10 @@ export function ProposeTradeForm({
         .reduce((sum, d) => sum + (d.estimated_value_cents ?? 0), 0)
       const nextDiff = theirTotalCents - nextMyTotal
       if (nextDiff > 0) {
-        setCashDollars((nextDiff / 100).toFixed(2))
+        setCashDollars(String(Math.round(nextDiff / 100)))
         setIPayCash(true)
       } else if (nextDiff < 0) {
-        setCashDollars((Math.abs(nextDiff) / 100).toFixed(2))
+        setCashDollars(String(Math.round(Math.abs(nextDiff) / 100)))
         setIPayCash(false)
       } else {
         setCashDollars('')
@@ -160,7 +160,7 @@ export function ProposeTradeForm({
                   {targetDeck.owner.city &&
                     ` · ${targetDeck.owner.city}, ${targetDeck.owner.province}`}
                 </p>
-                <p className="text-primary font-bold">
+                <p className="font-bold text-emerald-400">
                   {formatPrice(targetDeck.estimated_value_cents)}
                 </p>
               </div>
@@ -255,7 +255,7 @@ export function ProposeTradeForm({
                   type="number"
                   min="0"
                   step="1"
-                  placeholder="0.00"
+                  placeholder="0"
                   className="pl-7"
                   value={cashDollars}
                   onChange={(e) => {

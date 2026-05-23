@@ -2,6 +2,18 @@
 
 <!-- Newest entries at the top. Check items off as they're completed. -->
 
+### 2026-05-20 — Founding Member badge: update threshold 100 → 500
+
+- [ ] Update hero.server.ts `getHeroUserData()` to use 500 as the Founding Member threshold (currently 100)
+- [ ] Update about page "First 500 traders" wording if needed
+- [ ] Update any other references to the founding member count in the codebase
+
+### 2026-05-20 — About page fixes
+
+- [ ] Update "Alpha · 2025" badge to "Alpha · 2026" or "Beta · 2026"
+- [ ] Update copyright footer from 2025 to 2026
+- [ ] Change founder card avatar initial from "J" to "G" (or use actual avatar)
+
 ### 2026-05-15 — M27a Launch Readiness: manual tasks
 
 - [ ] Set `FEEDBACK_EMAIL` env var on Vercel (defaults to feedback@deckshark.gg)
