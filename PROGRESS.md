@@ -2,10 +2,10 @@
 
 ## Current Focus
 
-**Milestone:** M27a (Launch Readiness)
-**Status:** Code changes complete — email resilience (Sentry + retry), rate limit resilience (fail-open on Redis errors), ISR on public pages, rate limit tuning (search 30→60/min, mutation 10→20/min), feedback route rate-limited. Manual tasks remain (paid tier upgrades, spend alerts, connection pooling, load testing, migrations 033-035).
-**Next step:** Complete manual tasks in BACKLOG.md, then M27 (Support DeckShark — Stripe tips).
-**Blocked:** Nothing.
+**Milestone:** Marketing Milestone 1 (Launch Assets) + M27a manual tasks
+**Status:** Marketing M1 nearly done. Remaining: demo video (blocked on completing a trade with a friend), trade screenshot, and "How it works" 3-panel graphic. Marketing strategy updated to 8-week city rollout (was 4 weeks, 2-3 cities/week). Comparison graphic replaced with trade screenshot + how-it-works panel. UI fixes shipped: cash input whole dollars only, price colors emerald, trade detail avatars, header nav cleanup, founding member threshold 500, about page dates.
+**Next step:** Complete a real trade with a friend, record demo video, screenshot the completed trade, make "How it works" 3-panel graphic. Then start Marketing Milestone 2 (city-by-city launch, Weeks 1-2: Vancouver/Toronto/Seattle). M27 (Stripe tips) when returning to code work.
+**Blocked:** Demo video + trade screenshot blocked on having a completed trade.
 **Dev note:** Dev server switched to Webpack (`--webpack`) with 4GB memory cap to prevent system freezes from Turbopack CPU spikes. Mobile testing via Chrome DevTools (Cmd+Shift+M) — local dev server HMR blocks React hydration over network IP, but production works fine on mobile.
 
 ---
@@ -59,6 +59,30 @@
 ## Recent Changes
 
 <!-- Newest entries at the top. One entry per work session. -->
+
+### 2026-05-23 — UI polish, marketing strategy update
+
+- Trade UI: cash input rounds to whole dollars (no cents), placeholder "0" not "0.00"
+- Propose trade: price color purple → emerald-400
+- Trade detail: avatar images now shown (was just initials), query fetches avatar_url
+- Header nav: removed icons from Browse/Want Lists links, renamed "Browse" → "Browse Decks"
+- Founding Member threshold: 100 → 500 users
+- About page: "Alpha 2025" → "Alpha 2026", copyright 2025 → 2026, founder initial "J" → "G"
+- Marketing strategy: 8-week city rollout (was 4 weeks), comparison graphic replaced with trade screenshot + how-it-works 3-panel
+
+**Next:** Complete a real trade with a friend, record demo video, screenshot trade, make 3-panel graphic. Then Week 1 city outreach (Vancouver, Toronto, Seattle).
+
+### 2026-05-20 — Marketing Milestone 1: Launch Assets
+
+- Set up business email: greatwhite@deckshark.gg (Zoho Mail, MX/SPF/DKIM configured)
+- Created social accounts: Instagram (@deckshark.gg), X (@decksharkgg), TikTok (@deckshark) with bios and profile images
+- Wrote founder story (FOUNDER-STORY.md) through interview-style Q&A
+- Consolidated MARKETING-STRATEGY.md into step-by-step playbook with 19 completable milestones
+- Merged CITY-LAUNCH-PLAN.md into Marketing Milestone 2 (city-by-city launch) and deleted standalone file
+- Added AEO note under Marketing Milestone 14 (SEO)
+- Added copy style rules to CLAUDE.md: no em dashes, LGS are partners not competitors, founding member = 500
+
+**Next:** Complete a real trade with a friend, record 30-second demo video, then start city-by-city launch (Marketing Milestone 2).
 
 ### 2026-05-15 — Smart Trade Matching + Deck Value Dashboard
 
