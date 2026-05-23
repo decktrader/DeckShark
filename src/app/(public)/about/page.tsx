@@ -35,7 +35,7 @@ export default function AboutPage() {
               className="h-1.5 w-1.5 rounded-full bg-emerald-400"
               style={{ boxShadow: '0 0 8px #34d399' }}
             />
-            Alpha &middot; 2025
+            Alpha &middot; 2026
           </span>
         </div>
 
@@ -81,7 +81,7 @@ export default function AboutPage() {
         <div className="my-8">
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-5">
             <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-pink-400 text-lg font-bold text-white">
-              J
+              G
             </div>
             <div className="mb-1 text-[12px] tracking-wider text-violet-300/70 uppercase">
               Founder &middot; Design &amp; Engineering
@@ -146,7 +146,7 @@ export default function AboutPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.08] py-10 text-center text-[13px] text-white/40">
-        &copy; 2025 DeckShark.gg &middot; Made by one player in Canada.
+        &copy; 2026 DeckShark.gg &middot; Made by one player in Canada.
       </footer>
     </main>
   )
