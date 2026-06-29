@@ -73,18 +73,16 @@ function AccordionSection({
   children: React.ReactNode
 }) {
   return (
-    <div>
+    <div className="border-line border-t">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-2 px-3.5 py-[7px]"
+        className="flex w-full items-center gap-2.5 px-[15px] py-[11px]"
       >
         <span
           className={cn(
-            'flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-[3px]',
-            open
-              ? 'bg-emerald-400/15 text-emerald-400'
-              : 'bg-white/[0.06] text-white/30',
+            'flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-sm',
+            open ? 'bg-teal/15 text-teal-deep' : 'bg-paper-2 text-slate',
           )}
         >
           {open ? (
@@ -95,19 +93,19 @@ function AccordionSection({
         </span>
         <span
           className={cn(
-            'flex-1 text-left text-[11px]',
-            open ? 'font-semibold text-white/75' : 'font-medium text-white/45',
+            'flex-1 text-left text-[12.5px]',
+            open ? 'text-ink font-semibold' : 'text-ink-2 font-medium',
           )}
         >
           {label}
         </span>
         {!open && preview && (
-          <span className="text-primary/70 truncate text-[10px]">
+          <span className="text-teal-deep truncate font-mono text-[10.5px]">
             {preview}
           </span>
         )}
       </button>
-      {open && <div className="px-3.5 pb-2.5 pl-[34px]">{children}</div>}
+      {open && <div className="px-[15px] pb-[13px]">{children}</div>}
     </div>
   )
 }
@@ -125,10 +123,10 @@ function QuickChip({ label, active, onClick }: QuickChipProps) {
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+        'rounded-pill border px-[11px] py-[5px] text-xs font-semibold transition-colors',
         active
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10',
+          ? 'border-terra bg-terra text-paper'
+          : 'border-line bg-paper text-ink hover:border-slate',
       )}
     >
       {label}
@@ -164,7 +162,7 @@ function FilterContent({
   const minValue = searchParams.get('minValue')
   const maxValue = searchParams.get('maxValue')
 
-  const triggerClass = `${inputSize} border-white/10 bg-white/5 text-xs`
+  const triggerClass = `${inputSize} border-line bg-white text-xs`
 
   // Determine which sections have active values (auto-open those)
   const hasPrice = !!(minValue || maxValue)
@@ -197,7 +195,7 @@ function FilterContent({
         maxValue ? `$${Number(maxValue) / 100}` : null,
       ]
         .filter(Boolean)
-        .join(' — ')
+        .join(' – ')
     : null
 
   const locationPreview = hasLocation
@@ -255,7 +253,7 @@ function FilterContent({
               })
             }}
           />
-          <span className="text-muted-foreground text-xs">—</span>
+          <span className="text-slate text-xs">–</span>
           <Input
             type="number"
             min={0}
@@ -422,12 +420,12 @@ function FilterContent({
       </AccordionSection>
 
       {/* Reset */}
-      <div className="px-3.5 pt-1">
+      <div className="border-line border-t">
         <Button
           variant="ghost"
           size="sm"
           onClick={clearFilters}
-          className="text-muted-foreground w-full text-xs"
+          className="text-slate hover:text-ink w-full rounded-none text-xs font-semibold"
           disabled={!hasFilters}
         >
           Reset all filters
@@ -450,7 +448,6 @@ interface BrowseSidebarProps {
 
 export function BrowseSidebar({
   resultCount,
-  defaultCity,
   defaultProvince,
   basePath = '/decks',
   mobileOnly,
@@ -525,7 +522,7 @@ export function BrowseSidebar({
         <button
           type="button"
           onClick={clearFilters}
-          className="text-muted-foreground ml-auto flex items-center gap-1 text-[10px] transition-colors hover:text-white"
+          className="text-slate hover:text-ink ml-auto flex items-center gap-1 text-[10px] transition-colors"
           aria-label="Clear all filters"
         >
           <X className="h-3 w-3" />
@@ -539,17 +536,19 @@ export function BrowseSidebar({
     return (
       <aside className="hidden w-64 shrink-0 lg:block">
         <div
-          className="sticky top-20 overflow-y-auto rounded-2xl border border-white/10 bg-white/[3%] backdrop-blur-xl"
+          className="border-line sticky top-[84px] overflow-y-auto rounded-lg border bg-white"
           style={{ maxHeight: 'calc(100vh - 6rem)' }}
         >
-          <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2">
-            <h2 className="text-sm font-bold">Filters</h2>
-            <span className="text-muted-foreground text-[10px]">
+          <div className="flex items-center justify-between px-[15px] pt-[13px] pb-2.5">
+            <h2 className="font-display text-ink text-[15px] font-bold">
+              Filters
+            </h2>
+            <span className="text-slate font-mono text-[10.5px]">
               {resultCount} results
             </span>
           </div>
 
-          <div className="px-3.5 pb-2.5">{quickChips}</div>
+          <div className="px-[15px] pb-3">{quickChips}</div>
 
           <FilterContent
             searchParams={searchParams}
@@ -600,10 +599,10 @@ export function BrowseSidebar({
         <a
           href={viewToggleUrl}
           className={cn(
-            'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+            'rounded-pill flex shrink-0 items-center gap-1.5 border px-3 py-1.5 text-xs font-semibold transition-colors',
             isListView
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-white/10 bg-white/5',
+              ? 'border-terra bg-terra text-paper'
+              : 'border-line bg-paper text-ink',
           )}
         >
           {isListView ? 'Grid' : 'List'}
@@ -683,7 +682,7 @@ export function BrowseSidebar({
                 <SlidersHorizontal className="h-4 w-4" />
                 Filters
                 {hasFilters && (
-                  <span className="bg-primary flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-white">
+                  <span className="bg-terra text-paper flex h-4 w-4 items-center justify-center rounded-full text-[10px]">
                     !
                   </span>
                 )}
@@ -727,17 +726,19 @@ export function BrowseSidebar({
       {/* Desktop: original sidebar */}
       <aside className="hidden w-64 shrink-0 lg:block">
         <div
-          className="sticky top-20 overflow-y-auto rounded-2xl border border-white/10 bg-white/[3%] backdrop-blur-xl"
+          className="border-line sticky top-[84px] overflow-y-auto rounded-lg border bg-white"
           style={{ maxHeight: 'calc(100vh - 6rem)' }}
         >
-          <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2">
-            <h2 className="text-sm font-bold">Filters</h2>
-            <span className="text-muted-foreground text-[10px]">
+          <div className="flex items-center justify-between px-[15px] pt-[13px] pb-2.5">
+            <h2 className="font-display text-ink text-[15px] font-bold">
+              Filters
+            </h2>
+            <span className="text-slate font-mono text-[10.5px]">
               {resultCount} results
             </span>
           </div>
 
-          <div className="px-3.5 pb-2.5">{quickChips}</div>
+          <div className="px-[15px] pb-3">{quickChips}</div>
 
           <FilterContent
             searchParams={searchParams}

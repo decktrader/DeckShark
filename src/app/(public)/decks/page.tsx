@@ -4,9 +4,10 @@ import { getPublicDecks } from '@/lib/services/decks.server'
 import { getUserById } from '@/lib/services/users.server'
 import { createClient } from '@/lib/supabase/server'
 import { BrowseSidebar } from '@/components/deck/browse-sidebar'
-import { DeckBrowseCard } from '@/components/deck/deck-browse-card'
+import { DeckCard } from '@/components/ds/deck-card'
 import { SortBar } from '@/components/deck/sort-bar'
 import { PaginationNav } from '@/components/ui/pagination-nav'
+import { Button } from '@/components/ui/button'
 import { getInterestCountsForDecks } from '@/lib/services/deck-interests.server'
 
 export const metadata = {
@@ -90,15 +91,26 @@ export default async function BrowseDecksPage({
     return str ? `/decks?${str}` : '/decks'
   }
 
+  const isListView = params.view === 'list'
+
   return (
-    <main className="container mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-4 lg:mb-6">
-        <h1 className="text-2xl font-black tracking-tight lg:text-3xl">
-          Browse decks
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          {totalDecks} deck{totalDecks !== 1 ? 's' : ''} available for trade
-        </p>
+    <main className="mx-auto max-w-[1280px] px-[30px] pt-[26px] pb-0">
+      <div className="mb-[18px] flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <h1 className="font-display text-[clamp(26px,3vw,34px)] font-bold tracking-[-0.02em]">
+            Browse decks
+          </h1>
+          <p className="text-ink-2 mt-1 text-sm">
+            <b className="text-terra-deep font-bold">
+              {totalDecks.toLocaleString('en-US')}
+            </b>{' '}
+            complete deck{totalDecks !== 1 ? 's' : ''} available to trade right
+            now
+          </p>
+        </div>
+        <Button asChild variant="brass" size="sm">
+          <Link href="/want-lists/new">Post a want list</Link>
+        </Button>
       </div>
 
       {/* Mobile filter bar — above the grid */}
@@ -113,7 +125,7 @@ export default async function BrowseDecksPage({
         </Suspense>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex gap-[26px]">
         {/* Desktop sidebar */}
         <Suspense>
           <BrowseSidebar
@@ -135,10 +147,10 @@ export default async function BrowseDecksPage({
             <div className="py-16 text-center">
               {params.city || params.province ? (
                 <>
-                  <div className="bg-muted/50 mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full">
+                  <div className="bg-paper-2 text-slate mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="text-muted-foreground h-8 w-8"
+                      className="h-8 w-8"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -156,31 +168,25 @@ export default async function BrowseDecksPage({
                       />
                     </svg>
                   </div>
-                  <h3 className="mb-2 text-xl font-bold">
+                  <h3 className="font-display mb-2 text-xl font-bold">
                     Be the first trader in {params.city || params.province}
                   </h3>
-                  <p className="text-muted-foreground mx-auto mb-6 max-w-md text-sm">
+                  <p className="text-ink-2 mx-auto mb-6 max-w-md text-sm">
                     No decks listed here yet. List yours and we&apos;ll notify
                     local players when they join. Early listers get the most
                     visibility.
                   </p>
                   <div className="flex justify-center gap-3">
-                    <Link
-                      href="/decks/new"
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center rounded-md px-4 py-2 text-sm font-medium"
-                    >
-                      List a deck
-                    </Link>
-                    <Link
-                      href="/decks"
-                      className="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium"
-                    >
-                      Browse all cities
-                    </Link>
+                    <Button asChild variant="terra" size="sm">
+                      <Link href="/decks/new">List a deck</Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href="/decks">Browse all cities</Link>
+                    </Button>
                   </div>
                 </>
               ) : (
-                <p className="text-muted-foreground text-lg">
+                <p className="text-ink-2 text-lg">
                   No decks match your filters. Try broadening your search.
                 </p>
               )}
@@ -189,17 +195,16 @@ export default async function BrowseDecksPage({
             <>
               <div
                 className={
-                  params.view === 'list'
-                    ? 'flex flex-col gap-3 lg:grid lg:grid-cols-3 lg:gap-4 xl:grid-cols-4'
-                    : 'grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-4 xl:grid-cols-4'
+                  isListView
+                    ? 'grid grid-cols-1 gap-4 md:grid-cols-2'
+                    : 'grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4'
                 }
               >
                 {pageDecks.map((deck) => (
-                  <DeckBrowseCard
+                  <DeckCard
                     key={deck.id}
                     deck={deck}
                     interestCount={interestCounts?.[deck.id] ?? 0}
-                    listView={params.view === 'list'}
                   />
                 ))}
               </div>
