@@ -2,65 +2,84 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Dark Arcane theme — always dark */
+/* ============================================================
+   DeckShark Design System · v1 · "The Convention Floor"
+   Source of truth for tokens: design-redesign/pages/deckshark.css
+   Display: Space Grotesk · Body: Figtree · Data: Spline Sans Mono
+   Corner base: 5px. Warm paper page, midnight-navy data panels.
+   ============================================================ */
 :root {
-  /* #0f172a slate-900 */
-  --background: oklch(0.13 0.028 262);
-  --foreground: oklch(0.97 0 0);
+  /* ===== core palette (verbatim from deckshark.css) ===== */
+  --navy: #18222d;
+  --navy-2: #1f2b38;
+  --navy-3: #243340;
+  --paper: #f4f0e8;
+  --paper-2: #ece6d9;
+  --paper-3: #e4dccb;
+  --brass: #c19458;
+  --brass-deep: #a67c45;
+  --brass-bright: #d6ae78;
+  --terra: #b45f42;
+  --terra-deep: #9a4e35;
+  --terra-bright: #e89b7f;
+  --teal: #3d7a75;
+  --teal-deep: #2f605c;
+  --teal-bright: #8fbfb8;
+  --slate: #5b6675;
+  --ink: #18222d;
+  --ink-2: #4a5562;
+  --ink-3: #8a93a0;
+  --line: #dad2c2;
+  --line-2: #cfc5b1;
+  --line-navy: rgba(244, 240, 232, 0.12);
+  --board: #0e161e;
 
-  /* #1e293b slate-800 */
-  --card: oklch(0.21 0.034 265);
-  --card-foreground: oklch(0.97 0 0);
+  /* ===== type (families load via next/font in layout.tsx) ===== */
+  --fd: var(--font-space-grotesk), 'Space Grotesk', system-ui, sans-serif;
+  --fb: var(--font-figtree), 'Figtree', system-ui, sans-serif;
+  --fm: var(--font-spline-mono), 'Spline Sans Mono', ui-monospace, monospace;
 
-  --popover: oklch(0.21 0.034 265);
-  --popover-foreground: oklch(0.97 0 0);
+  /* ===== radii (5px base) ===== */
+  --r-sm: 4px;
+  --r-md: 5px;
+  --r-lg: 6px;
+  --r-xl: 8px;
+  --r-pill: 30px;
+  /* card-art radius: echoes a real MTG card (~4.7% of width). Card depictions only. */
+  --r-card-sm: 6px;
+  --r-card: 12px;
+  --r-card-lg: 16px;
 
-  /* #7c3aed violet-600 */
-  --primary: oklch(0.5 0.26 293);
-  --primary-foreground: oklch(0.97 0 0);
+  /* ===== elevation ===== */
+  --sh-card: 0 16px 34px rgba(24, 34, 45, 0.14);
+  --sh-panel: 0 24px 60px rgba(24, 34, 45, 0.4);
+  --maxw: 1280px;
 
-  /* slate-700 */
-  --secondary: oklch(0.32 0.034 265);
-  --secondary-foreground: oklch(0.97 0 0);
-
-  --muted: oklch(0.25 0.028 265);
-  --muted-foreground: oklch(0.6 0.02 265);
-
-  /* subtle purple tint for hover states */
-  --accent: oklch(0.3 0.05 293);
-  --accent-foreground: oklch(0.97 0 0);
-
-  --destructive: oklch(0.65 0.22 27);
-
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.5 0.26 293);
-  --radius: 0.625rem;
-}
-
-/* Keep .dark identical so shadcn dark-variant classes work */
-.dark {
-  --background: oklch(0.13 0.028 262);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.21 0.034 265);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.21 0.034 265);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.5 0.26 293);
-  --primary-foreground: oklch(0.97 0 0);
-  --secondary: oklch(0.32 0.034 265);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.25 0.028 265);
-  --muted-foreground: oklch(0.6 0.02 265);
-  --accent: oklch(0.3 0.05 293);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.65 0.22 27);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.5 0.26 293);
+  /* ===== shadcn semantic tokens, repointed to the DeckShark palette =====
+     Existing components read these, so the whole app adopts the new theme. */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--terra);
+  --primary-foreground: var(--paper);
+  --secondary: var(--paper-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-2);
+  --muted-foreground: var(--slate);
+  --accent: var(--paper-2);
+  --accent-foreground: var(--ink);
+  --destructive: var(--terra-deep);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--teal);
+  --radius: var(--r-md);
 }
 
 @theme inline {
+  /* shadcn semantic tokens → utilities */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -79,10 +98,50 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+
+  /* DeckShark palette → utilities (bg-navy, text-terra, border-line, ...) */
+  --color-navy: var(--navy);
+  --color-navy-2: var(--navy-2);
+  --color-navy-3: var(--navy-3);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-paper-3: var(--paper-3);
+  --color-brass: var(--brass);
+  --color-brass-deep: var(--brass-deep);
+  --color-brass-bright: var(--brass-bright);
+  --color-terra: var(--terra);
+  --color-terra-deep: var(--terra-deep);
+  --color-terra-bright: var(--terra-bright);
+  --color-teal: var(--teal);
+  --color-teal-deep: var(--teal-deep);
+  --color-teal-bright: var(--teal-bright);
+  --color-slate: var(--slate);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-line-navy: var(--line-navy);
+  --color-board: var(--board);
+
+  /* fonts → font-display / font-body / font-mono */
+  --font-display: var(--fd);
+  --font-body: var(--fb);
+  --font-mono: var(--fm);
+
+  /* radii → rounded-sm/md/lg/xl/pill + card-art radii */
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-pill: var(--r-pill);
+  --radius-card-sm: var(--r-card-sm);
+  --radius-card: var(--r-card);
+  --radius-card-lg: var(--r-card-lg);
+
+  /* elevation → shadow-card / shadow-panel */
+  --shadow-card: var(--sh-card);
+  --shadow-panel: var(--sh-panel);
 }
 
 * {
@@ -91,13 +150,20 @@
 }
 
 body {
-  background-color: #0f172a;
-  background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--fb);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Hero ticker marquee */
+::selection {
+  background: var(--terra);
+  color: var(--paper);
+}
+
+/* Hero ticker marquee (New in The Harbour) */
 @keyframes ticker-scroll {
   from {
     transform: translateX(0);
@@ -109,6 +175,30 @@ body {
 
 .animate-ticker {
   animation: ticker-scroll 95s linear infinite;
+}
+
+/* Live status dot pulse */
+@keyframes beat {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.7;
+  }
+}
+
+.animate-beat {
+  animation: beat 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker,
+  .animate-beat {
+    animation: none;
+  }
 }
 
 /* Pointer cursor on all interactive elements */

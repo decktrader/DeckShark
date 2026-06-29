@@ -1,9 +1,34 @@
 import type { Metadata } from 'next'
+import { Space_Grotesk, Figtree, Spline_Sans_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Header } from '@/components/header'
-import { FeedbackForm } from '@/components/feedback-form'
+import { Footer } from '@/components/footer'
 import './globals.css'
+
+// Display / headings
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+})
+
+// Body / UI
+const figtree = Figtree({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-figtree',
+  display: 'swap',
+})
+
+// Data / numbers / timestamps
+const splineMono = Spline_Sans_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-spline-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'DeckShark',
@@ -14,7 +39,7 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'DeckShark',
   },
-  themeColor: '#09090b',
+  themeColor: '#f4f0e8',
 }
 
 export default function RootLayout({
@@ -23,25 +48,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${figtree.variable} ${splineMono.variable}`}
+    >
       <body>
         <Header />
         {children}
-        <footer
-          id="feedback"
-          className="border-t border-white/5 py-6 text-center"
-        >
-          <div className="text-muted-foreground flex items-center justify-center gap-3 text-xs">
-            <FeedbackForm />
-            <span className="text-white/20">|</span>
-            <a
-              href="/about"
-              className="hover:text-foreground transition-colors"
-            >
-              About DeckShark
-            </a>
-          </div>
-        </footer>
+        <Footer />
         <Analytics />
         <SpeedInsights />
       </body>
