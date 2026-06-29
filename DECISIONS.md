@@ -10,6 +10,13 @@ Architectural and implementation decisions made during development. Newest first
 **Rationale:** Why this option won
 -->
 
+## 2026-05-15 — No automated emails from matching features — in-app only
+
+**Context:** Trade matching went live and immediately email-blasted a user with 30+ emails (one per match per deck). Even after fixing to one email per user, the principle is wrong — automated matching should never generate emails.
+**Decision:** Trade match notifications are in-app only (dashboard + notification bell). No emails. This applies to any future automated matching/suggestion features too.
+**Rule:** Never send automated emails from features that run without explicit user action. Emails are only acceptable for: (1) direct user-to-user events (trade proposed, accepted, etc.), (2) opt-in digests on a schedule (weekly value update), (3) auth flows. If in doubt, make it in-app only.
+**Rationale:** Users will abandon the platform if they feel spammed. One bad email blast can destroy trust permanently. In-app notifications are low-friction — users see them when they choose to visit. Emails interrupt their day.
+
 ## 2026-04-17 — Country/state/province: reuse `province` column for US states
 
 **Context:** Expanding from Canada-only to Canada + US. Need to store US state codes alongside Canadian province codes.

@@ -4,7 +4,6 @@
 
 ### 2026-05-15 — M27a Launch Readiness: manual tasks
 
-- [ ] Set `FEEDBACK_EMAIL` env var on Vercel (defaults to feedback@deckshark.gg)
 - [ ] Upgrade Vercel to Pro ($20/mo) — 1TB bandwidth, 1M function invocations, spend protection
 - [ ] Upgrade Supabase to Pro ($25/mo) — 8GB DB, 100K auth users, dedicated connection pooling, daily backups
 - [ ] Upgrade Resend to paid tier ($20/mo) — 50K emails/month (free tier caps at 100/day)

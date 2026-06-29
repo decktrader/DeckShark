@@ -115,11 +115,11 @@ Body: Share 2-3 interesting decks listed, any completed trades, thank early adop
 
 Vancouver has 32 seed decks from friends. Start here for social proof, then expand to the two highest-value markets.
 
-| City      | Key Communities                                                                             | Ref links                                     |
-| --------- | ------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Vancouver | r/VancouverMTG, Vancouver EDH FB group, Connexion Games Discord, Magic Stronghold community | `?ref=vancouver-reddit`, `?ref=vancouver-fb`  |
-| Toronto   | r/TorontoMTG, Face to Face Games Discord, 401 Games community, Toronto Commander League FB  | `?ref=toronto-reddit`, `?ref=toronto-discord` |
-| Seattle   | r/SeattleMTG, Card Kingdom Discord, Mox Boarding House community                            | `?ref=seattle-reddit`, `?ref=seattle-discord` |
+| City      | Key Communities                                                                                                                                 | Ref links                                    |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Vancouver | r/VancouverMTG, Vancouver EDH FB group, Magic the Gathering in BC FB group, Connexion Games Discord, Magic Stronghold community                 | `?ref=vancouver-reddit`, `?ref=vancouver-fb` |
+| Toronto   | Toronto EDH Club FB, Toronto MTG Playtesting and Trades FB, Toronto's EDH Headquarters FB, Toronto MTG Casual FB, Face to Face Games, 401 Games | `?ref=toronto-reddit`, `?ref=toronto-fb`     |
+| Seattle   | Magic: The Seattling FB, MTG Limited Enthusiasts of Seattle FB, Card Kingdom, Mox Boarding House                                                | `?ref=seattle-reddit`, `?ref=seattle-fb`     |
 
 #### Per-city checklist (repeat for each city)
 
@@ -129,7 +129,9 @@ Vancouver has 32 seed decks from friends. Start here for social proof, then expa
 - [ ] Post during peak hours (weekday evenings 6-9 PM local, or Sunday afternoon)
 - [ ] Reply to every comment within 2 hours for 24 hours
 - [ ] DM 3-5 interested people who didn't sign up
+- [ ] Identify and recruit 1 local champion per city (the person who responds enthusiastically, DM them to help grow their city)
 - [ ] **Vancouver only:** Get 3+ friends to complete a real trade, screenshot for social proof
+- [ ] **Vancouver only:** Reach out to Leagh Barkley (well-connected in Vancouver MTG scene) for early support/signal boost
 
 #### Weeks 1-2 targets
 

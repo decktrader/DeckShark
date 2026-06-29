@@ -24,6 +24,25 @@ Repo: `github.com/decktrader/DeckShark`
 **If the user says "continue":** Read the tracking files, pick up from where
 "Next step" left off, and keep going. No need to ask what to do.
 
+## Copy & Messaging Style
+
+- **Never use em dashes** in any copy, public messaging, marketing content, or user-facing text. Use commas, periods, or restructure the sentence.
+- LGS (local game stores) are potential partners, not competitors. Never compare DeckShark against LGS in public-facing materials.
+- Founding Member badge = first 500 users (not 100). Referenced in FOUNDER-STORY.md and MARKETING-STRATEGY.md.
+
+## Email Policy (MANDATORY)
+
+**Never send automated emails from matching/suggestion features.** Trade matching, deck recommendations, and any future auto-generated suggestions are **in-app notifications only** (dashboard + notification bell). We learned this the hard way — a user got 30+ emails in one blast.
+
+Emails are ONLY acceptable for:
+
+1. **Direct user-to-user events** — trade proposed, accepted, declined, countered, completed, review received
+2. **Opt-in scheduled digests** — weekly collection value update
+3. **Auth flows** — signup confirmation, password reset, email change
+4. **Explicit user action** — feedback submission, re-engagement (with unsubscribe)
+
+If a feature runs without the user clicking something, it does NOT get an email. When in doubt, make it in-app only. One spam incident can permanently lose a user.
+
 ## Architecture
 
 ### Route Groups
