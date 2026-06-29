@@ -6,6 +6,8 @@
 
 - [ ] Build a separate **Watch / favourite** feature (bookmark a deck to find it later). Net-new backend: table + RLS + service + toggle. This is distinct from the existing shipping-vote (`deck_interests`), which stays as a vote for the shipping feature. The redesign Deck Detail mock's "Watch this deck" heart button represents this future feature; for now the sidebar shows the shipping-vote (non-local viewers only) instead. Consider whether Watch should be visible to all viewers including local.
 
+- [ ] Home "Active Traders" section: needs a traders-directory query (recent active deck owners + what they want). Omitted from the Home rebuild since no such service exists yet; the Community page will likely share it.
+- [ ] Home momentum tiles: the mock's bespoke tile (face-stack of who wants it + "N want it") was approximated with the standard DeckCard. Build the dedicated tile if desired (needs "who is interested" data).
 - [ ] Browse Decks list view: build a true list-row deck layout. Currently `/decks?view=list` reuses the grid `DeckCard` in a 1–2 column layout because the redesign mock only specifies the grid tile. (See `src/components/ds/deck-card.tsx`, `src/app/(public)/decks/page.tsx`.)
 - [ ] Browse Decks color-identity filter: optionally convert the dropdown selector to the mock's clickable mana-pip row (`.cidsel`). Kept the existing `ColorIdentitySelector` dropdown for now to preserve behavior.
 
