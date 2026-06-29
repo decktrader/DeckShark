@@ -72,29 +72,31 @@ export function ReportButton({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-muted-foreground hover:text-foreground text-xs underline"
+        className="text-ink-3 hover:text-terra-deep text-xs underline"
       >
-        Report
+        Report this listing
       </button>
     )
   }
 
   if (done) {
     return (
-      <div className="rounded-lg border border-white/5 p-4">
-        <p className="text-sm text-emerald-400">Report submitted. Thank you.</p>
+      <div className="border-line rounded-lg border bg-white p-4">
+        <p className="text-teal-deep text-sm">Report submitted. Thank you.</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-lg border border-white/5 p-4">
-      <p className="mb-3 text-sm font-bold">Report this {targetType}</p>
+    <div className="border-line rounded-lg border bg-white p-4 text-left">
+      <p className="text-ink mb-3 text-sm font-bold">
+        Report this {targetType}
+      </p>
       <form onSubmit={handleSubmit} className="space-y-3">
         <select
           name="reason"
           required
-          className="bg-muted border-input w-full rounded-md border px-3 py-2 text-sm"
+          className="border-line text-ink w-full rounded-md border bg-white px-3 py-2 text-sm"
         >
           <option value="">Select a reason...</option>
           {REASONS[targetType].map((r) => (
@@ -107,7 +109,7 @@ export function ReportButton({
           name="description"
           placeholder="Additional details (optional)"
           rows={3}
-          className="bg-muted border-input w-full rounded-md border px-3 py-2 text-sm"
+          className="border-line text-ink w-full rounded-md border bg-white px-3 py-2 text-sm"
         />
         <div className="flex gap-2">
           <Button type="submit" size="sm" disabled={submitting}>

@@ -15,7 +15,8 @@ import {
   DeckCardListProvider,
   DeckCardPreview,
 } from '@/components/deck/deck-card-list'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Pfp } from '@/components/ds/pfp'
+import { ColorPips } from '@/components/deck/color-pips'
 import { DeckArt } from '@/components/deck/deck-art'
 import { Button } from '@/components/ui/button'
 import { ReportButton } from '@/components/report-button'
@@ -28,15 +29,6 @@ import {
   hasUserInterest,
 } from '@/lib/services/deck-interests.server'
 import { formatPrice } from '@/lib/utils'
-
-const FORMAT_COLORS: Record<string, string> = {
-  commander: 'border-violet-500/40 text-violet-300',
-  modern: 'border-sky-500/40 text-sky-300',
-  standard: 'border-amber-500/40 text-amber-300',
-  legacy: 'border-rose-500/40 text-rose-300',
-  pauper: 'border-emerald-500/40 text-emerald-300',
-  pioneer: 'border-orange-500/40 text-orange-300',
-}
 
 export async function generateMetadata({
   params,
@@ -105,30 +97,12 @@ export default async function PublicDeckPage({
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/deck-photos/${primaryPhoto.storage_path}`
     : null
 
-  const initials = deck.owner.username.slice(0, 2).toUpperCase()
   const totalCards = (cards ?? []).reduce((sum, c) => sum + c.quantity, 0)
-
-  const accentGradient = (() => {
-    switch (deck.format) {
-      case 'commander':
-        return 'from-violet-500/80'
-      case 'modern':
-        return 'from-sky-500/80'
-      case 'standard':
-        return 'from-amber-500/80'
-      case 'legacy':
-        return 'from-rose-500/80'
-      case 'pauper':
-        return 'from-emerald-500/80'
-      default:
-        return 'from-white/30'
-    }
-  })()
 
   const statItems = [
     {
       label: 'Value',
-      value: formatPrice(deck.estimated_value_cents),
+      value: formatPrice(deck.estimated_value_cents, { decimals: false }),
       highlight: true,
     },
     { label: 'Cards', value: `${totalCards}` },
@@ -138,127 +112,152 @@ export default async function PublicDeckPage({
       : []),
   ]
 
+  const location = [deck.owner.city, deck.owner.province]
+    .filter(Boolean)
+    .join(', ')
+  const commander = [deck.commander_name, deck.partner_commander_name]
+    .filter(Boolean)
+    .join(' / ')
+
   return (
-    <main className="container mx-auto max-w-4xl px-4 py-8 pb-32 lg:pb-8">
-      <div className="mb-4">
-        <Link
-          href="/decks"
-          className="text-muted-foreground hover:text-foreground text-sm"
-        >
-          ← Browse decks
-        </Link>
-      </div>
+    <main className="mx-auto max-w-[1080px] px-[30px] pt-[22px] pb-32 lg:pb-[60px]">
+      <Link
+        href="/decks"
+        className="text-ink-2 hover:text-ink text-sm font-semibold"
+      >
+        ← Browse decks
+      </Link>
 
       {/* Hero + info bar */}
-      <div className="mb-6 overflow-hidden rounded-2xl border border-white/5">
+      <div className="rounded-card-lg border-line mt-3.5 overflow-hidden border bg-white">
         {deck.commander_scryfall_id ? (
-          <div className="relative">
+          <div className="relative h-[260px] bg-[#0c2030]">
             <DeckArt
               commanderScryfallId={deck.commander_scryfall_id}
               partnerScryfallId={deck.partner_commander_scryfall_id}
-              aspect="h-48 sm:h-64"
+              aspect="absolute inset-0 h-full"
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6">
-              <h1 className="text-3xl font-black text-white drop-shadow-lg">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[35%] to-[rgba(8,12,18,0.92)]" />
+            {deck.color_identity?.length > 0 && (
+              <ColorPips
+                colors={deck.color_identity}
+                onArt
+                size={20}
+                className="absolute top-3.5 right-3.5 z-[2] flex"
+              />
+            )}
+            <div className="absolute inset-x-6 bottom-5 z-[2]">
+              <h1 className="font-display text-paper text-[clamp(28px,3.6vw,40px)] leading-none font-bold tracking-[-0.02em]">
                 {deck.name}
               </h1>
-              {deck.commander_name && (
-                <p className="mt-1 text-sm text-white/60">
-                  {[deck.commander_name, deck.partner_commander_name]
-                    .filter(Boolean)
-                    .join(' / ')}
-                </p>
+              {commander && (
+                <p className="text-paper/70 mt-1.5 text-sm">{commander}</p>
               )}
             </div>
           </div>
         ) : (
           <div className="p-6">
-            <h1 className="text-3xl font-black tracking-tight">{deck.name}</h1>
+            <h1 className="font-display text-3xl font-bold tracking-tight">
+              {deck.name}
+            </h1>
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 bg-white/[3%] px-6 py-3">
-          <div className="flex items-center gap-3">
+        <div className="border-line bg-paper-2 flex flex-wrap items-center justify-between gap-3.5 border-t px-[18px] py-3.5">
+          <div className="flex items-center gap-2.5">
             <Link
               href={`/profile/${deck.owner.username}`}
-              className="flex items-center gap-2 hover:underline"
+              className="flex items-center gap-2.5"
             >
-              <Avatar className="h-7 w-7">
-                <AvatarImage
-                  src={deck.owner.avatar_url ?? undefined}
-                  alt={deck.owner.username}
-                />
-                <AvatarFallback className="text-[10px]">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium">{deck.owner.username}</span>
+              <Pfp
+                src={deck.owner.avatar_url}
+                name={deck.owner.username}
+                size={30}
+              />
+              <span className="text-ink text-sm font-bold hover:underline">
+                {deck.owner.username}
+              </span>
             </Link>
             {deck.owner.completed_trades > 0 && (
-              <span className="text-xs text-yellow-400">
-                {Number(deck.owner.trade_rating).toFixed(1)} ★
+              <span className="text-brass-deep font-mono text-xs font-semibold">
+                {Number(deck.owner.trade_rating).toFixed(1)} stars
               </span>
             )}
-            {deck.owner.city && (
-              <span className="text-muted-foreground text-xs">
-                {deck.owner.city}, {deck.owner.province}
-              </span>
-            )}
+            {location && <span className="text-slate text-xs">{location}</span>}
           </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium capitalize ${FORMAT_COLORS[deck.format] ?? 'border-white/20 text-white/60'}`}
-            >
-              {deck.format}
-            </span>
-          </div>
+          <span className="rounded-pill border-teal/30 bg-teal/[0.08] text-teal-deep border px-[11px] py-1 font-mono text-[10.5px] tracking-[0.06em] uppercase">
+            {deck.format}
+          </span>
         </div>
       </div>
 
       <DeckCardListProvider cards={cards ?? []}>
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
+        <div className="mt-6 grid items-start gap-[26px] lg:grid-cols-[1fr_312px]">
+          <div>
             {deck.description && (
-              <p className="text-muted-foreground">{deck.description}</p>
+              <p className="text-ink-2 text-[15px] leading-relaxed">
+                {deck.description}
+              </p>
             )}
 
-            {/* Stat pills with accent bars */}
-            <div className="flex flex-wrap gap-3">
+            {/* Stat pills with terra accent bars */}
+            <div className="mt-[18px] flex flex-wrap gap-3">
               {statItems.map((s) => (
                 <div
                   key={s.label}
-                  className="overflow-hidden rounded-lg border border-white/5"
+                  className="border-line min-w-[104px] flex-1 overflow-hidden rounded-lg border bg-white"
                 >
-                  <div
-                    className={`h-0.5 w-full bg-gradient-to-r ${accentGradient} to-transparent`}
-                  />
-                  <div className="px-5 py-3 text-center">
+                  <div className="from-terra h-[3px] w-full bg-gradient-to-r to-transparent" />
+                  <div className="px-4 py-3 text-center">
                     <p
-                      className={`text-lg font-bold capitalize ${s.highlight ? 'text-emerald-400' : ''}`}
+                      className={
+                        s.highlight
+                          ? 'text-teal-deep font-mono text-[19px] font-semibold'
+                          : 'font-display text-[19px] font-bold capitalize'
+                      }
                     >
                       {s.value}
                     </p>
-                    <p className="text-muted-foreground text-xs">{s.label}</p>
+                    <p className="text-slate mt-0.5 text-[11px]">{s.label}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <p className="text-muted-foreground text-xs">
-              All values in USD via TCGPlayer market data
+            <p className="text-ink-3 mt-2.5 font-mono text-[11.5px]">
+              All values in USD via Scryfall market data
             </p>
 
-            {deck.condition_notes && (
-              <div className="rounded-lg border border-white/5 p-4">
-                <h2 className="mb-1 text-sm font-semibold">Condition notes</h2>
-                <p className="text-muted-foreground text-sm">
-                  {deck.condition_notes}
-                </p>
+            {(deck.condition_notes ||
+              deck.includes_sleeves ||
+              deck.includes_deckbox) && (
+              <div className="border-line mt-[18px] rounded-lg border bg-white p-4">
+                <h2 className="font-display text-ink text-sm font-bold">
+                  Condition notes
+                </h2>
+                {deck.condition_notes && (
+                  <p className="text-ink-2 mt-1.5 text-[13.5px]">
+                    {deck.condition_notes}
+                  </p>
+                )}
+                {(deck.includes_sleeves || deck.includes_deckbox) && (
+                  <div className="mt-3 flex gap-1.5">
+                    {deck.includes_sleeves && (
+                      <span className="border-line bg-paper-2 text-ink-2 rounded-sm border px-2.5 py-1 font-mono text-[10.5px]">
+                        Sleeves included
+                      </span>
+                    )}
+                    {deck.includes_deckbox && (
+                      <span className="border-line bg-paper-2 text-ink-2 rounded-sm border px-2.5 py-1 font-mono text-[10.5px]">
+                        Deckbox included
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
             {photoUrl && (
-              <div className="relative h-64 w-full overflow-hidden rounded-xl">
+              <div className="rounded-card border-line relative mt-[18px] h-64 w-full overflow-hidden border">
                 <Image
                   src={photoUrl}
                   alt={deck.name}
@@ -268,100 +267,79 @@ export default async function PublicDeckPage({
               </div>
             )}
 
-            <div className="overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-white/[2%] to-transparent">
-              <div className="px-6 py-4">
-                <h2 className="text-lg font-bold">Decklist</h2>
+            <div className="border-line mt-[18px] overflow-hidden rounded-lg border bg-white">
+              <div className="border-line flex items-center justify-between border-b px-[18px] py-3.5">
+                <h2 className="font-display text-ink text-[17px] font-bold">
+                  Decklist
+                </h2>
+                <span className="text-slate font-mono text-[11.5px]">
+                  {totalCards} cards
+                </span>
               </div>
-              <div className="px-6 pb-6">
-                <DeckCardList cards={cards ?? []} />
-              </div>
+              <DeckCardList cards={cards ?? []} />
             </div>
           </div>
 
           {/* Sidebar */}
-          <div>
-            <div className="hidden space-y-3 lg:sticky lg:top-24 lg:block">
-              {/* Card preview — sticky, follows scroll */}
-              <div className="hidden lg:block">
-                <DeckCardPreview />
-              </div>
+          <aside className="hidden flex-col gap-3 lg:sticky lg:top-[84px] lg:flex">
+            <div className="hidden lg:block">
+              <DeckCardPreview />
+            </div>
 
-              {(deck.includes_sleeves || deck.includes_deckbox) && (
-                <div className="rounded-xl border border-white/5 p-4">
-                  <div className="flex gap-1.5">
-                    {deck.includes_sleeves && (
-                      <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
-                        Sleeves
-                      </span>
-                    )}
-                    {deck.includes_deckbox && (
-                      <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
-                        Deckbox
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-              {!isOwner && !isLocal && (
-                <InterestToggle
-                  deckId={deck.id}
-                  userId={authUser?.id ?? null}
-                  initialInterested={!!userInterested}
-                  initialCount={interestCount ?? 0}
-                />
-              )}
-              {canPropose && (
-                <div className="space-y-1">
-                  <Button
-                    className="w-full"
-                    variant={isLocal ? 'default' : 'outline'}
-                    asChild
-                  >
-                    <Link href={`/trades/new?deckId=${deck.id}`}>
-                      Propose trade
-                    </Link>
-                  </Button>
-                  {!isLocal && deck.owner.city && (
-                    <p className="flex items-center justify-center gap-1 text-[10px] text-amber-400/80">
-                      <Info className="h-3 w-3" />
-                      This trader is in {deck.owner.city} — local meetup
-                      required
-                    </p>
-                  )}
-                </div>
-              )}
-              {!authUser && (
-                <Button className="w-full" variant="outline" asChild>
-                  <Link href={`/login?next=/decks/${deck.id}`}>
-                    Sign in to propose trade
+            {canPropose && (
+              <>
+                <Button asChild variant="terra" className="w-full">
+                  <Link href={`/trades/new?deckId=${deck.id}`}>
+                    Propose trade
                   </Link>
                 </Button>
-              )}
-              <Button className="w-full" variant="outline" asChild>
-                <Link href={`/profile/${deck.owner.username}`}>
-                  View {deck.owner.username}&apos;s profile
+                {!isLocal && deck.owner.city && (
+                  <p className="text-brass-deep flex items-center justify-center gap-1.5 text-[11px]">
+                    <Info className="h-3 w-3" />
+                    This trader is in {deck.owner.city}, local meetup required
+                  </p>
+                )}
+              </>
+            )}
+            {!authUser && (
+              <Button asChild variant="terra" className="w-full">
+                <Link href={`/login?next=/decks/${deck.id}`}>
+                  Sign in to propose trade
                 </Link>
               </Button>
-              {authUser && !isOwner && (
-                <div className="pt-2">
-                  <ReportButton targetType="deck" targetId={deck.id} />
-                </div>
-              )}
-            </div>
-          </div>
+            )}
+            {!isOwner && !isLocal && (
+              <InterestToggle
+                deckId={deck.id}
+                userId={authUser?.id ?? null}
+                initialInterested={!!userInterested}
+                initialCount={interestCount ?? 0}
+              />
+            )}
+            <Button asChild variant="outline" className="w-full">
+              <Link href={`/profile/${deck.owner.username}`}>
+                View {deck.owner.username}&apos;s profile
+              </Link>
+            </Button>
+            {authUser && !isOwner && (
+              <div className="pt-1 text-center">
+                <ReportButton targetType="deck" targetId={deck.id} />
+              </div>
+            )}
+          </aside>
         </div>
       </DeckCardListProvider>
 
       {/* Mobile sticky action bar */}
       {!isOwner && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl lg:hidden">
+        <div className="border-line bg-paper/95 fixed inset-x-0 bottom-0 z-40 border-t px-4 py-3 backdrop-blur-md lg:hidden">
           {canPropose && (
-            <Button className="w-full" asChild>
+            <Button asChild variant="terra" className="w-full">
               <Link href={`/trades/new?deckId=${deck.id}`}>Propose trade</Link>
             </Button>
           )}
           {!authUser && (
-            <Button className="w-full" asChild>
+            <Button asChild variant="terra" className="w-full">
               <Link href={`/login?next=/decks/${deck.id}`}>
                 Sign in to propose trade
               </Link>

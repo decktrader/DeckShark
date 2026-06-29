@@ -35,42 +35,57 @@ export function DeckCardListProvider({
 export function DeckCardList({ cards }: { cards: DeckCard[] }) {
   const commanders = cards.filter((c) => c.is_commander)
   const nonCommanders = cards.filter((c) => !c.is_commander)
-  const totalCards = cards.reduce((sum, c) => sum + c.quantity, 0)
   const { hoveredCard, setHoveredCard } = useContext(HoveredCardContext)
 
   return (
-    <div className="space-y-4">
-      <p className="text-muted-foreground text-sm">{totalCards} cards</p>
+    <div className="pb-2">
       {commanders.length > 0 && (
-        <div>
-          <h3 className="mb-2 text-sm font-semibold">Commander</h3>
-          <ul className="space-y-1">
-            {commanders.map((card) => (
-              <CardRow
-                key={card.id}
-                card={card}
-                isHovered={hoveredCard?.id === card.id}
-                onHover={setHoveredCard}
-              />
-            ))}
-          </ul>
+        <CardGroup
+          title="Commander"
+          cards={commanders}
+          hoveredId={hoveredCard?.id}
+          onHover={setHoveredCard}
+        />
+      )}
+      <CardGroup
+        title={commanders.length > 0 ? 'Deck' : undefined}
+        cards={nonCommanders}
+        hoveredId={hoveredCard?.id}
+        onHover={setHoveredCard}
+      />
+    </div>
+  )
+}
+
+function CardGroup({
+  title,
+  cards,
+  hoveredId,
+  onHover,
+}: {
+  title?: string
+  cards: DeckCard[]
+  hoveredId?: string
+  onHover: (card: DeckCard) => void
+}) {
+  if (cards.length === 0) return null
+  return (
+    <div className="px-[18px] pt-[13px] pb-1">
+      {title && (
+        <div className="text-brass-deep mb-1.5 font-mono text-[10.5px] font-semibold tracking-[0.1em] uppercase">
+          {title}
         </div>
       )}
-      <div>
-        {commanders.length > 0 && (
-          <h3 className="mb-2 text-sm font-semibold">Deck</h3>
-        )}
-        <ul className="space-y-1">
-          {nonCommanders.map((card) => (
-            <CardRow
-              key={card.id}
-              card={card}
-              isHovered={hoveredCard?.id === card.id}
-              onHover={setHoveredCard}
-            />
-          ))}
-        </ul>
-      </div>
+      <ul>
+        {cards.map((card) => (
+          <CardRow
+            key={card.id}
+            card={card}
+            isHovered={hoveredId === card.id}
+            onHover={onHover}
+          />
+        ))}
+      </ul>
     </div>
   )
 }
@@ -80,17 +95,18 @@ export function DeckCardPreview() {
 
   if (!hoveredCard?.scryfall_id) {
     return (
-      <div className="bg-muted/30 flex aspect-[2.5/3.5] w-full items-center justify-center rounded-xl border border-white/5">
-        <p className="text-muted-foreground text-xs">Hover a card to preview</p>
+      <div className="rounded-card border-line bg-board flex aspect-[488/680] w-full items-center justify-center border">
+        <p className="text-paper/50 text-xs">Hover a card to preview</p>
       </div>
     )
   }
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- Scryfall card preview swaps on hover; next/image adds no value here
     <img
       src={scryfallCardUrl(hoveredCard.scryfall_id)}
       alt={hoveredCard.card_name}
-      className="w-full rounded-xl shadow-2xl shadow-black/50 transition-all duration-200"
+      className="rounded-card border-line shadow-card w-full border transition-all duration-200"
     />
   )
 }
@@ -106,17 +122,17 @@ function CardRow({
 }) {
   return (
     <li
-      className={`flex cursor-default items-center justify-between rounded px-1.5 py-0.5 text-sm transition-colors ${
-        isHovered ? 'bg-white/5' : ''
+      className={`flex cursor-default items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors ${
+        isHovered ? 'bg-paper-2' : ''
       }`}
       onMouseEnter={() => onHover(card)}
     >
-      <span>
-        <span className="text-muted-foreground">{card.quantity}x</span>{' '}
-        {card.card_name}
+      <span className="text-slate w-6 shrink-0 font-mono text-xs">
+        {card.quantity}x
       </span>
-      <span className="text-muted-foreground text-xs">
-        {formatPrice(card.price_cents)}
+      <span className="text-ink flex-1 text-[13.5px]">{card.card_name}</span>
+      <span className="text-ink-2 font-mono text-xs">
+        {card.price_cents ? formatPrice(card.price_cents) : '–'}
       </span>
     </li>
   )

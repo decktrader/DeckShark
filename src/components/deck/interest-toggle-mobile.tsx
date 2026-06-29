@@ -15,7 +15,6 @@ export function InterestToggleMobile({
   deckId,
   userId,
   initialInterested,
-  initialCount,
 }: InterestToggleMobileProps) {
   const [interested, setInterested] = useState(initialInterested)
   const [loading, setLoading] = useState(false)
@@ -57,9 +56,9 @@ export function InterestToggleMobile({
       variant="outline"
       onClick={handleToggle}
       disabled={loading}
-      className="mt-2 w-full border-violet-500/30 text-violet-300"
+      className="mt-2 w-full"
     >
-      {interested ? 'Voted to ship!' : 'Want this shipped?'}
+      {interested ? 'Voted to ship' : 'Want this shipped?'}
     </Button>
   )
 }

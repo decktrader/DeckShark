@@ -2,6 +2,13 @@
 
 <!-- Newest entries at the top. Check items off as they're completed. -->
 
+### 2026-06-29 — Redesign follow-ups (Convention Floor)
+
+- [ ] Build a separate **Watch / favourite** feature (bookmark a deck to find it later). Net-new backend: table + RLS + service + toggle. This is distinct from the existing shipping-vote (`deck_interests`), which stays as a vote for the shipping feature. The redesign Deck Detail mock's "Watch this deck" heart button represents this future feature; for now the sidebar shows the shipping-vote (non-local viewers only) instead. Consider whether Watch should be visible to all viewers including local.
+
+- [ ] Browse Decks list view: build a true list-row deck layout. Currently `/decks?view=list` reuses the grid `DeckCard` in a 1–2 column layout because the redesign mock only specifies the grid tile. (See `src/components/ds/deck-card.tsx`, `src/app/(public)/decks/page.tsx`.)
+- [ ] Browse Decks color-identity filter: optionally convert the dropdown selector to the mock's clickable mana-pip row (`.cidsel`). Kept the existing `ColorIdentitySelector` dropdown for now to preserve behavior.
+
 ### 2026-05-15 — M27a Launch Readiness: manual tasks
 
 - [ ] Upgrade Vercel to Pro ($20/mo) — 1TB bandwidth, 1M function invocations, spend protection
