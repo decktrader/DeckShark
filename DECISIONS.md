@@ -10,6 +10,18 @@ Architectural and implementation decisions made during development. Newest first
 **Rationale:** Why this option won
 -->
 
+## 2026-06-29 — Visual redesign: repoint shadcn tokens; data-dependent sections deferred
+
+**Context:** Full presentation-layer reskin to the "Convention Floor" theme (warm paper + midnight navy) from the `design-redesign/` handoff, with a hard constraint: change only the presentation layer, no routing/data/Supabase/server-logic edits.
+**Decisions:**
+
+- **Token strategy:** repointed the existing shadcn semantic tokens (`--background`, `--primary`, `--card`, `--border`, `--radius`, etc.) to the DeckShark palette in `globals.css` rather than adding a parallel token system. This flips the whole app to the new theme at once (every component inherits it) and avoids two competing systems. Also exposed DeckShark-specific utilities (`bg-navy`, `text-terra`, `rounded-pill`, `shadow-panel`, ...) via `@theme`. Tailwind v4 is CSS-first (no `tailwind.config.*`).
+- **Watch vs shipping-vote:** kept `deck_interests` as the "Want this shipped?" shipping vote (its real meaning) and did NOT relabel it "Watch" per the mocks. A real Watch/favourite is a separate, net-new feature (own table/RLS/service) — backlogged.
+- **Real signals only:** mock sections requiring aggregate/view-tracking/trader-directory data that no service provides (want-list most-wanted aggregate + filters, Market Pulse demand/supply + Most Viewed + week toggle, Active Traders directory, Profile earnable badges) were built from real data where possible (e.g. `/pulse` and `/community` use `getHeroCities`/`getHeroStats`/interest counts) and otherwise omitted + backlogged. No invented metrics, no fabricated timeframes.
+- **New routes:** `/community` and `/pulse` added (routing + nav). Old map-based hero (`components/hero/*`) and `deck-browse-card.tsx` deleted as dead code after Browse/Home rebuilds.
+  **Alternatives considered:** parallel DeckShark token layer with per-page migration (more code, two systems); relabeling interest as Watch (would conflate two distinct product concepts).
+  **Rationale:** Repointing tokens is the least-code, most-consistent way to reskin a token-driven app. Deferring data-dependent sections keeps the reskin strictly presentation-only and avoids shipping invented metrics. Rollback safety: tag `pre-redesign-2026-06-29` + branch `pre-redesign-snapshot`.
+
 ## 2026-05-15 — No automated emails from matching features — in-app only
 
 **Context:** Trade matching went live and immediately email-blasted a user with 30+ emails (one per match per deck). Even after fixing to one email per user, the principle is wrong — automated matching should never generate emails.
