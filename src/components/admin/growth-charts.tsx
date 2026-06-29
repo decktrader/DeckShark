@@ -169,7 +169,7 @@ export function GrowthCharts({
               className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                 range === r
                   ? 'border-primary text-primary'
-                  : 'border-white/10 text-white/60 hover:border-white/20'
+                  : 'border-line text-slate hover:border-line'
               }`}
             >
               {RANGE_LABELS[r]}
@@ -190,8 +190,8 @@ export function GrowthCharts({
                 onClick={() => setActiveMetric(m)}
                 className={`overflow-hidden rounded-xl border text-left transition-all ${
                   isActive
-                    ? 'border-white/20 bg-white/[4%]'
-                    : 'border-white/5 hover:border-white/10'
+                    ? 'border-line bg-paper-2'
+                    : 'border-line hover:border-line'
                 }`}
               >
                 <div
@@ -211,7 +211,7 @@ export function GrowthCharts({
       )}
 
       {/* Chart */}
-      <div className="rounded-xl border border-white/5 p-6">
+      <div className="border-line rounded-xl border p-6">
         <div className="mb-4 flex items-center gap-2">
           <div
             className="h-3 w-3 rounded-full"

@@ -54,7 +54,7 @@ export default async function AdminUserDetailPage({
           <h1 className="text-2xl font-black">
             {user.username}
             {user.is_admin && (
-              <span className="ml-2 rounded bg-red-500/20 px-2 py-0.5 text-xs font-bold text-red-400">
+              <span className="bg-terra/15 text-terra-deep ml-2 rounded px-2 py-0.5 text-xs font-bold">
                 ADMIN
               </span>
             )}
@@ -76,8 +76,8 @@ export default async function AdminUserDetailPage({
 
       {/* Suspension status */}
       {suspension && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4">
-          <p className="text-sm font-bold text-red-400">Account suspended</p>
+        <div className="border-terra/30 bg-terra/15 rounded-xl border p-4">
+          <p className="text-terra-deep text-sm font-bold">Account suspended</p>
           <p className="text-muted-foreground mt-1 text-sm">
             Reason: {suspension.reason}
           </p>
@@ -92,15 +92,15 @@ export default async function AdminUserDetailPage({
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="rounded-lg border border-white/5 p-3 text-center">
+        <div className="border-line rounded-lg border p-3 text-center">
           <p className="text-lg font-bold">{decks.length}</p>
           <p className="text-muted-foreground text-xs">Decks</p>
         </div>
-        <div className="rounded-lg border border-white/5 p-3 text-center">
+        <div className="border-line rounded-lg border p-3 text-center">
           <p className="text-lg font-bold">{user.completed_trades}</p>
           <p className="text-muted-foreground text-xs">Trades</p>
         </div>
-        <div className="rounded-lg border border-white/5 p-3 text-center">
+        <div className="border-line rounded-lg border p-3 text-center">
           <p className="text-lg font-bold">
             {user.completed_trades > 0
               ? Number(user.trade_rating).toFixed(1)
@@ -108,7 +108,7 @@ export default async function AdminUserDetailPage({
           </p>
           <p className="text-muted-foreground text-xs">Rating</p>
         </div>
-        <div className="rounded-lg border border-white/5 p-3 text-center">
+        <div className="border-line rounded-lg border p-3 text-center">
           <p className="text-lg font-bold">{revs.length}</p>
           <p className="text-muted-foreground text-xs">Reviews</p>
         </div>
@@ -126,8 +126,8 @@ export default async function AdminUserDetailPage({
       {decks.length > 0 && (
         <div>
           <h2 className="mb-2 text-lg font-bold">Decks ({decks.length})</h2>
-          <div className="rounded-xl border border-white/5">
-            <div className="divide-y divide-white/5">
+          <div className="border-line rounded-xl border">
+            <div className="divide-line divide-y">
               {decks.map((deck) => (
                 <div
                   key={deck.id}
@@ -165,13 +165,13 @@ export default async function AdminUserDetailPage({
             {revs.map((review) => (
               <div
                 key={review.id}
-                className="rounded-lg border border-white/5 p-3"
+                className="border-line rounded-lg border p-3"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">
                     {review.reviewer.username}
                   </span>
-                  <span className="text-sm text-yellow-400">
+                  <span className="text-brass-deep text-sm">
                     {'★'.repeat(review.rating)}
                     {'☆'.repeat(5 - review.rating)}
                   </span>
@@ -189,8 +189,10 @@ export default async function AdminUserDetailPage({
 
       {/* Admin actions */}
       {!user.is_admin && (
-        <div className="border-t border-white/5 pt-6">
-          <h2 className="mb-3 text-lg font-bold text-red-400">Admin actions</h2>
+        <div className="border-line border-t pt-6">
+          <h2 className="text-terra-deep mb-3 text-lg font-bold">
+            Admin actions
+          </h2>
           <SuspendUserForm
             userId={user.id}
             username={user.username}

@@ -19,9 +19,9 @@ function StatCard({
   accent?: string
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-white/5">
+    <div className="border-line overflow-hidden rounded-xl border">
       <div
-        className={`h-1 w-full bg-gradient-to-r ${accent ?? 'from-white/20'} to-transparent`}
+        className={`h-1 w-full bg-gradient-to-r ${accent ?? 'from-line'} to-transparent`}
       />
       <div className="p-4">
         <p className="text-2xl font-black">{value}</p>
@@ -71,42 +71,42 @@ export default async function AdminDashboardPage() {
         <StatCard
           label="Total users"
           value={s.total_users}
-          accent="from-violet-500/80"
+          accent="from-teal"
         />
         <StatCard
           label="Active decks"
           value={s.total_decks}
-          accent="from-sky-500/80"
+          accent="from-teal"
         />
         <StatCard
           label="Active trades"
           value={s.active_trades}
-          accent="from-amber-500/80"
+          accent="from-brass"
         />
         <StatCard
           label="Completed trades"
           value={s.completed_trades}
-          accent="from-emerald-500/80"
+          accent="from-teal"
         />
         <StatCard
           label="Want lists"
           value={s.total_want_lists}
-          accent="from-rose-500/80"
+          accent="from-terra"
         />
         <StatCard
           label="Total trade value"
           value={formatPrice(s.total_trade_value_cents, { decimals: false })}
-          accent="from-emerald-500/80"
+          accent="from-teal"
         />
         <StatCard
           label="Open reports"
           value={s.open_reports}
-          accent={s.open_reports > 0 ? 'from-red-500/80' : 'from-white/20'}
+          accent={s.open_reports > 0 ? 'from-terra' : 'from-line'}
         />
         <StatCard
           label="New feedback"
           value={s.new_feedback}
-          accent={s.new_feedback > 0 ? 'from-amber-500/80' : 'from-white/20'}
+          accent={s.new_feedback > 0 ? 'from-brass' : 'from-line'}
         />
       </div>
 
@@ -115,7 +115,7 @@ export default async function AdminDashboardPage() {
         {/* Card cache stats */}
         <div>
           <h2 className="mb-3 text-lg font-bold">Card cache</h2>
-          <div className="rounded-xl border border-white/5 p-4">
+          <div className="border-line rounded-xl border p-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-2xl font-black">
@@ -156,9 +156,9 @@ export default async function AdminDashboardPage() {
         {/* Recent activity feed */}
         <div>
           <h2 className="mb-3 text-lg font-bold">Recent activity</h2>
-          <div className="rounded-xl border border-white/5">
+          <div className="border-line rounded-xl border">
             <div className="max-h-72 overflow-y-auto">
-              <div className="divide-y divide-white/5">
+              <div className="divide-line divide-y">
                 {(activity ?? []).map((item, i) => (
                   <ActivityRow key={i} item={item} />
                 ))}
@@ -183,8 +183,8 @@ export default async function AdminDashboardPage() {
             Where interested traders are located vs. where desired decks are
             listed. Informs shipping launch priority.
           </p>
-          <div className="rounded-xl border border-white/5">
-            <div className="divide-y divide-white/5">
+          <div className="border-line rounded-xl border">
+            <div className="divide-line divide-y">
               {cityPairs.slice(0, 15).map((row) => (
                 <div
                   key={`${row.from_city}-${row.to_city}`}
@@ -195,7 +195,7 @@ export default async function AdminDashboardPage() {
                     <span className="text-muted-foreground">→</span>{' '}
                     {row.to_city}
                   </span>
-                  <span className="text-sm font-medium text-pink-400">
+                  <span className="text-terra-deep text-sm font-medium">
                     {row.count} interested
                   </span>
                 </div>
@@ -209,8 +209,8 @@ export default async function AdminDashboardPage() {
       {geo && geo.length > 0 && (
         <div>
           <h2 className="mb-3 text-lg font-bold">Users by region</h2>
-          <div className="rounded-xl border border-white/5">
-            <div className="divide-y divide-white/5">
+          <div className="border-line rounded-xl border">
+            <div className="divide-line divide-y">
               {geo.map((row) => (
                 <div
                   key={row.province}
@@ -231,11 +231,11 @@ export default async function AdminDashboardPage() {
 }
 
 const ACTIVITY_COLORS: Record<string, string> = {
-  signup: 'bg-violet-500',
-  deck: 'bg-sky-500',
-  trade: 'bg-emerald-500',
-  report: 'bg-red-500',
-  feedback: 'bg-amber-500',
+  signup: 'bg-slate',
+  deck: 'bg-teal',
+  trade: 'bg-teal',
+  report: 'bg-terra',
+  feedback: 'bg-brass',
 }
 
 function timeAgo(dateStr: string): string {
@@ -253,7 +253,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
   return (
     <div className="flex items-start gap-3 px-4 py-2.5">
       <div
-        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${ACTIVITY_COLORS[item.type] ?? 'bg-white/20'}`}
+        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${ACTIVITY_COLORS[item.type] ?? 'bg-paper-2'}`}
       />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm">{item.label}</p>

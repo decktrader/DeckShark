@@ -50,10 +50,10 @@ export default async function AdminUsersPage({
       </form>
 
       {/* Users table */}
-      <div className="overflow-hidden rounded-xl border border-white/5">
+      <div className="border-line overflow-hidden rounded-xl border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/5 bg-white/[2%]">
+            <tr className="border-line bg-paper-2 border-b">
               <th className="px-4 py-3 text-left font-medium">Username</th>
               <th className="px-4 py-3 text-left font-medium">Location</th>
               <th className="px-4 py-3 text-right font-medium">Decks</th>
@@ -63,9 +63,9 @@ export default async function AdminUsersPage({
               <th className="px-4 py-3 text-right font-medium">Joined</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-line divide-y">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-white/[2%]">
+              <tr key={user.id} className="hover:bg-paper-2">
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/users/${user.id}`}
@@ -73,7 +73,7 @@ export default async function AdminUsersPage({
                   >
                     {user.username}
                     {user.is_admin && (
-                      <span className="ml-1.5 rounded bg-red-500/20 px-1.5 py-0.5 text-[10px] font-bold text-red-400">
+                      <span className="bg-terra/15 text-terra-deep ml-1.5 rounded px-1.5 py-0.5 text-[10px] font-bold">
                         ADMIN
                       </span>
                     )}

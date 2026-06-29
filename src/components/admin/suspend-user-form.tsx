@@ -44,7 +44,7 @@ export function SuspendUserForm({
       <input type="hidden" name="userId" value={userId} />
       <div>
         <label className="text-sm font-medium">
-          Reason <span className="text-red-400">*</span>
+          Reason <span className="text-terra-deep">*</span>
         </label>
         <input
           name="reason"

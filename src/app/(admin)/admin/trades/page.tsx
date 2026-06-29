@@ -5,11 +5,11 @@ import { PaginationNav } from '@/components/ui/pagination-nav'
 const PAGE_SIZE = 25
 
 const STATUS_COLORS: Record<string, string> = {
-  proposed: 'bg-sky-500/20 text-sky-300',
-  accepted: 'bg-emerald-500/20 text-emerald-300',
-  countered: 'bg-amber-500/20 text-amber-300',
-  completed: 'bg-green-500/20 text-green-300',
-  declined: 'bg-red-500/20 text-red-300',
+  proposed: 'bg-teal/15 text-teal-deep',
+  accepted: 'bg-teal/15 text-teal-deep',
+  countered: 'bg-brass/15 text-brass-deep',
+  completed: 'bg-teal/15 text-teal-deep',
+  declined: 'bg-terra/15 text-terra-deep',
   cancelled: 'bg-zinc-500/20 text-zinc-400',
 }
 
@@ -60,7 +60,7 @@ export default async function AdminTradesPage({
             className={`rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors ${
               statusFilter === s
                 ? 'border-primary text-primary'
-                : 'border-white/10 text-white/60 hover:border-white/20'
+                : 'border-line text-slate hover:border-line'
             }`}
           >
             {s || 'All'}
@@ -69,10 +69,10 @@ export default async function AdminTradesPage({
       </div>
 
       {/* Trades table */}
-      <div className="overflow-hidden rounded-xl border border-white/5">
+      <div className="border-line overflow-hidden rounded-xl border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/5 bg-white/[2%]">
+            <tr className="border-line bg-paper-2 border-b">
               <th className="px-4 py-3 text-left font-medium">Proposer</th>
               <th className="px-4 py-3 text-left font-medium">Receiver</th>
               <th className="px-4 py-3 text-left font-medium">Status</th>
@@ -80,9 +80,9 @@ export default async function AdminTradesPage({
               <th className="px-4 py-3 text-right font-medium">Updated</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-line divide-y">
             {trades.map((trade) => (
-              <tr key={trade.id} className="hover:bg-white/[2%]">
+              <tr key={trade.id} className="hover:bg-paper-2">
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/users/${trade.proposer.id}`}
@@ -101,7 +101,7 @@ export default async function AdminTradesPage({
                 </td>
                 <td className="px-4 py-3">
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${STATUS_COLORS[trade.status] ?? 'bg-white/10 text-white/60'}`}
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${STATUS_COLORS[trade.status] ?? 'bg-paper-2 text-slate'}`}
                   >
                     {trade.status}
                   </span>

@@ -7,9 +7,9 @@ import type { ReportStatus } from '@/types'
 const PAGE_SIZE = 25
 
 const STATUS_COLORS: Record<string, string> = {
-  open: 'bg-red-500/20 text-red-300',
-  reviewed: 'bg-amber-500/20 text-amber-300',
-  resolved: 'bg-emerald-500/20 text-emerald-300',
+  open: 'bg-terra/15 text-terra-deep',
+  reviewed: 'bg-brass/15 text-brass-deep',
+  resolved: 'bg-teal/15 text-teal-deep',
   dismissed: 'bg-zinc-500/20 text-zinc-400',
 }
 
@@ -58,7 +58,7 @@ export default async function AdminReportsPage({
             className={`rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors ${
               statusFilter === s
                 ? 'border-primary text-primary'
-                : 'border-white/10 text-white/60 hover:border-white/20'
+                : 'border-line text-slate hover:border-line'
             }`}
           >
             {s || 'All'}
@@ -73,10 +73,7 @@ export default async function AdminReportsPage({
       ) : (
         <div className="space-y-3">
           {reports.map((report) => (
-            <div
-              key={report.id}
-              className="rounded-xl border border-white/5 p-4"
-            >
+            <div key={report.id} className="border-line rounded-xl border p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
@@ -100,7 +97,7 @@ export default async function AdminReportsPage({
                     {new Date(report.created_at).toLocaleDateString('en-CA')}
                   </p>
                   {report.admin_notes && (
-                    <p className="mt-2 text-xs text-amber-400">
+                    <p className="text-brass-deep mt-2 text-xs">
                       Admin notes: {report.admin_notes}
                     </p>
                   )}
@@ -113,7 +110,7 @@ export default async function AdminReportsPage({
                       <input type="hidden" name="status" value="resolved" />
                       <button
                         type="submit"
-                        className="rounded-md bg-emerald-500/20 px-2.5 py-1 text-xs font-medium text-emerald-300 hover:bg-emerald-500/30"
+                        className="bg-teal/15 text-teal-deep hover:bg-teal/15 rounded-md px-2.5 py-1 text-xs font-medium"
                       >
                         Resolve
                       </button>

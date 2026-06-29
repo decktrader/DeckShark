@@ -52,23 +52,23 @@ export function GrowthMetrics() {
         {
           label: 'New users',
           value: metrics.new_users,
-          accent: 'bg-violet-500',
+          accent: 'bg-slate',
         },
-        { label: 'New decks', value: metrics.new_decks, accent: 'bg-sky-500' },
+        { label: 'New decks', value: metrics.new_decks, accent: 'bg-teal' },
         {
           label: 'Listed for trade',
           value: metrics.listed_for_trade,
-          accent: 'bg-emerald-500',
+          accent: 'bg-teal',
         },
         {
           label: 'New trades',
           value: metrics.new_trades,
-          accent: 'bg-amber-500',
+          accent: 'bg-brass',
         },
         {
           label: 'Completed trades',
           value: metrics.completed_trades,
-          accent: 'bg-green-500',
+          accent: 'bg-teal',
         },
       ]
     : []
@@ -85,7 +85,7 @@ export function GrowthMetrics() {
               className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                 period === p
                   ? 'border-primary text-primary'
-                  : 'border-white/10 text-white/60 hover:border-white/20'
+                  : 'border-line text-slate hover:border-line'
               }`}
             >
               {PERIOD_LABELS[p]}
@@ -94,13 +94,13 @@ export function GrowthMetrics() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/5">
+      <div className="border-line rounded-xl border">
         {loading ? (
           <div className="text-muted-foreground p-6 text-center text-sm">
             Loading...
           </div>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="divide-line divide-y">
             {rows.map((row) => (
               <div
                 key={row.label}

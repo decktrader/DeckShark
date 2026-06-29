@@ -7,14 +7,14 @@ import type { FeedbackStatus } from '@/types'
 const PAGE_SIZE = 25
 
 const STATUS_COLORS: Record<string, string> = {
-  new: 'bg-sky-500/20 text-sky-300',
-  reviewed: 'bg-amber-500/20 text-amber-300',
+  new: 'bg-teal/15 text-teal-deep',
+  reviewed: 'bg-brass/15 text-brass-deep',
   archived: 'bg-zinc-500/20 text-zinc-400',
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  bug: 'text-red-400',
-  feature: 'text-violet-400',
+  bug: 'text-terra-deep',
+  feature: 'text-slate',
   general: 'text-zinc-400',
 }
 
@@ -57,7 +57,7 @@ export default async function AdminFeedbackPage({
             className={`rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors ${
               statusFilter === s
                 ? 'border-primary text-primary'
-                : 'border-white/10 text-white/60 hover:border-white/20'
+                : 'border-line text-slate hover:border-line'
             }`}
           >
             {s || 'All'}
@@ -72,7 +72,7 @@ export default async function AdminFeedbackPage({
       ) : (
         <div className="space-y-3">
           {items.map((fb) => (
-            <div key={fb.id} className="rounded-xl border border-white/5 p-4">
+            <div key={fb.id} className="border-line rounded-xl border p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -98,7 +98,7 @@ export default async function AdminFeedbackPage({
                     )}
                   </div>
                   {fb.admin_notes && (
-                    <p className="mt-2 text-xs text-amber-400">
+                    <p className="text-brass-deep mt-2 text-xs">
                       Admin notes: {fb.admin_notes}
                     </p>
                   )}
@@ -111,7 +111,7 @@ export default async function AdminFeedbackPage({
                       <input type="hidden" name="status" value="reviewed" />
                       <button
                         type="submit"
-                        className="rounded-md bg-amber-500/20 px-2.5 py-1 text-xs font-medium text-amber-300 hover:bg-amber-500/30"
+                        className="bg-brass/15 text-brass-deep hover:bg-brass/15 rounded-md px-2.5 py-1 text-xs font-medium"
                       >
                         Mark reviewed
                       </button>
