@@ -5,9 +5,9 @@ import { getUserByUsername } from '@/lib/services/users.server'
 import { getPublicDecks } from '@/lib/services/decks.server'
 import type { PublicDeck } from '@/lib/services/decks.server'
 import { getReviewsForUser } from '@/lib/services/reviews.server'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DeckArt } from '@/components/deck/deck-art'
 import { ColorPips } from '@/components/deck/color-pips'
+import { Pfp } from '@/components/ds/pfp'
 import { Button } from '@/components/ui/button'
 import { ReportButton } from '@/components/report-button'
 import { formatPrice } from '@/lib/utils'
@@ -20,33 +20,41 @@ function DeckMiniCard({ deck }: { deck: PublicDeck }) {
     .join(' / ')
 
   return (
-    <Link href={`/decks/${deck.id}`} className="group block">
-      <div className="overflow-hidden rounded-2xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
-        <div className="relative">
-          <DeckArt
-            commanderScryfallId={deck.commander_scryfall_id}
-            partnerScryfallId={deck.partner_commander_scryfall_id}
-            className="transition-transform duration-500 group-hover:scale-105"
+    <Link
+      href={`/decks/${deck.id}`}
+      className="group border-line hover:border-line-2 hover:shadow-card block overflow-hidden rounded-lg border bg-white transition-[transform,box-shadow,border-color] hover:-translate-y-[3px]"
+    >
+      <div className="relative aspect-[16/10] overflow-hidden bg-[#0c2030]">
+        <DeckArt
+          commanderScryfallId={deck.commander_scryfall_id}
+          partnerScryfallId={deck.partner_commander_scryfall_id}
+          aspect="absolute inset-0 h-full"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[42%] to-[rgba(8,12,18,0.86)]" />
+        {deck.color_identity?.length > 0 && (
+          <ColorPips
+            colors={deck.color_identity}
+            onArt
+            size={16}
+            className="absolute top-2 right-2 z-[2] flex"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <ColorPips colors={deck.color_identity} />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <p className="truncate text-sm font-bold text-white drop-shadow-lg">
-              {deck.name}
+        )}
+        <div className="absolute inset-x-3 bottom-2.5 z-[2]">
+          <p className="font-display text-paper truncate text-[13.5px] leading-tight font-bold">
+            {deck.name}
+          </p>
+          {commanderLabel && (
+            <p className="text-paper/60 truncate text-[10.5px]">
+              {commanderLabel}
             </p>
-            {commanderLabel && (
-              <p className="truncate text-xs text-white/50">{commanderLabel}</p>
-            )}
-          </div>
+          )}
         </div>
-        <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5 backdrop-blur-md">
-          <span className="text-muted-foreground text-xs capitalize">
-            {deck.format}
-          </span>
-          <span className="text-lg font-bold text-emerald-400">
-            {formatPrice(deck.estimated_value_cents)}
-          </span>
-        </div>
+      </div>
+      <div className="border-line flex items-center justify-between border-t px-3 py-2">
+        <span className="text-slate text-[11px] capitalize">{deck.format}</span>
+        <span className="text-teal-deep font-mono text-sm font-semibold">
+          {formatPrice(deck.estimated_value_cents, { decimals: false })}
+        </span>
       </div>
     </Link>
   )
@@ -88,93 +96,89 @@ export default async function PublicProfilePage({
 
   const decks = deckResult?.decks ?? []
   const revs = reviews ?? []
-  const initials = user.username.slice(0, 2).toUpperCase()
+  const location = [user.city, user.province].filter(Boolean).join(', ')
   const joinedDate = new Date(user.created_at).toLocaleDateString('en-CA', {
     year: 'numeric',
     month: 'long',
   })
 
   return (
-    <main className="container mx-auto max-w-5xl px-4 py-8">
-      <div className="flex flex-col gap-6 sm:flex-row">
-        {/* Sidebar — horizontal on mobile, vertical on sm+ */}
-        <div className="shrink-0 sm:sticky sm:top-24 sm:w-56 sm:self-start">
-          <div className="space-y-3">
-            {/* Avatar card — compact row on mobile, centered column on sm+ */}
-            <div className="overflow-hidden rounded-xl border border-white/5 p-4 sm:p-5">
-              <div className="flex items-center gap-3 sm:flex-col sm:items-center sm:gap-0">
-                <Avatar className="h-14 w-14 sm:h-20 sm:w-20">
-                  <AvatarImage
-                    src={user.avatar_url ?? undefined}
-                    alt={user.username}
-                  />
-                  <AvatarFallback className="text-lg sm:text-xl">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 sm:mt-2 sm:text-center">
-                  <h1 className="text-base font-black sm:text-lg">
-                    {user.username}
-                  </h1>
-                  {user.city && user.province && (
-                    <p className="text-muted-foreground text-xs">
-                      {user.city}, {user.province}
-                    </p>
-                  )}
-                  {user.bio && (
-                    <p className="text-muted-foreground mt-1 text-xs leading-relaxed sm:mt-2 sm:text-center">
-                      {user.bio}
-                    </p>
-                  )}
-                </div>
+    <main className="mx-auto max-w-[1080px] px-[30px] pt-[26px] pb-[60px]">
+      <div className="grid grid-cols-1 items-start gap-[26px] lg:grid-cols-[232px_1fr]">
+        {/* Trader-badge sidebar */}
+        <div className="flex flex-col gap-3 lg:sticky lg:top-[84px]">
+          <div className="border-line overflow-hidden rounded-lg border bg-white">
+            <div className="bg-navy h-[58px]" />
+            <div className="px-4 pb-4 text-center">
+              <div className="-mt-[26px] flex justify-center">
+                <Pfp
+                  src={user.avatar_url}
+                  name={user.username}
+                  size={72}
+                  className="border-4 border-white"
+                />
               </div>
+              <h1 className="font-display mt-2 text-[19px] font-bold">
+                {user.username}
+              </h1>
+              {location && (
+                <div className="text-slate mt-0.5 text-[12.5px]">
+                  {location}
+                </div>
+              )}
+              {user.bio && (
+                <p className="text-ink-2 mt-3 text-[12.5px] leading-relaxed">
+                  {user.bio}
+                </p>
+              )}
             </div>
+          </div>
 
-            {/* Stats card */}
-            <div className="rounded-xl border border-white/5 p-4">
-              <div className="grid grid-cols-3 text-center text-sm">
-                <div>
-                  <p className="font-bold">{user.completed_trades}</p>
-                  <p className="text-muted-foreground text-xs">Trades</p>
-                </div>
-                <div>
-                  <p className="font-bold">
-                    {user.completed_trades > 0
-                      ? Number(user.trade_rating).toFixed(1)
-                      : '—'}
-                  </p>
-                  <p className="text-muted-foreground text-xs">Rating</p>
-                </div>
-                <div>
-                  <p className="text-xs font-bold">{joinedDate}</p>
-                  <p className="text-muted-foreground text-xs">Joined</p>
-                </div>
+          {/* Stats */}
+          <div className="border-line grid grid-cols-3 rounded-lg border bg-white">
+            <div className="border-line border-r py-3 text-center">
+              <div className="font-display text-[17px] font-bold">
+                {user.completed_trades}
               </div>
+              <div className="text-slate mt-0.5 text-[10.5px]">Trades</div>
             </div>
+            <div className="border-line border-r py-3 text-center">
+              <div className="font-display text-brass-deep text-[17px] font-bold">
+                {user.completed_trades > 0
+                  ? Number(user.trade_rating).toFixed(1)
+                  : '–'}
+              </div>
+              <div className="text-slate mt-0.5 text-[10.5px]">Rating</div>
+            </div>
+            <div className="py-3 text-center">
+              <div className="font-display text-[12px] font-bold">
+                {joinedDate}
+              </div>
+              <div className="text-slate mt-0.5 text-[10.5px]">Joined</div>
+            </div>
+          </div>
 
-            {/* Action */}
-            <Button className="w-full" asChild>
-              <Link href={`/trades/new?receiver=${user.username}`}>
-                Propose a trade
-              </Link>
-            </Button>
-            <div className="pt-1 text-center">
-              <ReportButton targetType="user" targetId={user.id} />
-            </div>
+          <Button asChild variant="terra" className="w-full">
+            <Link href={`/trades/new?receiver=${user.username}`}>
+              Propose a trade
+            </Link>
+          </Button>
+          <div className="text-center">
+            <ReportButton targetType="user" targetId={user.id} />
           </div>
         </div>
 
-        {/* Main content */}
-        <div className="flex-1 space-y-8">
+        {/* Main */}
+        <div className="flex flex-col gap-[30px]">
           {decks.length > 0 && (
             <div>
-              <h2 className="mb-4 text-xl font-bold">
+              <h2 className="font-display mb-3.5 text-xl font-bold tracking-[-0.01em]">
                 Decks for trade{' '}
-                <span className="text-muted-foreground text-base font-normal">
+                <span className="text-slate text-base font-normal">
                   ({decks.length})
                 </span>
               </h2>
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-4">
+              <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-3">
                 {decks.map((deck) => (
                   <DeckMiniCard key={deck.id} deck={deck} />
                 ))}
@@ -184,32 +188,35 @@ export default async function PublicProfilePage({
 
           {revs.length > 0 && (
             <div>
-              <h2 className="mb-4 text-xl font-bold">
+              <h2 className="font-display mb-3.5 text-xl font-bold tracking-[-0.01em]">
                 Reviews{' '}
-                <span className="text-muted-foreground text-base font-normal">
+                <span className="text-slate text-base font-normal">
                   {user.trade_rating
-                    ? `${Number(user.trade_rating).toFixed(1)} ★ ·`
-                    : ''}{' '}
+                    ? `${Number(user.trade_rating).toFixed(1)} ★ · `
+                    : ''}
                   {revs.length}
                 </span>
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {revs.map((review) => (
                   <div
                     key={review.id}
-                    className="rounded-lg border border-white/5 p-4"
+                    className="border-line rounded-lg border bg-white p-4"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        {review.reviewer.username}
-                      </span>
-                      <span className="text-sm text-yellow-400">
+                      <div className="flex items-center gap-2.5">
+                        <Pfp name={review.reviewer.username} size={26} />
+                        <span className="text-ink text-sm font-semibold">
+                          {review.reviewer.username}
+                        </span>
+                      </div>
+                      <span className="text-brass text-sm">
                         {'★'.repeat(review.rating)}
                         {'☆'.repeat(5 - review.rating)}
                       </span>
                     </div>
                     {review.comment && (
-                      <p className="text-muted-foreground mt-1 text-sm">
+                      <p className="text-ink-2 mt-1.5 text-sm">
                         {review.comment}
                       </p>
                     )}
@@ -220,7 +227,7 @@ export default async function PublicProfilePage({
           )}
 
           {decks.length === 0 && revs.length === 0 && (
-            <p className="text-muted-foreground py-20 text-center">
+            <p className="text-ink-2 py-20 text-center">
               This trader hasn&apos;t listed any decks yet.
             </p>
           )}
