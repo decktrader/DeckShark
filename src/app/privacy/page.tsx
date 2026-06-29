@@ -2,9 +2,11 @@ export const revalidate = 86400 // 1 day — static content
 
 export default function PrivacyPage() {
   return (
-    <main className="container mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">Privacy Policy</h1>
-      <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
+    <main className="mx-auto max-w-[44rem] px-[30px] pt-12 pb-20">
+      <h1 className="font-display mb-6 text-3xl font-bold tracking-[-0.02em]">
+        Privacy Policy
+      </h1>
+      <div className="prose prose-neutral text-ink-2 max-w-none space-y-6">
         <p>
           <strong>Last updated:</strong> March 2026
         </p>
