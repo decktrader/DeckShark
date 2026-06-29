@@ -133,6 +133,7 @@ export function ProposeTradeForm({
         <div>
           <Card className="overflow-hidden">
             {targetDeck.commander_scryfall_id && (
+              // eslint-disable-next-line @next/next/no-img-element -- Scryfall art, dynamic remote host
               <img
                 src={scryfallArtUrl(targetDeck.commander_scryfall_id)}
                 alt={targetDeck.commander_name ?? ''}
@@ -160,8 +161,10 @@ export function ProposeTradeForm({
                   {targetDeck.owner.city &&
                     ` · ${targetDeck.owner.city}, ${targetDeck.owner.province}`}
                 </p>
-                <p className="font-bold text-emerald-400">
-                  {formatPrice(targetDeck.estimated_value_cents)}
+                <p className="text-teal-deep font-mono font-semibold">
+                  {formatPrice(targetDeck.estimated_value_cents, {
+                    decimals: false,
+                  })}
                 </p>
               </div>
             </CardContent>
@@ -198,6 +201,7 @@ export function ProposeTradeForm({
                     onCheckedChange={() => toggleDeck(deck.id)}
                   />
                   {deck.commander_scryfall_id && (
+                    // eslint-disable-next-line @next/next/no-img-element -- Scryfall art, dynamic remote host
                     <img
                       src={scryfallArtUrl(deck.commander_scryfall_id)}
                       alt={deck.commander_name ?? ''}
@@ -221,17 +225,19 @@ export function ProposeTradeForm({
 
           {/* Value summary */}
           {selectedDeckIds.size > 0 && (
-            <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[2%] px-4 py-3 text-sm">
-              <span className="text-muted-foreground">
+            <div className="border-line bg-paper-2 flex items-center justify-between rounded-lg border px-4 py-3 text-sm">
+              <span className="text-ink-2">
                 Your offer: {formatPrice(myTotalCents)}
               </span>
-              <span className="text-muted-foreground">
+              <span className="text-ink-2">
                 Their deck: {formatPrice(theirTotalCents)}
               </span>
               {diffCents !== 0 && (
                 <span
                   className={
-                    diffCents > 0 ? 'text-yellow-400' : 'text-green-400'
+                    diffCents > 0
+                      ? 'text-brass-deep font-semibold'
+                      : 'text-teal-deep font-semibold'
                   }
                 >
                   {diffCents > 0 ? 'You owe' : 'They owe'}{' '}

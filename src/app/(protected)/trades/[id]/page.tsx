@@ -7,21 +7,114 @@ import { getUserDecks } from '@/lib/services/decks.server'
 import { getTradeReview } from '@/lib/services/reviews.server'
 import { TradeActions } from '@/components/trades/trade-actions'
 import { ReviewForm } from '@/components/reviews/review-form'
-import { Card, CardContent } from '@/components/ui/card'
+import { Pfp } from '@/components/ds/pfp'
 import { formatPrice } from '@/lib/utils'
 
 function scryfallArtUrl(id: string) {
   return `https://cards.scryfall.io/art_crop/front/${id[0]}/${id[1]}/${id}.jpg`
 }
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  proposed: { label: 'Proposed', color: 'text-yellow-400' },
-  accepted: { label: 'Accepted', color: 'text-green-400' },
-  declined: { label: 'Declined', color: 'text-red-400' },
-  countered: { label: 'Countered', color: 'text-blue-400' },
-  completed: { label: 'Completed', color: 'text-green-500' },
-  cancelled: { label: 'Cancelled', color: 'text-muted-foreground' },
-  disputed: { label: 'Disputed', color: 'text-red-500' },
+const STATUS_PILL: Record<string, string> = {
+  proposed: 'bg-brass/20 text-brass-deep',
+  accepted: 'bg-teal/15 text-teal-deep',
+  countered: 'bg-slate/20 text-slate',
+  completed: 'bg-teal text-paper',
+  declined: 'bg-terra/15 text-terra-deep',
+  cancelled: 'bg-paper-3 text-slate',
+  disputed: 'bg-terra/15 text-terra-deep',
+}
+
+type OfferDeck = {
+  id: string
+  deck?: {
+    name?: string | null
+    commander_name?: string | null
+    commander_scryfall_id?: string | null
+    estimated_value_cents?: number | null
+  } | null
+}
+
+function OfferSide({ label, decks }: { label: string; decks: OfferDeck[] }) {
+  return (
+    <div className="bg-white p-4">
+      <div className="text-slate mb-3 font-mono text-[10px] font-semibold tracking-[0.12em] uppercase">
+        {label}
+      </div>
+      {decks.length === 0 ? (
+        <span className="border-teal/30 bg-teal/10 text-teal-deep inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold">
+          Cash offer
+        </span>
+      ) : (
+        decks.map((td) => (
+          <div key={td.id} className="[&+&]:mt-3.5">
+            <div
+              className="rounded-card border-line aspect-[5/3] w-full border bg-[#0c2030] bg-cover bg-center"
+              style={
+                td.deck?.commander_scryfall_id
+                  ? {
+                      backgroundImage: `url(${scryfallArtUrl(td.deck.commander_scryfall_id)})`,
+                    }
+                  : undefined
+              }
+            />
+            <div className="text-ink mt-2.5 text-sm font-bold">
+              {td.deck?.name ?? 'Unknown deck'}
+            </div>
+            {td.deck?.commander_name && (
+              <div className="text-slate mt-0.5 text-xs">
+                {td.deck.commander_name}
+              </div>
+            )}
+            <div className="text-teal-deep mt-1.5 font-mono text-[15px] font-semibold">
+              {formatPrice(td.deck?.estimated_value_cents ?? null, {
+                decimals: false,
+              })}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
+function StatusBanner({
+  tone,
+  children,
+}: {
+  tone: 'teal' | 'terra' | 'slate'
+  children: React.ReactNode
+}) {
+  const cls =
+    tone === 'teal'
+      ? 'border-teal/30 bg-teal/10 text-teal-deep'
+      : tone === 'terra'
+        ? 'border-terra/30 bg-terra/[0.09] text-terra-deep'
+        : 'border-line bg-paper-2 text-ink-2'
+  return (
+    <div
+      className={`mt-4 rounded-lg border px-4 py-3 text-[13.5px] leading-relaxed ${cls}`}
+    >
+      {children}
+    </div>
+  )
+}
+
+function MessageRow({
+  user,
+  text,
+}: {
+  user: { username: string; avatar_url?: string | null }
+  text: string
+}) {
+  return (
+    <div className="border-line flex gap-3 rounded-lg border bg-white px-[15px] py-[13px]">
+      <Pfp src={user.avatar_url} name={user.username} size={32} />
+      <div>
+        <div className="text-ink text-[12.5px] font-bold">{user.username}</div>
+        <p className="text-ink-2 mt-0.5 text-[13.5px] leading-snug">{text}</p>
+      </div>
+    </div>
+  )
 }
 
 export default async function TradeDetailPage({
@@ -85,445 +178,174 @@ export default async function TradeDetailPage({
   )
   const isCashOnly = proposerDecks.length === 0
   const them = isProposer ? trade.receiver : trade.proposer
-  const status = STATUS_LABELS[trade.status] ?? {
-    label: trade.status,
-    color: '',
-  }
 
-  const cashLabel =
-    trade.cash_difference_cents !== 0
-      ? trade.cash_difference_cents > 0
-        ? `${isProposer ? 'You pay' : 'They pay'} ${formatPrice(trade.cash_difference_cents)}`
-        : `${isProposer ? 'They pay' : 'You pay'} ${formatPrice(Math.abs(trade.cash_difference_cents))}`
+  const cash = trade.cash_difference_cents ?? 0
+  // cash > 0 means the proposer pays. Resolve to the viewer's perspective.
+  const youReceiveCash = (cash > 0 && !isProposer) || (cash < 0 && isProposer)
+  const cashSentence =
+    cash !== 0
+      ? youReceiveCash
+        ? `they pay you ${formatPrice(Math.abs(cash), { decimals: false })} cash`
+        : `you pay ${formatPrice(Math.abs(cash), { decimals: false })} cash`
       : null
 
+  const opts = { decimals: false } as const
+  const myValue = myDecks.reduce(
+    (s, td) => s + (td.deck?.estimated_value_cents ?? 0),
+    0,
+  )
+  const theirValue = theirDecks.reduce(
+    (s, td) => s + (td.deck?.estimated_value_cents ?? 0),
+    0,
+  )
+  const location = [them.city, them.province].filter(Boolean).join(', ')
+
   return (
-    <main className="container mx-auto max-w-2xl px-4 py-8 pb-28">
+    <main className="mx-auto max-w-[680px] px-[30px] pt-[22px] pb-28">
       <Link
         href="/trades"
-        className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1 text-sm"
+        className="text-ink-2 hover:text-ink text-sm font-semibold"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m15 18-6-6 6-6" />
-        </svg>
-        All trades
+        ← All trades
       </Link>
 
-      {/* Compact header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {them.avatar_url ? (
-            <img
-              src={them.avatar_url}
-              alt={them.username}
-              className="h-10 w-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="bg-primary/20 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white">
-              {them.username.charAt(0).toUpperCase()}
-            </div>
-          )}
+      {/* Header */}
+      <div className="mt-3.5 mb-[18px] flex items-center justify-between gap-3.5">
+        <div className="flex items-center gap-2.5">
+          <Pfp src={them.avatar_url} name={them.username} size={44} />
           <div>
-            <h1 className="text-lg font-bold">
+            <h1 className="font-display text-xl font-bold tracking-[-0.01em]">
               Trade with{' '}
               <Link
                 href={`/profile/${them.username}`}
-                className="hover:underline"
+                className="text-terra-deep hover:underline"
               >
                 {them.username}
               </Link>
             </h1>
-            <p className="text-muted-foreground text-xs">
-              {them.city && `${them.city}, ${them.province}`}
-            </p>
+            {location && (
+              <div className="text-slate mt-0.5 text-xs">{location}</div>
+            )}
           </div>
         </div>
         <span
-          className={`rounded-full bg-white/5 px-3 py-1 text-xs font-semibold ${status.color}`}
+          className={`rounded-pill shrink-0 px-3 py-[5px] font-mono text-[11px] font-semibold tracking-[0.06em] uppercase ${STATUS_PILL[trade.status] ?? 'bg-paper-3 text-slate'}`}
         >
-          {status.label}
+          {trade.status}
         </span>
       </div>
 
-      {/* Deck comparison — stacked on mobile, side-by-side on sm+ */}
-      {/* Mobile: stacked cards */}
-      <div className="mb-4 space-y-3 sm:hidden">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
-              You offer
-            </p>
-            {myDecks.length === 0 ? (
-              <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="shrink-0 text-emerald-400"
-                >
-                  <line x1="12" x2="12" y1="2" y2="22" />
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-                <p className="text-sm font-semibold text-emerald-400">
-                  Cash offer
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {myDecks.map((td) => (
-                  <div key={td.id} className="flex items-center gap-3">
-                    {td.deck?.commander_scryfall_id ? (
-                      <img
-                        src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                        alt={td.deck.commander_name ?? ''}
-                        className="aspect-[5/3] w-24 shrink-0 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="bg-muted aspect-[5/3] w-24 shrink-0 rounded-lg" />
-                    )}
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">
-                        {td.deck?.name ?? 'Unknown deck'}
-                      </p>
-                      {td.deck?.commander_name && (
-                        <p className="text-muted-foreground truncate text-xs">
-                          {td.deck.commander_name}
-                        </p>
-                      )}
-                      <p className="mt-1 font-bold text-emerald-400">
-                        {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
-              You receive
-            </p>
-            {theirDecks.length === 0 ? (
-              <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="shrink-0 text-emerald-400"
-                >
-                  <line x1="12" x2="12" y1="2" y2="22" />
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-                <p className="text-sm font-semibold text-emerald-400">
-                  Cash offer
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {theirDecks.map((td) => (
-                  <div key={td.id} className="flex items-center gap-3">
-                    {td.deck?.commander_scryfall_id ? (
-                      <img
-                        src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                        alt={td.deck.commander_name ?? ''}
-                        className="aspect-[5/3] w-24 shrink-0 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="bg-muted aspect-[5/3] w-24 shrink-0 rounded-lg" />
-                    )}
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">
-                        {td.deck?.name ?? 'Unknown deck'}
-                      </p>
-                      {td.deck?.commander_name && (
-                        <p className="text-muted-foreground truncate text-xs">
-                          {td.deck.commander_name}
-                        </p>
-                      )}
-                      <p className="mt-1 font-bold text-emerald-400">
-                        {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Contextual status banner */}
+      {trade.status === 'accepted' && (
+        <StatusBanner tone="teal">
+          You both accepted
+          {them.city ? `. Meet up in ${them.city}` : ''}. Share contact info in
+          the actions below to coordinate.
+        </StatusBanner>
+      )}
+      {trade.status === 'completed' && (
+        <StatusBanner tone="teal">
+          This trade is complete{!myReview ? '. Leave a review below.' : '.'}
+        </StatusBanner>
+      )}
+      {trade.status === 'declined' && (
+        <StatusBanner tone="terra">This trade was declined.</StatusBanner>
+      )}
+      {trade.status === 'cancelled' && (
+        <StatusBanner tone="slate">This trade was cancelled.</StatusBanner>
+      )}
+
+      {/* Comparison */}
+      <div className="border-line bg-line mt-4 grid grid-cols-1 gap-px overflow-hidden rounded-lg border sm:grid-cols-2">
+        <OfferSide label="You offer" decks={myDecks} />
+        <OfferSide label="You receive" decks={theirDecks} />
       </div>
 
-      {/* Desktop: two-column comparison */}
-      <Card className="mb-4 hidden sm:block">
-        <CardContent className="p-0">
-          <div className="grid grid-cols-2 divide-x divide-white/5">
-            {/* Your side */}
-            <div className="p-5">
-              <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
-                You offer
-              </p>
-              {myDecks.length === 0 ? (
-                <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0 text-emerald-400"
-                  >
-                    <line x1="12" x2="12" y1="2" y2="22" />
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
-                  <p className="text-sm font-semibold text-emerald-400">
-                    Cash offer
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {myDecks.map((td) => (
-                    <div key={td.id}>
-                      {td.deck?.commander_scryfall_id ? (
-                        <img
-                          src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                          alt={td.deck.commander_name ?? ''}
-                          className="mb-2 aspect-[5/3] w-full rounded-lg object-cover"
-                        />
-                      ) : (
-                        <div className="bg-muted mb-2 aspect-[5/3] w-full rounded-lg" />
-                      )}
-                      <p className="text-sm font-semibold">
-                        {td.deck?.name ?? 'Unknown deck'}
-                      </p>
-                      {td.deck?.commander_name && (
-                        <p className="text-muted-foreground text-xs">
-                          {td.deck.commander_name}
-                        </p>
-                      )}
-                      <p className="mt-1 font-bold text-emerald-400">
-                        {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Their side */}
-            <div className="p-5">
-              <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
-                You receive
-              </p>
-              {theirDecks.length === 0 ? (
-                <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0 text-emerald-400"
-                  >
-                    <line x1="12" x2="12" y1="2" y2="22" />
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
-                  <p className="text-sm font-semibold text-emerald-400">
-                    Cash offer
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {theirDecks.map((td) => (
-                    <div key={td.id}>
-                      {td.deck?.commander_scryfall_id ? (
-                        <img
-                          src={scryfallArtUrl(td.deck.commander_scryfall_id)}
-                          alt={td.deck.commander_name ?? ''}
-                          className="mb-2 aspect-[5/3] w-full rounded-lg object-cover"
-                        />
-                      ) : (
-                        <div className="bg-muted mb-2 aspect-[5/3] w-full rounded-lg" />
-                      )}
-                      <p className="text-sm font-semibold">
-                        {td.deck?.name ?? 'Unknown deck'}
-                      </p>
-                      {td.deck?.commander_name && (
-                        <p className="text-muted-foreground text-xs">
-                          {td.deck.commander_name}
-                        </p>
-                      )}
-                      <p className="mt-1 font-bold text-emerald-400">
-                        {formatPrice(td.deck?.estimated_value_cents ?? null)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Cash + messages */}
-      <div className="mb-4 space-y-3">
-        {cashLabel && (
-          <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[2%] px-4 py-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-muted-foreground"
-            >
-              <line x1="12" x2="12" y1="2" y2="22" />
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-            <p className="text-sm">{cashLabel}</p>
-          </div>
-        )}
-
-        {trade.message && (
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-start gap-3">
-                {trade.proposer.avatar_url ? (
-                  <img
-                    src={trade.proposer.avatar_url}
-                    alt={trade.proposer.username}
-                    className="h-8 w-8 shrink-0 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
-                    {trade.proposer.username.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div>
-                  <p className="text-xs font-semibold">
-                    {trade.proposer.username}
-                  </p>
-                  <p className="text-muted-foreground mt-0.5 text-sm">
-                    {trade.message}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {trade.receiver_message && (
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-start gap-3">
-                {trade.receiver.avatar_url ? (
-                  <img
-                    src={trade.receiver.avatar_url}
-                    alt={trade.receiver.username}
-                    className="h-8 w-8 shrink-0 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
-                    {trade.receiver.username.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div>
-                  <p className="text-xs font-semibold">
-                    {trade.receiver.username}
-                  </p>
-                  <p className="text-muted-foreground mt-0.5 text-sm">
-                    {trade.receiver_message}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+      {/* Totals */}
+      <div className="border-line mt-3 flex items-center justify-between gap-3 rounded-lg border bg-white px-4 py-3">
+        <span className="text-ink-2 text-[13px]">
+          You give{' '}
+          <b className="text-ink font-mono">{formatPrice(myValue, opts)}</b>
+        </span>
+        <span className="text-ink-2 text-[13px]">
+          You get{' '}
+          <b className="text-ink font-mono">{formatPrice(theirValue, opts)}</b>
+        </span>
       </div>
+
+      {/* Cash balance */}
+      {cashSentence && (
+        <div className="border-brass/30 bg-brass/10 mt-3 flex items-center gap-2.5 rounded-lg border px-4 py-3 text-[13.5px]">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="text-brass-deep h-4 w-4 shrink-0"
+          >
+            <line x1="12" x2="12" y1="2" y2="22" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          <span>
+            To even it out, <b className="font-semibold">{cashSentence}</b> at
+            the meetup.
+          </span>
+        </div>
+      )}
+
+      {/* Message thread */}
+      {(trade.message || trade.receiver_message) && (
+        <div className="mt-[18px] flex flex-col gap-2.5">
+          {trade.message && (
+            <MessageRow user={trade.proposer} text={trade.message} />
+          )}
+          {trade.receiver_message && (
+            <MessageRow user={trade.receiver} text={trade.receiver_message} />
+          )}
+        </div>
+      )}
 
       {/* Review */}
       {trade.status === 'completed' && !myReview && (
-        <Card className="mb-4">
-          <CardContent className="pt-4">
-            <ReviewForm
-              tradeId={trade.id}
-              reviewerId={authUser.id}
-              revieweeId={them.id}
-              revieweeUsername={them.username}
-            />
-          </CardContent>
-        </Card>
+        <div className="border-line mt-3.5 rounded-lg border bg-white p-4">
+          <ReviewForm
+            tradeId={trade.id}
+            reviewerId={authUser.id}
+            revieweeId={them.id}
+            revieweeUsername={them.username}
+          />
+        </div>
       )}
       {trade.status === 'completed' && myReview && (
-        <Card className="mb-4">
-          <CardContent className="pt-4">
-            <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase">
-              Your review
-            </p>
-            <p className="text-yellow-400">
-              {'★'.repeat(myReview.rating)}
-              {'☆'.repeat(5 - myReview.rating)}
-            </p>
-            {myReview.comment && (
-              <p className="text-muted-foreground mt-1 text-sm">
-                {myReview.comment}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="border-line mt-3.5 rounded-lg border bg-white p-4">
+          <p className="text-slate mb-1 font-mono text-[10px] font-semibold tracking-[0.12em] uppercase">
+            Your review
+          </p>
+          <p className="text-brass text-lg tracking-[3px]">
+            {'★'.repeat(myReview.rating)}
+            {'☆'.repeat(5 - myReview.rating)}
+          </p>
+          {myReview.comment && (
+            <p className="text-ink-2 mt-1 text-sm">{myReview.comment}</p>
+          )}
+        </div>
       )}
 
-      {/* Sticky floating action bar */}
+      {/* Actions */}
       {['proposed', 'countered', 'accepted'].includes(trade.status) && (
-        <div className="fixed inset-x-0 bottom-4 z-40 mx-auto max-w-2xl px-4">
-          <div className="rounded-2xl border border-white/10 bg-black/80 p-4 backdrop-blur-xl">
-            <TradeActions
-              trade={trade}
-              userId={authUser.id}
-              myAvailableDecks={myAvailableDecks}
-              theirAvailableDecks={theirAvailableDecks}
-              currentMyDeckIds={myDecks.map((td) => td.deck_id)}
-              currentTheirDeckIds={theirDecks.map((td) => td.deck_id)}
-              isCashOnly={isCashOnly}
-              myProfile={myProfile}
-              theirProfile={theirProfile}
-              email={email}
-            />
-          </div>
+        <div className="border-line mt-5 rounded-xl border bg-white p-4">
+          <TradeActions
+            trade={trade}
+            userId={authUser.id}
+            myAvailableDecks={myAvailableDecks}
+            theirAvailableDecks={theirAvailableDecks}
+            currentMyDeckIds={myDecks.map((td) => td.deck_id)}
+            currentTheirDeckIds={theirDecks.map((td) => td.deck_id)}
+            isCashOnly={isCashOnly}
+            myProfile={myProfile}
+            theirProfile={theirProfile}
+            email={email}
+          />
         </div>
       )}
     </main>

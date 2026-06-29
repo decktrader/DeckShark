@@ -256,7 +256,7 @@ export function TradeActions({
 
         {!myContactShared ? (
           showContactForm || !hasExtraContact ? (
-            <div className="space-y-3 rounded-lg border border-white/10 bg-white/[3%] p-4">
+            <div className="border-line bg-paper-2 space-y-3 rounded-lg border p-4">
               <p className="text-sm font-semibold">
                 Add contact details before sharing
               </p>
@@ -317,8 +317,8 @@ export function TradeActions({
 
             {theirContactShared && theirProfile && (
               <>
-                <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3">
-                  <p className="mb-2 text-xs font-semibold text-emerald-400">
+                <div className="border-teal/30 bg-teal/10 rounded-lg border p-3">
+                  <p className="text-teal-deep mb-2 text-xs font-semibold">
                     {theirProfile.username}&apos;s contact info
                   </p>
                   <div className="space-y-1.5">
@@ -396,8 +396,8 @@ export function TradeActions({
                     Trade somewhere public and safe.
                   </p>
                   <div className="grid grid-cols-2 gap-2.5">
-                    <div className="rounded-xl border border-white/[0.08] bg-white/[3%] px-3 py-4 text-center">
-                      <div className="mx-auto mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
+                    <div className="border-line bg-paper-2 rounded-xl border px-3 py-4 text-center">
+                      <div className="bg-teal/10 mx-auto mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="24"
@@ -408,7 +408,7 @@ export function TradeActions({
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-purple-400"
+                          className="text-teal-deep"
                         >
                           <path d="m16 6 4 14" />
                           <path d="M12 6v14" />
@@ -421,8 +421,8 @@ export function TradeActions({
                         Public, familiar, and you might get a game in after.
                       </p>
                     </div>
-                    <div className="rounded-xl border border-white/[0.08] bg-white/[3%] px-3 py-4 text-center">
-                      <div className="mx-auto mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
+                    <div className="border-line bg-paper-2 rounded-xl border px-3 py-4 text-center">
+                      <div className="bg-brass/15 mx-auto mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="24"
@@ -433,7 +433,7 @@ export function TradeActions({
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-amber-400"
+                          className="text-brass-deep"
                         >
                           <path d="M10 2v2" />
                           <path d="M14 2v2" />
