@@ -430,11 +430,11 @@ export function DeckForm({ userId }: { userId: string }) {
             </p>
           </div>
           {parseErrors.length > 0 && (
-            <div className="rounded border border-yellow-600/30 bg-yellow-500/10 p-3 text-sm">
-              <p className="font-medium text-yellow-200">
+            <div className="border-brass/30 bg-brass/10 rounded border p-3 text-sm">
+              <p className="text-brass-deep font-semibold">
                 Some lines could not be parsed:
               </p>
-              <ul className="mt-1 list-inside list-disc text-yellow-300/80">
+              <ul className="text-ink-2 mt-1 list-inside list-disc">
                 {parseErrors.map((err, i) => (
                   <li key={i}>{err}</li>
                 ))}
@@ -448,11 +448,11 @@ export function DeckForm({ userId }: { userId: string }) {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-black tracking-tight">
+      <div className="mb-6">
+        <h1 className="font-display text-[clamp(24px,3vw,32px)] font-bold tracking-[-0.02em]">
           Create a new deck
         </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="text-ink-2 mt-1 text-sm">
           Complete the required sections to list your deck for trade.
         </p>
       </div>
@@ -469,7 +469,7 @@ export function DeckForm({ userId }: { userId: string }) {
                   <button
                     type="button"
                     onClick={() => toggleSection(section.id)}
-                    className="flex w-full items-center gap-4 px-6 py-5 text-left transition-colors hover:bg-white/[2%]"
+                    className="hover:bg-paper-2 flex w-full items-center gap-4 px-6 py-5 text-left transition-colors"
                   >
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${

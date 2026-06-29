@@ -406,21 +406,21 @@ export function DeckEditForm({
             </div>
             <div className="flex gap-5 text-right">
               <div>
-                <p className="text-xl font-bold text-white">{cards.length}</p>
-                <p className="text-[10px] text-white/50 uppercase">Cards</p>
+                <p className="text-paper text-xl font-bold">{cards.length}</p>
+                <p className="text-paper/50 text-[10px] uppercase">Cards</p>
               </div>
               <div>
-                <p className="text-primary text-xl font-bold">
+                <p className="text-teal-bright text-xl font-bold">
                   ${(totalValue / 100).toFixed(0)}
                 </p>
-                <p className="text-[10px] text-white/50 uppercase">Value</p>
+                <p className="text-paper/50 text-[10px] uppercase">Value</p>
               </div>
               {deck.power_level && (
                 <div>
-                  <p className="text-xl font-bold text-white">
+                  <p className="text-paper text-xl font-bold">
                     B{deck.power_level.replace('bracket', '')}
                   </p>
-                  <p className="text-[10px] text-white/50 uppercase">Bracket</p>
+                  <p className="text-paper/50 text-[10px] uppercase">Bracket</p>
                 </div>
               )}
             </div>
@@ -861,7 +861,7 @@ export function DeckEditForm({
         {openSections.has('photos') && (
           <CardContent className="space-y-4 border-t pt-4">
             <div
-              className="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/10 py-10 transition-colors hover:border-white/20"
+              className="border-line hover:border-slate relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 transition-colors"
               onDragOver={(e) => {
                 e.preventDefault()
                 e.currentTarget.classList.add(
