@@ -14,42 +14,53 @@ export function DeckCardNew({ deck }: { deck: Deck }) {
 
   return (
     <Link href={`/decks/${deck.id}/edit`} className="group block">
-      <div className="overflow-hidden rounded-xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5">
-        <div className="relative">
+      <div className="border-line hover:border-line-2 hover:shadow-card overflow-hidden rounded-lg border transition-[transform,box-shadow,border-color] hover:-translate-y-[3px]">
+        <div className="relative aspect-[16/10] overflow-hidden bg-[#0c2030]">
           <DeckArt
             commanderScryfallId={deck.commander_scryfall_id}
             partnerScryfallId={deck.partner_commander_scryfall_id}
-            className="transition-transform duration-500 group-hover:scale-105"
+            aspect="absolute inset-0 h-full"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <ColorPips colors={deck.color_identity} />
-          <div className="absolute inset-x-0 bottom-0 p-3">
-            <p className="truncate text-sm font-bold text-white drop-shadow-lg">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[42%] to-[rgba(8,12,18,0.86)]" />
+          <span
+            className={`absolute top-2 left-2 z-[2] rounded-sm px-[7px] py-[3px] font-mono text-[9px] font-semibold tracking-[0.06em] uppercase ${
+              deck.available_for_trade
+                ? 'bg-teal text-paper'
+                : 'text-paper/70 bg-[rgba(8,12,18,0.6)] backdrop-blur-[4px]'
+            }`}
+          >
+            {deck.available_for_trade ? 'Trading' : 'Not listed'}
+          </span>
+          {deck.color_identity?.length > 0 && (
+            <ColorPips
+              colors={deck.color_identity}
+              onArt
+              size={17}
+              className="absolute top-2 right-2 z-[2] flex"
+            />
+          )}
+          <div className="absolute inset-x-3 bottom-2.5 z-[2]">
+            <p className="font-display text-paper truncate text-[13.5px] font-bold">
               {deck.name}
             </p>
             {commanderLabel && (
-              <p className="truncate text-xs text-white/50">{commanderLabel}</p>
+              <p className="text-paper/60 truncate text-[10.5px]">
+                {commanderLabel}
+              </p>
             )}
           </div>
         </div>
         <div
-          className="border-t border-white/5 bg-white/[3%] px-3 py-2"
-          onClick={(e) => e.stopPropagation()}
+          className="border-line flex items-center justify-between border-t px-3 py-2"
+          onClick={(e) => e.preventDefault()}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-emerald-400">
-              {formatPrice(deck.estimated_value_cents, { decimals: false })}
-            </span>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/60 capitalize">
-              {deck.format}
-            </span>
-          </div>
-          <div className="mt-1 flex items-center justify-end">
-            <TradeToggle
-              deckId={deck.id}
-              initialValue={deck.available_for_trade}
-            />
-          </div>
+          <span className="text-teal-deep font-mono text-sm font-semibold">
+            {formatPrice(deck.estimated_value_cents, { decimals: false })}
+          </span>
+          <TradeToggle
+            deckId={deck.id}
+            initialValue={deck.available_for_trade}
+          />
         </div>
       </div>
     </Link>
