@@ -1,8 +1,10 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { getPublicWantLists } from '@/lib/services/wantlists.server'
 import type { WantListWithOwner } from '@/lib/services/wantlists.server'
 import { Button } from '@/components/ui/button'
+import { Tag } from '@/components/ds/tag'
+import { Pfp } from '@/components/ds/pfp'
+import { ColorPips } from '@/components/deck/color-pips'
 import { PaginationNav } from '@/components/ui/pagination-nav'
 import { formatPrice } from '@/lib/utils'
 
@@ -15,78 +17,11 @@ function priceRange(wl: WantListWithOwner): string {
   return `${formatPrice(wl.min_value_cents, opts)} – ${formatPrice(wl.max_value_cents, opts)}`
 }
 
-const COLOR_MAP: Record<string, string> = {
-  W: 'bg-amber-100 text-amber-900',
-  U: 'bg-blue-500/20 text-blue-300',
-  B: 'bg-zinc-600/40 text-zinc-200',
-  R: 'bg-red-500/20 text-red-300',
-  G: 'bg-emerald-500/20 text-emerald-300',
-}
-
-const FORMAT_COLORS: Record<string, string> = {
-  commander: 'border-violet-500/40 text-violet-300',
-  modern: 'border-sky-500/40 text-sky-300',
-  standard: 'border-amber-500/40 text-amber-300',
-  legacy: 'border-rose-500/40 text-rose-300',
-  pauper: 'border-emerald-500/40 text-emerald-300',
-  pioneer: 'border-orange-500/40 text-orange-300',
-}
-
-function accentGradient(format: string | null) {
-  switch (format) {
-    case 'commander':
-      return 'from-violet-500/80 via-violet-500/30'
-    case 'modern':
-      return 'from-sky-500/80 via-sky-500/30'
-    case 'standard':
-      return 'from-amber-500/80 via-amber-500/30'
-    case 'legacy':
-      return 'from-rose-500/80 via-rose-500/30'
-    case 'pauper':
-      return 'from-emerald-500/80 via-emerald-500/30'
-    default:
-      return 'from-white/30 via-white/10'
-  }
-}
-
-function bgTint(format: string | null) {
-  switch (format) {
-    case 'commander':
-      return 'bg-gradient-to-r from-violet-500/[6%] to-transparent'
-    case 'modern':
-      return 'bg-gradient-to-r from-sky-500/[6%] to-transparent'
-    case 'standard':
-      return 'bg-gradient-to-r from-amber-500/[6%] to-transparent'
-    case 'legacy':
-      return 'bg-gradient-to-r from-rose-500/[6%] to-transparent'
-    case 'pauper':
-      return 'bg-gradient-to-r from-emerald-500/[6%] to-transparent'
-    default:
-      return ''
-  }
-}
-
-function ColorPips({ colors }: { colors: string[] | null }) {
-  if (!colors || colors.length === 0) return null
-  return (
-    <div className="flex gap-1">
-      {colors.map((c) => (
-        <span
-          key={c}
-          className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black ${COLOR_MAP[c] ?? 'bg-white/10 text-white/60'}`}
-        >
-          {c}
-        </span>
-      ))}
-    </div>
-  )
-}
-
 export const revalidate = 300 // 5 minutes
 
 export const metadata = {
   title: 'Want Lists — DeckShark',
-  description: 'See what MTG decks traders across Canada are looking for.',
+  description: 'See what MTG decks traders across Canada and the US are after.',
 }
 
 const PAGE_SIZE = 20
@@ -109,110 +44,107 @@ export default async function WantListsPage({
   const safePage = Math.min(page, totalPages)
 
   return (
-    <main className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="mb-10 text-center">
-        <h1 className="text-2xl font-black tracking-tight sm:text-4xl">
-          Wanted decks
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Traders across Canada are searching for these
-        </p>
-        <div className="mt-4">
-          <Button asChild>
-            <Link href="/want-lists/new">Post your want list</Link>
-          </Button>
+    <main className="mx-auto max-w-[1180px] px-[30px] pt-6 pb-[60px]">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-[18px]">
+        <div>
+          <span className="text-terra-deep flex items-center gap-2 font-mono text-[11px] font-semibold tracking-[0.14em] uppercase">
+            <span className="animate-beat bg-terra h-2 w-2 rounded-full" />
+            What players are hunting
+          </span>
+          <h1 className="font-display mt-1.5 text-[clamp(26px,3vw,34px)] font-bold tracking-[-0.02em]">
+            Want lists
+          </h1>
+          <p className="text-ink-2 mt-1 text-sm">
+            <b className="text-terra-deep font-bold">
+              {totalWantLists.toLocaleString('en-US')}
+            </b>{' '}
+            open want list{totalWantLists !== 1 ? 's' : ''}. Have a match? Reach
+            out and set up a trade.
+          </p>
         </div>
+        <Button asChild variant="terra">
+          <Link href="/want-lists/new">Post your want list</Link>
+        </Button>
       </div>
 
       {totalWantLists === 0 ? (
-        <p className="text-muted-foreground py-20 text-center text-lg">
+        <p className="text-ink-2 py-20 text-center text-lg">
           No want lists yet.
         </p>
       ) : (
         <>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {pageItems.map((wl) => (
               <Link
                 key={wl.id}
                 href={`/want-lists/${wl.id}`}
-                className="group block"
+                className="border-line border-l-terra hover:shadow-card block rounded-md border border-l-[3px] bg-white px-[15px] py-[13px] transition-[transform,box-shadow] hover:-translate-y-0.5"
               >
-                <div
-                  className={`overflow-hidden rounded-xl border border-white/5 transition-all hover:border-white/15 hover:shadow-xl hover:shadow-purple-500/5 ${bgTint(wl.format)}`}
-                >
-                  <div
-                    className={`h-1.5 w-full bg-gradient-to-r ${accentGradient(wl.format)} to-transparent`}
-                  />
-                  <div className="p-4 sm:p-5">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-3">
-                          <h2 className="truncate text-lg font-black tracking-tight group-hover:text-white sm:text-xl">
-                            {wl.title}
-                          </h2>
-                          <ColorPips colors={wl.color_identity} />
-                        </div>
-                        <div className="mt-2 flex items-center gap-2">
-                          {wl.owner.avatar_url ? (
-                            <Image
-                              src={wl.owner.avatar_url}
-                              alt=""
-                              width={24}
-                              height={24}
-                              className="h-6 w-6 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="bg-primary/30 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white">
-                              {wl.owner.username.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                          <span className="text-sm font-medium">
-                            {wl.owner.username}
-                          </span>
-                          {wl.owner.city && (
-                            <span className="text-muted-foreground text-sm">
-                              {wl.owner.city}, {wl.owner.province}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-2">
-                        {priceRange(wl) && (
-                          <span className="text-xl font-black text-emerald-400">
-                            {priceRange(wl)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {wl.description && (
-                      <p className="text-muted-foreground mt-3 line-clamp-2 text-sm leading-relaxed">
-                        {wl.description}
-                      </p>
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <h2 className="font-display truncate text-[15.5px] leading-tight font-bold tracking-[-0.01em]">
+                      {wl.title}
+                    </h2>
+                    {wl.color_identity && wl.color_identity.length > 0 && (
+                      <ColorPips
+                        colors={wl.color_identity}
+                        size={15}
+                        className="flex shrink-0"
+                      />
                     )}
-
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      {wl.format && (
-                        <span
-                          className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium capitalize ${FORMAT_COLORS[wl.format] ?? 'border-white/20 text-white/60'}`}
-                        >
-                          {wl.format}
-                        </span>
-                      )}
-                      {wl.archetype && (
-                        <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
-                          {wl.archetype}
-                        </span>
-                      )}
-                      {wl.commander_name && (
-                        <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">
-                          {wl.commander_name}
-                        </span>
-                      )}
-                    </div>
                   </div>
+                  {priceRange(wl) && (
+                    <span className="text-ink shrink-0 font-mono text-[13.5px] font-semibold whitespace-nowrap">
+                      {priceRange(wl)}
+                    </span>
+                  )}
                 </div>
+
+                <div className="text-slate mt-2.5 flex flex-wrap items-center gap-2 text-[11.5px]">
+                  <Pfp
+                    src={wl.owner.avatar_url}
+                    name={wl.owner.username}
+                    size={22}
+                  />
+                  <span className="text-ink-2 font-semibold">
+                    {wl.owner.username}
+                  </span>
+                  {wl.owner.city && (
+                    <span>
+                      {wl.owner.city}
+                      {wl.owner.province ? `, ${wl.owner.province}` : ''}
+                    </span>
+                  )}
+                </div>
+
+                {(wl.format || wl.archetype || wl.commander_name) && (
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    {wl.format && (
+                      <Tag
+                        variant="terra"
+                        className="px-2 py-[3px] text-[10.5px] capitalize"
+                      >
+                        {wl.format}
+                      </Tag>
+                    )}
+                    {wl.archetype && (
+                      <Tag
+                        variant="slate"
+                        className="px-2 py-[3px] text-[10.5px]"
+                      >
+                        {wl.archetype}
+                      </Tag>
+                    )}
+                    {wl.commander_name && (
+                      <Tag
+                        variant="slate"
+                        className="px-2 py-[3px] text-[10.5px]"
+                      >
+                        {wl.commander_name}
+                      </Tag>
+                    )}
+                  </div>
+                )}
               </Link>
             ))}
           </div>

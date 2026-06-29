@@ -5,17 +5,18 @@ import { isValidUUID } from '@/lib/utils'
 import { getWantList, getMatchingDecks } from '@/lib/services/wantlists.server'
 import { getPowerLevelLabel } from '@/lib/constants'
 import { DeckArt } from '@/components/deck/deck-art'
-import { Separator } from '@/components/ui/separator'
+import { ColorPips } from '@/components/deck/color-pips'
+import { Pfp } from '@/components/ds/pfp'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/utils'
 
 function CriteriaPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-muted rounded-lg px-3 py-2">
-      <p className="text-muted-foreground text-[11px] tracking-wide uppercase">
+    <div className="border-line bg-paper-2 rounded-md border px-3 py-2">
+      <p className="text-slate font-mono text-[9.5px] tracking-[0.1em] uppercase">
         {label}
       </p>
-      <p className="text-sm font-medium">{value}</p>
+      <p className="text-ink mt-0.5 text-[13.5px] font-semibold">{value}</p>
     </div>
   )
 }
@@ -54,118 +55,99 @@ export default async function PublicWantListPage({
   if (wantList.min_value_cents || wantList.max_value_cents)
     criteria.push({
       label: 'Budget',
-      value: `${formatPrice(wantList.min_value_cents)} – ${wantList.max_value_cents ? formatPrice(wantList.max_value_cents) : 'any'}`,
+      value: `${formatPrice(wantList.min_value_cents, { decimals: false })} – ${wantList.max_value_cents ? formatPrice(wantList.max_value_cents, { decimals: false }) : 'any'}`,
     })
 
+  const location = [wantList.owner.city, wantList.owner.province]
+    .filter(Boolean)
+    .join(', ')
+
   return (
-    <main className="container mx-auto max-w-3xl px-4 py-8">
+    <main className="mx-auto max-w-[880px] px-[30px] pt-[22px] pb-[60px]">
       <Link
         href="/want-lists"
-        className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1 text-sm"
+        className="text-ink-2 hover:text-ink text-sm font-semibold"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m15 18-6-6 6-6" />
-        </svg>
-        All want lists
+        ← All want lists
       </Link>
 
       {/* Header */}
-      <div className="mb-6 rounded-2xl border border-white/5 bg-white/[2%] p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-center gap-4">
-            {wantList.owner.avatar_url ? (
-              <img
-                src={wantList.owner.avatar_url}
-                alt=""
-                className="h-14 w-14 rounded-full object-cover ring-2 ring-white/10"
-              />
-            ) : (
-              <div className="bg-primary/20 flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold text-white ring-2 ring-white/10">
-                {wantList.owner.username.charAt(0).toUpperCase()}
-              </div>
-            )}
+      <div className="border-line border-l-terra mt-3.5 rounded-lg border border-l-[4px] bg-white p-[22px]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Pfp
+              src={wantList.owner.avatar_url}
+              name={wantList.owner.username}
+              size={52}
+            />
             <div>
-              <h1 className="text-2xl font-black tracking-tight">
+              <h1 className="font-display text-[clamp(22px,2.8vw,28px)] leading-tight font-bold tracking-[-0.02em]">
                 {wantList.title}
               </h1>
-              <p className="text-muted-foreground mt-0.5 text-sm">
-                <span className="font-medium text-white/80">
+              <p className="text-slate mt-1 text-[13px]">
+                <b className="text-ink font-semibold">
                   {wantList.owner.username}
-                </span>
-                {wantList.owner.city &&
-                  ` · ${wantList.owner.city}, ${wantList.owner.province}`}
+                </b>
+                {location ? ` · ${location}` : ''}
               </p>
             </div>
           </div>
           <div className="flex shrink-0 gap-2">
             {authUser && !isOwner && (
-              <Button asChild>
+              <Button asChild variant="terra" size="sm">
                 <Link href={`/profile/${wantList.owner.username}`}>
                   Propose a trade
                 </Link>
               </Button>
             )}
             {!authUser && (
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" size="sm">
                 <Link href={`/login?next=/want-lists/${id}`}>
                   Sign in to trade
                 </Link>
               </Button>
             )}
             {isOwner && (
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" size="sm">
                 <Link href={`/want-lists/${id}/edit`}>Edit</Link>
               </Button>
             )}
           </div>
         </div>
 
-        {/* Criteria pills */}
         {criteria.length > 0 && (
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-[18px] flex flex-wrap gap-2.5">
             {criteria.map((c) => (
               <CriteriaPill key={c.label} label={c.label} value={c.value} />
             ))}
           </div>
         )}
 
-        {/* Description */}
         {wantList.description && (
-          <>
-            <Separator className="my-5" />
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {wantList.description}
-            </p>
-          </>
+          <p className="border-line text-ink-2 mt-[18px] border-t pt-4 text-sm leading-relaxed">
+            {wantList.description}
+          </p>
         )}
       </div>
 
       {/* Matching decks */}
-      <h2 className="mb-4 text-lg font-bold">
-        Matching decks
+      <div className="mt-[30px] mb-4 flex items-baseline gap-2.5">
+        <h2 className="font-display text-[19px] font-bold tracking-[-0.01em]">
+          Matching decks
+        </h2>
         {matches && matches.length > 0 && (
-          <span className="text-muted-foreground ml-2 text-sm font-normal">
-            ({matches.length})
+          <span className="text-teal-deep font-mono text-xs">
+            {matches.length}
           </span>
         )}
-      </h2>
+      </div>
 
       {!matches || matches.length === 0 ? (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-ink-2 text-sm">
           No decks currently match this want list. Check back later.
         </p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {matches.map((deck) => {
             const commanderLabel = [
               deck.commander_name,
@@ -177,36 +159,46 @@ export default async function PublicWantListPage({
               <Link
                 key={deck.id}
                 href={`/decks/${deck.id}`}
-                className="group block"
+                className="group border-line hover:border-line-2 hover:shadow-card block overflow-hidden rounded-lg border bg-white transition-[transform,box-shadow,border-color] hover:-translate-y-[3px]"
               >
-                <div className="overflow-hidden rounded-2xl border border-white/5 transition-all hover:border-white/15">
-                  <div className="relative">
-                    <DeckArt
-                      commanderScryfallId={deck.commander_scryfall_id}
-                      partnerScryfallId={deck.partner_commander_scryfall_id}
-                      className="transition-transform duration-500 group-hover:scale-105"
+                <div className="relative aspect-[16/10] overflow-hidden bg-[#0c2030]">
+                  <DeckArt
+                    commanderScryfallId={deck.commander_scryfall_id}
+                    partnerScryfallId={deck.partner_commander_scryfall_id}
+                    aspect="absolute inset-0 h-full"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[42%] to-[rgba(8,12,18,0.86)]" />
+                  <span className="bg-terra text-paper absolute top-2 left-2 z-[2] rounded-sm px-[7px] py-[3px] font-mono text-[9px] font-semibold tracking-[0.05em] uppercase">
+                    Match
+                  </span>
+                  {deck.color_identity?.length > 0 && (
+                    <ColorPips
+                      colors={deck.color_identity}
+                      onArt
+                      size={16}
+                      className="absolute top-2 right-2 z-[2] flex"
                     />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-4">
-                      <p className="truncate text-sm font-bold text-white drop-shadow-lg">
-                        {deck.name}
+                  )}
+                  <div className="absolute inset-x-3 bottom-2.5 z-[2]">
+                    <p className="font-display text-paper truncate text-[13.5px] font-bold">
+                      {deck.name}
+                    </p>
+                    {commanderLabel && (
+                      <p className="text-paper/60 truncate text-[10.5px]">
+                        {commanderLabel}
                       </p>
-                      {commanderLabel && (
-                        <p className="truncate text-xs text-white/50">
-                          {commanderLabel}
-                        </p>
-                      )}
-                    </div>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between border-t border-white/5 bg-white/[3%] px-4 py-2.5">
-                    <div className="text-muted-foreground text-xs">
-                      {deck.owner.username}
-                      {deck.owner.city &&
-                        ` · ${deck.owner.city}, ${deck.owner.province}`}
-                    </div>
-                    <div className="text-sm font-bold text-emerald-400">
-                      {formatPrice(deck.estimated_value_cents)}
-                    </div>
+                </div>
+                <div className="border-line flex items-center justify-between border-t px-3 py-2">
+                  <div className="text-slate truncate text-[11px]">
+                    {deck.owner.username}
+                    {deck.owner.city ? ` · ${deck.owner.city}` : ''}
+                  </div>
+                  <div className="text-teal-deep font-mono text-sm font-semibold">
+                    {formatPrice(deck.estimated_value_cents, {
+                      decimals: false,
+                    })}
                   </div>
                 </div>
               </Link>

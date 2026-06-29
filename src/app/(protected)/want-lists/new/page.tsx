@@ -11,7 +11,7 @@ export default async function NewWantListPage() {
   if (!authUser) redirect('/login')
 
   return (
-    <main className="container mx-auto max-w-2xl px-4 py-8">
+    <main className="mx-auto max-w-[720px] px-[30px] pt-[26px] pb-[60px]">
       <WantListForm userId={authUser.id} />
     </main>
   )
