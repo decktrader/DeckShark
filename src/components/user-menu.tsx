@@ -3,22 +3,28 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signOut } from '@/lib/services/auth'
-import { Button } from '@/components/ui/button'
+import { Pfp } from '@/components/ds/pfp'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+const ITEM_CLASS =
+  'cursor-pointer rounded-none px-3.5 py-2.5 text-[13.5px] font-medium text-ink-2 focus:bg-paper-2 focus:text-ink'
+
 export function UserMenu({
   username,
   avatarUrl,
+  city,
+  province,
 }: {
   username: string
   avatarUrl?: string | null
+  city?: string | null
+  province?: string | null
 }) {
   const router = useRouter()
 
@@ -28,23 +34,14 @@ export function UserMenu({
     router.refresh()
   }
 
+  const location = [city, province].filter(Boolean).join(', ')
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1 rounded-full p-1 transition-colors hover:bg-white/5">
-          <div className="relative">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt=""
-                className="h-9 w-9 rounded-full object-cover ring-2 ring-white/10"
-              />
-            ) : (
-              <div className="bg-primary/20 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white ring-2 ring-white/10">
-                {username.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
+        <button className="rounded-pill bg-paper-2 hover:border-line-2 flex items-center gap-2 border border-transparent py-1 pr-2.5 pl-1 transition-colors">
+          <Pfp src={avatarUrl} name={username} size={30} />
+          <span className="text-ink text-[13px] font-semibold">{username}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"
@@ -55,28 +52,49 @@ export function UserMenu({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-muted-foreground"
+            className="text-slate"
           >
             <path d="m6 9 6 6 6-6" />
           </svg>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel className="font-normal">
-          <span className="text-sm font-medium">{username}</span>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="border-line text-ink shadow-card w-56 overflow-hidden rounded-lg bg-white p-0"
+      >
+        <div className="border-line flex items-center gap-2.5 border-b px-3.5 py-3">
+          <Pfp src={avatarUrl} name={username} size={36} />
+          <div className="min-w-0">
+            <div className="font-display text-ink truncate text-sm leading-tight font-bold">
+              {username}
+            </div>
+            {location && (
+              <div className="text-slate mt-0.5 truncate text-[11.5px]">
+                {location}
+              </div>
+            )}
+          </div>
+        </div>
+        <DropdownMenuItem asChild className={ITEM_CLASS}>
           <Link href="/dashboard">Dashboard</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={`/profile/${username}`}>Profile</Link>
+        <DropdownMenuItem asChild className={ITEM_CLASS}>
+          <Link href={`/profile/${username}`}>My profile</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild className={ITEM_CLASS}>
+          <Link href="/dashboard">My decks</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className={ITEM_CLASS}>
           <Link href="/settings">Settings</Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-line" />
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="text-terra-deep focus:bg-paper-2 cursor-pointer rounded-none px-3.5 py-2.5 text-[13.5px] font-semibold"
+        >
+          Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

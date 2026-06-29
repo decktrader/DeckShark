@@ -5,24 +5,33 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-display text-[15px] font-bold ring-offset-background transition-[transform,box-shadow,background-color,border-color,color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        // DeckShark: terracotta primary with a 3px solid press-shadow
+        default:
+          'bg-terra text-paper shadow-[0_3px_0_var(--terra-deep)] hover:-translate-y-px hover:shadow-[0_4px_0_var(--terra-deep)] active:translate-y-[3px] active:shadow-none',
+        terra:
+          'bg-terra text-paper shadow-[0_3px_0_var(--terra-deep)] hover:-translate-y-px hover:shadow-[0_4px_0_var(--terra-deep)] active:translate-y-[3px] active:shadow-none',
+        // Featured / premium
+        brass:
+          'bg-brass text-[#241a08] shadow-[0_3px_0_var(--brass-deep)] hover:-translate-y-px hover:shadow-[0_4px_0_var(--brass-deep)] active:translate-y-[3px] active:shadow-none',
+        // Solid navy on paper
+        navy: 'bg-navy text-paper hover:bg-navy-3',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+          'bg-destructive text-primary-foreground hover:bg-destructive/90',
+        // Secondary / ghost-outline (1.5px line border)
         outline:
-          'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'border-[1.5px] border-line bg-transparent text-ink hover:border-slate',
+        secondary: 'bg-paper-2 text-ink hover:bg-paper-3',
+        ghost: 'font-semibold hover:bg-paper-2 hover:text-ink',
+        link: 'font-semibold text-terra-deep underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-md px-3',
-        lg: 'h-11 rounded-md px-8',
+        default: 'h-11 px-5 py-[11px]',
+        sm: 'h-9 px-[15px] text-[13px]',
+        lg: 'h-12 rounded-md px-8',
         icon: 'h-10 w-10',
       },
     },

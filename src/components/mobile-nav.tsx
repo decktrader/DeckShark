@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 
+const LINK_CLASS =
+  'rounded-md px-3 py-3 text-sm font-semibold text-ink-2 hover:bg-paper-2 hover:text-ink'
+
 export function MobileNav({
   isLoggedIn,
   username,
@@ -77,7 +80,7 @@ export function MobileNav({
           setOpen((v) => !v)
         }}
         style={{ touchAction: 'manipulation' }}
-        className="active:bg-accent flex h-11 w-11 cursor-pointer items-center justify-center rounded-md"
+        className="text-ink active:bg-paper-2 flex h-11 w-11 cursor-pointer items-center justify-center rounded-md"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -101,31 +104,45 @@ export function MobileNav({
           {/* Backdrop */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           {/* Menu panel — fixed below header */}
-          <div className="bg-background border-border fixed top-[72px] right-0 left-0 z-50 border-b shadow-lg">
-            <nav className="container mx-auto flex flex-col px-4 py-2">
+          <div className="border-line bg-paper shadow-card fixed top-16 right-0 left-0 z-50 border-b">
+            <nav className="mx-auto flex max-w-[1280px] flex-col px-4 py-2">
               <Link
                 href="/decks"
                 onClick={() => setOpen(false)}
-                className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
+                className={LINK_CLASS}
               >
                 Browse decks
               </Link>
               <Link
+                href="/pulse"
+                onClick={() => setOpen(false)}
+                className={LINK_CLASS}
+              >
+                Market Pulse
+              </Link>
+              <Link
                 href="/want-lists"
                 onClick={() => setOpen(false)}
-                className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
+                className={LINK_CLASS}
               >
                 Want lists
+              </Link>
+              <Link
+                href="/community"
+                onClick={() => setOpen(false)}
+                className={LINK_CLASS}
+              >
+                Community
               </Link>
               {isLoggedIn && (
                 <Link
                   href="/trades"
                   onClick={() => setOpen(false)}
-                  className="hover:bg-accent flex items-center justify-between rounded-md px-3 py-3 text-sm font-medium"
+                  className="text-ink-2 hover:bg-paper-2 hover:text-ink flex items-center justify-between rounded-md px-3 py-3 text-sm font-semibold"
                 >
                   Trades
                   {pendingTradeCount > 0 && (
-                    <span className="bg-primary flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white">
+                    <span className="bg-terra text-paper flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold">
                       {pendingTradeCount > 9 ? '9+' : pendingTradeCount}
                     </span>
                   )}
@@ -135,7 +152,7 @@ export function MobileNav({
                 <Link
                   href="/dashboard"
                   onClick={() => setOpen(false)}
-                  className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
+                  className={LINK_CLASS}
                 >
                   Dashboard
                 </Link>
@@ -144,27 +161,39 @@ export function MobileNav({
                 <Link
                   href={`/profile/${username}`}
                   onClick={() => setOpen(false)}
-                  className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
+                  className={LINK_CLASS}
                 >
-                  Profile
+                  My profile
                 </Link>
               )}
               {isLoggedIn && (
                 <Link
                   href="/notifications"
                   onClick={() => setOpen(false)}
-                  className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
+                  className={LINK_CLASS}
                 >
                   Notifications
                 </Link>
               )}
-              <div className="my-1 border-t" />
+              <div className="border-line my-1 border-t" />
               {isLoggedIn ? (
                 <>
+                  <div className="px-3 py-2">
+                    <Button
+                      asChild
+                      variant="terra"
+                      size="sm"
+                      className="w-full"
+                    >
+                      <Link href="/decks/new" onClick={() => setOpen(false)}>
+                        List a deck
+                      </Link>
+                    </Button>
+                  </div>
                   <Link
                     href="/settings"
                     onClick={() => setOpen(false)}
-                    className="hover:bg-accent rounded-md px-3 py-3 text-sm font-medium"
+                    className={LINK_CLASS}
                   >
                     Settings
                   </Link>
@@ -176,19 +205,24 @@ export function MobileNav({
                       router.push('/')
                       router.refresh()
                     }}
-                    className="hover:bg-accent rounded-md px-3 py-3 text-left text-sm font-medium text-red-400"
+                    className="text-terra-deep hover:bg-paper-2 rounded-md px-3 py-3 text-left text-sm font-semibold"
                   >
                     Sign out
                   </button>
                 </>
               ) : (
                 <div className="flex gap-2 px-3 py-2">
-                  <Button asChild className="flex-1">
+                  <Button asChild variant="terra" size="sm" className="flex-1">
                     <Link href="/register" onClick={() => setOpen(false)}>
                       Get started
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" className="flex-1">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                  >
                     <Link href="/login" onClick={() => setOpen(false)}>
                       Sign in
                     </Link>
