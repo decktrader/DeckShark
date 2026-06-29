@@ -227,7 +227,7 @@ function ProfileTab({ user }: { user: User }) {
     <div className="flex flex-col gap-6 sm:flex-row">
       <div className="shrink-0 sm:sticky sm:top-24 sm:w-56 sm:self-start">
         <div className="space-y-3">
-          <div className="overflow-hidden rounded-xl border border-white/5 p-5">
+          <div className="border-line overflow-hidden rounded-xl border p-5">
             <div className="flex flex-col items-center">
               <AvatarUpload user={user} onUpload={setAvatarUrl} />
               <h2 className="mt-2 font-bold">{user.username}</h2>
@@ -239,7 +239,7 @@ function ProfileTab({ user }: { user: User }) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-white/5 p-4">
+          <div className="border-line rounded-xl border p-4">
             <div className="grid w-full grid-cols-3 text-center text-sm">
               <div>
                 <p className="font-bold">{user.completed_trades}</p>
@@ -277,7 +277,7 @@ function ProfileTab({ user }: { user: User }) {
             <CardContent className="space-y-4">
               {error && <p className="text-destructive text-sm">{error}</p>}
               {success && (
-                <p className="text-sm text-green-600">Profile updated.</p>
+                <p className="text-teal-deep text-sm">Profile updated.</p>
               )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -480,10 +480,10 @@ function NotificationsTab({ user }: { user: User }) {
   ]
 
   const colorMap: Record<string, { bg: string; text: string }> = {
-    violet: { bg: 'bg-violet-500/10', text: 'text-violet-400' },
-    emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-400' },
-    yellow: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' },
-    pink: { bg: 'bg-pink-500/10', text: 'text-pink-400' },
+    violet: { bg: 'bg-teal/15', text: 'text-teal-deep' },
+    emerald: { bg: 'bg-brass/15', text: 'text-brass-deep' },
+    yellow: { bg: 'bg-terra/15', text: 'text-terra-deep' },
+    pink: { bg: 'bg-paper-3', text: 'text-slate' },
   }
 
   return (
@@ -501,7 +501,7 @@ function NotificationsTab({ user }: { user: User }) {
             return (
               <label
                 key={item.key}
-                className="flex cursor-pointer items-center justify-between rounded-lg border border-white/5 px-4 py-3 transition-colors hover:bg-white/[2%]"
+                className="border-line hover:bg-paper-2 flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -540,7 +540,7 @@ function NotificationsTab({ user }: { user: User }) {
             {saving ? 'Saving...' : 'Save preferences'}
           </Button>
           {success && (
-            <p className="text-sm text-green-600">Preferences saved.</p>
+            <p className="text-teal-deep text-sm">Preferences saved.</p>
           )}
         </CardFooter>
       </Card>
@@ -553,7 +553,7 @@ function NotificationsTab({ user }: { user: User }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <label className="flex cursor-pointer items-center justify-between rounded-lg border border-white/5 px-4 py-3 transition-colors hover:bg-white/[2%]">
+          <label className="border-line hover:bg-paper-2 flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 transition-colors">
             <div>
               <p className="text-sm font-medium">Re-engagement emails</p>
               <p className="text-muted-foreground text-xs">
@@ -652,7 +652,7 @@ function AccountTab({ email, isOAuth }: { email: string; isOAuth: boolean }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-3 rounded-lg border border-white/5 px-4 py-3">
+          <div className="border-line flex items-center gap-3 rounded-lg border px-4 py-3">
             <svg
               className="text-muted-foreground h-4 w-4 shrink-0"
               fill="none"
@@ -683,7 +683,7 @@ function AccountTab({ email, isOAuth }: { email: string; isOAuth: boolean }) {
             <CardContent className="space-y-4">
               {error && <p className="text-destructive text-sm">{error}</p>}
               {success && (
-                <p className="text-sm text-green-600">Password updated.</p>
+                <p className="text-teal-deep text-sm">Password updated.</p>
               )}
               <div className="space-y-2">
                 <Label htmlFor="current-password">Current password</Label>

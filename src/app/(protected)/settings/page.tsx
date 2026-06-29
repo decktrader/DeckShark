@@ -18,7 +18,7 @@ export default async function SettingsPage() {
   const isOAuth = authUser.app_metadata?.provider !== 'email'
 
   return (
-    <main className="container mx-auto max-w-4xl px-4 py-8">
+    <main className="mx-auto max-w-[960px] px-[30px] pt-[26px] pb-[60px]">
       <h1 className="mb-6 text-3xl font-black tracking-tight">Settings</h1>
       <SettingsForm
         user={profile}

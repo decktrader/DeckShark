@@ -76,7 +76,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
   return (
     <div className="flex min-h-screen w-full">
       {/* Left branding panel */}
-      <div className="hidden flex-1 flex-col justify-center bg-gradient-to-br from-purple-900/20 via-black to-black p-12 lg:flex">
+      <div className="bg-navy text-paper hidden flex-1 flex-col justify-center p-12 lg:flex">
         <Link
           href="/"
           className="mb-8 flex items-center gap-2 text-2xl font-bold"
@@ -96,7 +96,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
           <br />
           <span className="text-primary">Set up your profile</span>
         </h2>
-        <p className="text-muted-foreground mt-4 max-w-sm text-sm leading-relaxed">
+        <p className="text-paper/70 mt-4 max-w-sm text-sm leading-relaxed">
           Your username and location help traders find you. After this, you can
           browse decks, list your own, and start proposing trades.
         </p>
