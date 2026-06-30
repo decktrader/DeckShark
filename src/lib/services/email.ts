@@ -73,16 +73,16 @@ function tradeUrl(tradeId: string) {
 function emailWrapper(body: string, userId?: string) {
   const unsubLink = userId ? unsubscribeUrl(userId) : `${APP_URL}/settings`
   return `
-    <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#1a1a1a">
-      <p style="font-size:18px;font-weight:700;margin:0 0 4px;color:#7c3aed">DeckShark<span style="color:#a78bfa">.gg</span></p>
-      <p style="font-size:12px;color:#888;margin:0 0 20px">Trade decks. Not cards.</p>
+    <div style="font-family:'Figtree','Helvetica Neue',Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#18222D;background:#F4F0E8">
+      <p style="font-family:'Space Grotesk','Helvetica Neue',Arial,sans-serif;font-size:19px;font-weight:700;margin:0 0 4px;color:#18222D">Deck<span style="color:#B45F42">Shark</span></p>
+      <p style="font-size:12px;color:#5B6675;margin:0 0 20px">Trade decks. Not cards.</p>
       ${body}
-      <hr style="border:none;border-top:1px solid #e5e5e5;margin:32px 0"/>
-      <p style="font-size:12px;color:#888">
+      <hr style="border:none;border-top:1px solid #DAD2C2;margin:32px 0"/>
+      <p style="font-size:12px;color:#5B6675">
         You're receiving this because you have notifications enabled on DeckShark.
-        <a href="${APP_URL}/settings" style="color:#888">Manage preferences</a>
-        &nbsp;·&nbsp;
-        <a href="${unsubLink}" style="color:#888">Unsubscribe</a>
+        <a href="${APP_URL}/settings" style="color:#5B6675">Manage preferences</a>
+        &nbsp;&middot;&nbsp;
+        <a href="${unsubLink}" style="color:#5B6675">Unsubscribe</a>
       </p>
     </div>
   `
@@ -90,17 +90,17 @@ function emailWrapper(body: string, userId?: string) {
 
 function deckList(decks: DeckSummary[]) {
   if (!decks.length)
-    return '<p style="color:#888;font-size:13px">No decks listed</p>'
+    return '<p style="color:#5B6675;font-size:13px">No decks listed</p>'
   return `<ul style="margin:4px 0;padding-left:18px">${decks
     .map(
       (d) =>
-        `<li style="margin:3px 0"><strong>${d.name}</strong>${d.commander_name ? ` — ${d.commander_name}` : ''} <span style="color:#888;font-size:12px;text-transform:capitalize">(${d.format})</span></li>`,
+        `<li style="margin:3px 0"><strong>${d.name}</strong>${d.commander_name ? ` &middot; ${d.commander_name}` : ''} <span style="color:#5B6675;font-size:12px;text-transform:capitalize">(${d.format})</span></li>`,
     )
     .join('')}</ul>`
 }
 
 function ctaButton(href: string, label: string) {
-  return `<a href="${href}" style="display:inline-block;background:#18181b;color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;margin-top:16px">${label}</a>`
+  return `<a href="${href}" style="display:inline-block;background:#B45F42;color:#F4F0E8;text-decoration:none;padding:11px 22px;border-radius:5px;font-family:'Space Grotesk','Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:700;margin-top:16px">${label}</a>`
 }
 
 // ─── Trade Proposed ──────────────────────────────────────────────────────────
@@ -127,15 +127,15 @@ export async function sendTradeProposedEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">New trade proposal</p>
-    <p style="color:#555;margin:0 0 16px">Hi ${receiverUsername},</p>
-    <p style="color:#555;margin:0 0 8px">
+    <p style="color:#4A5562;margin:0 0 16px">Hi ${receiverUsername},</p>
+    <p style="color:#4A5562;margin:0 0 8px">
       <strong>${proposerUsername}</strong> wants to trade decks with you.
     </p>
     <p style="font-weight:600;margin:16px 0 4px">They're offering:</p>
     ${deckList(proposerDecks)}
     <p style="font-weight:600;margin:16px 0 4px">In exchange for:</p>
     ${deckList(receiverDecks)}
-    ${message ? `<p style="background:#f4f4f5;border-radius:6px;padding:12px;font-size:14px;color:#555;margin:16px 0 0">"${message}"</p>` : ''}
+    ${message ? `<p style="background:#ECE6D9;border-radius:6px;padding:12px;font-size:14px;color:#4A5562;margin:16px 0 0">"${message}"</p>` : ''}
     ${ctaButton(tradeUrl(tradeId), 'View proposal')}
   `,
     userId,
@@ -170,8 +170,8 @@ export async function sendTradeAcceptedEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">Trade accepted!</p>
-    <p style="color:#555;margin:0 0 16px">Hi ${proposerUsername},</p>
-    <p style="color:#555;margin:0 0 8px">
+    <p style="color:#4A5562;margin:0 0 16px">Hi ${proposerUsername},</p>
+    <p style="color:#4A5562;margin:0 0 8px">
       <strong>${receiverUsername}</strong> accepted your trade proposal.
       Share your contact info to arrange the meetup.
     </p>
@@ -209,8 +209,8 @@ export async function sendTradeDeclinedEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">Trade declined</p>
-    <p style="color:#555;margin:0 0 16px">Hi ${proposerUsername},</p>
-    <p style="color:#555;margin:0 0 16px">
+    <p style="color:#4A5562;margin:0 0 16px">Hi ${proposerUsername},</p>
+    <p style="color:#4A5562;margin:0 0 16px">
       <strong>${receiverUsername}</strong> declined your trade proposal.
       Browse other available decks to find your next trade.
     </p>
@@ -250,15 +250,15 @@ export async function sendTradeCounteredEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">Counter-offer received</p>
-    <p style="color:#555;margin:0 0 16px">Hi ${recipientUsername},</p>
-    <p style="color:#555;margin:0 0 8px">
+    <p style="color:#4A5562;margin:0 0 16px">Hi ${recipientUsername},</p>
+    <p style="color:#4A5562;margin:0 0 8px">
       <strong>${counterByUsername}</strong> sent a counter-offer on your trade.
     </p>
     <p style="font-weight:600;margin:16px 0 4px">They're now offering:</p>
     ${deckList(counterByDecks)}
     <p style="font-weight:600;margin:16px 0 4px">In exchange for:</p>
     ${deckList(recipientDecks)}
-    ${message ? `<p style="background:#f4f4f5;border-radius:6px;padding:12px;font-size:14px;color:#555;margin:16px 0 0">"${message}"</p>` : ''}
+    ${message ? `<p style="background:#ECE6D9;border-radius:6px;padding:12px;font-size:14px;color:#4A5562;margin:16px 0 0">"${message}"</p>` : ''}
     ${ctaButton(tradeUrl(tradeId), 'View counter-offer')}
   `,
     userId,
@@ -293,8 +293,8 @@ export async function sendTradeCompletedEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">Trade complete!</p>
-    <p style="color:#555;margin:0 0 16px">Hi ${username},</p>
-    <p style="color:#555;margin:0 0 8px">
+    <p style="color:#4A5562;margin:0 0 16px">Hi ${username},</p>
+    <p style="color:#4A5562;margin:0 0 8px">
       Your trade with <strong>${otherUsername}</strong> is complete.
       Don't forget to leave a review!
     </p>
@@ -338,19 +338,19 @@ export async function sendWantListMatchEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">A deck matching your want list was just listed</p>
-    <p style="color:#555;margin:0 0 16px">Hi ${username},</p>
-    <p style="color:#555;margin:0 0 8px">
+    <p style="color:#4A5562;margin:0 0 16px">Hi ${username},</p>
+    <p style="color:#4A5562;margin:0 0 8px">
       A new deck matching your want list <strong>"${wantListTitle}"</strong> is now available:
     </p>
-    <div style="background:#f4f4f5;border-radius:6px;padding:12px;margin:0 0 16px">
+    <div style="background:#ECE6D9;border-radius:6px;padding:12px;margin:0 0 16px">
       <p style="margin:0;font-weight:600">${deckName}</p>
-      <p style="margin:4px 0 0;font-size:14px;color:#555">by ${deckOwnerUsername}</p>
+      <p style="margin:4px 0 0;font-size:14px;color:#4A5562">by ${deckOwnerUsername}</p>
     </div>
     <div style="display:flex;gap:8px">
       ${ctaButton(`${APP_URL}/decks/${deckId}`, 'View deck')}
     </div>
     <p style="margin-top:12px">
-      <a href="${APP_URL}/want-lists/${wantListId}" style="font-size:13px;color:#555">View your want list</a>
+      <a href="${APP_URL}/want-lists/${wantListId}" style="font-size:13px;color:#4A5562">View your want list</a>
     </p>
   `,
     userId,
@@ -373,16 +373,16 @@ function featuredDecksHtml(decks: FeaturedDeckPreview[]) {
   const cards = decks
     .map(
       (d) => `
-      <div style="background:#f4f4f5;border-radius:8px;padding:12px;margin:0 0 8px">
+      <div style="background:#ECE6D9;border-radius:8px;padding:12px;margin:0 0 8px">
         <p style="margin:0;font-weight:600;font-size:14px">${d.name}</p>
-        <p style="margin:2px 0 0;font-size:12px;color:#555">
+        <p style="margin:2px 0 0;font-size:12px;color:#4A5562">
           ${d.commander ? `${d.commander} · ` : ''}${d.format}${d.value ? ` · ${d.value}` : ''}${d.city ? ` · ${d.city}` : ''}
         </p>
       </div>`,
     )
     .join('')
   return `
-    <p style="font-weight:600;margin:20px 0 8px;font-size:14px;color:#18181b">Recently listed for trade:</p>
+    <p style="font-weight:600;margin:20px 0 8px;font-size:14px;color:#18222D">Recently listed for trade:</p>
     ${cards}
   `
 }
@@ -404,14 +404,14 @@ export async function sendReEngagementEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">Your decks are waiting</p>
-    <p style="color:#555;margin:0 0 16px">Hi ${username},</p>
-    <p style="color:#555;margin:0 0 8px">
-      It's been a while since you visited DeckShark. Traders${cityText} are browsing — come see what's new.
+    <p style="color:#4A5562;margin:0 0 16px">Hi ${username},</p>
+    <p style="color:#4A5562;margin:0 0 8px">
+      It's been a while since you visited DeckShark. Traders${cityText} are browsing, come see what's new.
     </p>
     ${featuredDecksHtml(featuredDecks)}
     ${ctaButton(`${APP_URL}/decks`, 'Browse decks near you')}
-    <p style="margin-top:16px;font-size:13px;color:#888">
-      Have decks to trade? <a href="${APP_URL}/decks/new" style="color:#7c3aed">List one now</a> — it takes 2 minutes.
+    <p style="margin-top:16px;font-size:13px;color:#5B6675">
+      Have decks to trade? <a href="${APP_URL}/decks/new" style="color:#9A4E35">List one now</a>, it takes 2 minutes.
     </p>
   `,
     userId,
@@ -438,10 +438,10 @@ export async function sendInterestThresholdEmail({
 }) {
   const html = emailWrapper(
     `
-    <p style="font-size:20px;font-weight:700;margin:0 0 8px">🔥 ${interestCount} trader${interestCount !== 1 ? 's' : ''} interested in your deck</p>
-    <p style="color:#555;margin:0 0 8px">Hi ${username},</p>
-    <p style="color:#555;margin:0 0 16px">
-      <strong>${interestCount} people</strong> have expressed interest in your deck <strong>${deckName}</strong>. They'd trade for it if shipping were available — stay tuned!
+    <p style="font-size:20px;font-weight:700;margin:0 0 8px">${interestCount} trader${interestCount !== 1 ? 's' : ''} interested in your deck</p>
+    <p style="color:#4A5562;margin:0 0 8px">Hi ${username},</p>
+    <p style="color:#4A5562;margin:0 0 16px">
+      <strong>${interestCount} people</strong> have expressed interest in your deck <strong>${deckName}</strong>. They'd trade for it if shipping were available, stay tuned!
     </p>
     ${ctaButton(`${APP_URL}/decks/${deckId}`, 'View your deck')}
   `,
@@ -480,14 +480,14 @@ export async function sendTradeMatchEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">Trade match found</p>
-    <p style="color:#555;margin:0 0 8px">Hi ${username},</p>
-    <p style="color:#555;margin:0 0 16px">
+    <p style="color:#4A5562;margin:0 0 8px">Hi ${username},</p>
+    <p style="color:#4A5562;margin:0 0 16px">
       We found a <strong>${matchScore}% match</strong> for your deck <strong>${yourDeckName}</strong>:
     </p>
-    <div style="background:#f4f4f5;border-radius:8px;padding:16px;margin:0 0 16px">
+    <div style="background:#ECE6D9;border-radius:8px;padding:16px;margin:0 0 16px">
       <p style="margin:0;font-weight:700;font-size:16px">${matchedDeckName}</p>
-      <p style="margin:4px 0 0;font-size:14px;color:#555">by ${matchedDeckOwner}</p>
-      <p style="margin:8px 0 0;font-size:13px;color:#888">${diffText}</p>
+      <p style="margin:4px 0 0;font-size:14px;color:#4A5562">by ${matchedDeckOwner}</p>
+      <p style="margin:8px 0 0;font-size:13px;color:#5B6675">${diffText}</p>
     </div>
     ${ctaButton(`${APP_URL}/decks/${matchedDeckId}`, 'View deck & propose trade')}
   `,
@@ -525,22 +525,22 @@ export async function sendValueUpdateEmail({
 }) {
   const changeText =
     totalChange > 0
-      ? `<span style="color:#22c55e">+$${Math.round(totalChange / 100)}</span>`
+      ? `<span style="color:#2F605C">+$${Math.round(totalChange / 100)}</span>`
       : totalChange < 0
-        ? `<span style="color:#ef4444">-$${Math.round(Math.abs(totalChange) / 100)}</span>`
-        : '<span style="color:#888">No change</span>'
+        ? `<span style="color:#9A4E35">-$${Math.round(Math.abs(totalChange) / 100)}</span>`
+        : '<span style="color:#5B6675">No change</span>'
 
   const deckRows = deckSummaries
     .slice(0, 5)
     .map((d) => {
       const ch =
         d.change > 0
-          ? `<span style="color:#22c55e">+$${Math.round(d.change / 100)}</span>`
+          ? `<span style="color:#2F605C">+$${Math.round(d.change / 100)}</span>`
           : d.change < 0
-            ? `<span style="color:#ef4444">-$${Math.round(Math.abs(d.change) / 100)}</span>`
+            ? `<span style="color:#9A4E35">-$${Math.round(Math.abs(d.change) / 100)}</span>`
             : ''
       return `<tr>
-        <td style="padding:6px 0;font-size:14px"><a href="${APP_URL}/decks/${d.id}" style="color:#7c3aed;text-decoration:none">${d.name}</a></td>
+        <td style="padding:6px 0;font-size:14px"><a href="${APP_URL}/decks/${d.id}" style="color:#9A4E35;text-decoration:none">${d.name}</a></td>
         <td style="padding:6px 8px;font-size:14px;text-align:right">$${Math.round(d.value / 100)}</td>
         <td style="padding:6px 0;font-size:13px;text-align:right">${ch}</td>
       </tr>`
@@ -550,17 +550,17 @@ export async function sendValueUpdateEmail({
   const html = emailWrapper(
     `
     <p style="font-size:20px;font-weight:700;margin:0 0 8px">Your collection value</p>
-    <p style="color:#555;margin:0 0 16px">Hi ${username},</p>
-    <div style="background:#18181b;border-radius:12px;padding:20px;margin:0 0 16px;text-align:center">
+    <p style="color:#4A5562;margin:0 0 16px">Hi ${username},</p>
+    <div style="background:#18222D;border-radius:12px;padding:20px;margin:0 0 16px;text-align:center">
       <p style="font-size:32px;font-weight:800;color:#fff;margin:0">$${Math.round(totalValue / 100)}</p>
-      <p style="font-size:14px;color:#a1a1aa;margin:4px 0 0">Collection value ${changeText} this week</p>
+      <p style="font-size:14px;color:#8FBFB8;margin:4px 0 0">Collection value ${changeText} this week</p>
     </div>
     <table style="width:100%;border-collapse:collapse">
       <thead>
-        <tr style="border-bottom:1px solid #e5e5e5">
-          <th style="padding:6px 0;font-size:12px;color:#888;text-align:left">Deck</th>
-          <th style="padding:6px 8px;font-size:12px;color:#888;text-align:right">Value</th>
-          <th style="padding:6px 0;font-size:12px;color:#888;text-align:right">Change</th>
+        <tr style="border-bottom:1px solid #DAD2C2">
+          <th style="padding:6px 0;font-size:12px;color:#5B6675;text-align:left">Deck</th>
+          <th style="padding:6px 8px;font-size:12px;color:#5B6675;text-align:right">Value</th>
+          <th style="padding:6px 0;font-size:12px;color:#5B6675;text-align:right">Change</th>
         </tr>
       </thead>
       <tbody>${deckRows}</tbody>
