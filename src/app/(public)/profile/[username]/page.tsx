@@ -158,11 +158,13 @@ export default async function PublicProfilePage({
             </div>
           </div>
 
-          <Button asChild variant="terra" className="w-full">
-            <Link href={`/trades/new?receiver=${user.username}`}>
-              Propose a trade
-            </Link>
-          </Button>
+          {decks.length > 0 && (
+            <Button asChild variant="terra" className="w-full">
+              <Link href={`/trades/new?deckId=${decks[0].id}`}>
+                Propose a trade
+              </Link>
+            </Button>
+          )}
           <div className="text-center">
             <ReportButton targetType="user" targetId={user.id} />
           </div>
