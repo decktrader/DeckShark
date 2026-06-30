@@ -44,9 +44,7 @@ export function Footer() {
             title="Browse"
             links={[
               ['All decks', '/decks'],
-              ["What's moving", '/decks'],
               ['Want lists', '/want-lists'],
-              ['By city', '/decks'],
             ]}
           />
           <FooterCol
@@ -55,7 +53,6 @@ export function Footer() {
               ['Market Pulse', '/pulse'],
               ['Active traders', '/community'],
               ['List a deck', '/decks/new'],
-              ['How trading works', '/about'],
             ]}
           />
           <div>
