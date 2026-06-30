@@ -343,11 +343,13 @@ export default async function HomePage() {
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Button asChild variant="navy">
-              <Link href="/decks">Enter the Harbour →</Link>
+              <Link href="/decks">Browse decks →</Link>
             </Button>
             <Button asChild variant="brass">
               <Link href={isLoggedIn ? '/decks/new' : '/register'}>
-                List your first deck
+                {isLoggedIn && (heroUserData?.deckCount ?? 0) > 0
+                  ? 'List a deck'
+                  : 'List your first deck'}
               </Link>
             </Button>
           </div>
